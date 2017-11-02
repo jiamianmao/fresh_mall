@@ -1,0 +1,539 @@
+<template>
+  <transition name='slide'>
+    <div class="container">
+      <x-title :save='!complete' @save='save'>{{title}}</x-title>
+
+      <div class="main_wwrapper"  v-show='!complete'>
+        <main>
+          <h3 class="titlename vux-1px-b">企业基本信息</h3>
+          <ul class=''>
+            <li class='item vux-1px-b'>
+              <div class="left">公司全称</div>
+              <div class="right">
+                <input type='text' placeholder='请输入营业执照上的公司全称' />
+              </div>
+            </li>
+            <li class='item vux-1px-b'>
+              <div class="left">营业执照注册号</div>
+              <div class="right">
+                <input type='text' placeholder='输入纳税识别号' />
+              </div>
+            </li>
+            <li class='item vux-1px-b'>
+              <div class="left">银行开户名</div>
+              <div class="right">
+                <input type='text' />
+              </div>
+            </li>
+            <li class='item vux-1px-b'>
+              <div class="left">开户行所在城市</div>
+              <div class="right">
+                <input type='text' />
+              </div>
+            </li>
+            <li class='item vux-1px-b'>
+              <div class="left">开户银行支行名称</div>
+              <div class="right">
+                <input type='text' />
+              </div>
+            </li>
+            <li class='item vux-1px-b'>
+              <div class="left">公司对公账号</div>
+              <div class="right">
+                <input type='tel' />
+              </div>
+            </li>
+            <li class='upload'>
+              <div class="top">
+                <div class="left">请上传营业执照照片</div>
+                <div class="right"  @click='arrowToggle'>*营业执照上传要求
+                  <svg class="arrow" aria-hidden="true" ref='arrow'>
+                    <use xlink:href="#icon-arrow-b"></use>
+                  </svg>
+                </div>
+              </div>
+              <div class="wrapper">
+                <div class="slide_box" v-show='slideDown'>
+                  <p>1.证件有效期限在30天以上，有效期在30天以内不可申请</p>
+                  <p>2.原件拍摄，照片不得涂改，所有图片需体现出证件的实物特征，确保完整水印、文字、图片、证件号码清晰可辨，拍照时相机或手机对焦在证件上（在手机屏幕上对着画面中的证件按一下），使证件文字清晰，这样您的认证可以尽快通过</p>
+                  <p>3.请上传营业执照正本、副本</p>
+                </div>
+                <div class="uploader-container">
+                  <div class="box">
+                    <div class="img" v-if='img1'>
+                      <img ref='img1'>
+                      <img src="../../../assets/my/close.png" class='close' @click='close(1)'>
+                    </div>
+                    <van-uploader class='upload_item' :after-read="logContent" v-else>
+                      <img :src="url">
+                    </van-uploader>
+                  </div>
+                  <div class="box two">
+                    <div class="img" v-if='img2'>
+                      <img ref='img2' v-show='img2'>
+                      <img src="../../../assets/my/close.png" class='close' @click='close(2)'>
+                    </div>
+                    <van-uploader class='upload_item' :after-read="logContent" v-else>
+                      <img :src="url">
+                    </van-uploader>
+                  </div>
+                </div>
+              </div>
+              <div class="placeholder vux-1px-b"></div>
+            </li>
+            <li class='upload'>
+              <div class="top">
+                <div class="left">请上传门店照片</div>
+              </div>
+              <div class="wrapper">
+                <div class="slide_box">
+                  <p>门店照片上传要求：要求照片展现门店正面全貌，门店名称等信息清晰完整</p>
+                </div>
+                <div class="uploader-container">
+                  <div class="box">
+                    <div class="img" v-if='img3'>
+                      <img ref='img3'>
+                      <img src="../../../assets/my/close.png" class='close' @click='close(3)'>
+                    </div>
+                    <van-uploader class='upload_item' :after-read="store" v-else>
+                      <img :src="url">
+                    </van-uploader>
+                  </div>
+                </div>
+              </div>
+              <div class="placeholder vux-1px-b"></div>
+            </li>
+            <li class='item'>
+              <div class="left">认证申请人真实姓名</div>
+              <div class="right">
+                <input type='text' placeholder='申请人真实姓名' />
+              </div>
+              <div class="placeholder vux-1px-b"></div>
+            </li>
+            <li class='item'>
+              <div class="left">认证申请人身份证号</div>
+              <div class="right">
+                <input type='text' placeholder='申请人身份证号' />
+              </div>
+            </li>
+          </ul>
+          <h3 class="titlename vux-1px-b">增值服务信息</h3>
+          <div class="select_wrapper">
+            <div class="select_item">
+              <div class="title vux-1px-b">
+                <span>1</span>
+                <p>您是否愿意成为平台在售门店？</p>
+              </div>
+              <div class="content">
+                <p @click='select(1, 1)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select1 === 1'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>是，我已阅读<a href="#">《在售门店规则》</a></span>
+                </p>
+                <p @click='select(1, 2)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select1 === 2'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>否</span>
+                </p>
+              </div>
+            </div>
+            <div class="select_item">
+              <div class="title vux-1px-b">
+                <span>2</span>
+                <p>您是否愿意成为平台自提门店？</p>
+              </div>
+              <div class="content">
+                <p @click='select(2, 1)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select2 === 1'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>是，我已阅读<a href="#">《自提门店规则》</a></span>
+                </p>
+                <p @click='select(2, 2)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select2 === 2'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>否</span>
+                </p>
+              </div>
+            </div>
+            <div class="select_item">
+              <div class="title vux-1px-b">
+                <span>3</span>
+                <p>您是否愿意代收生鲜产品？</p>
+              </div>
+              <div class="content">
+                <p @click='select(3, 1)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select3 === 1'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>是，<router-link to="/my/qualification/fresh">点击上传</router-link>生鲜存储资质</span>
+                </p>
+                <p @click='select(3, 2)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select3 === 2'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>否</span>
+                </p>
+              </div>
+            </div>
+            <div class="select_item">
+              <div class="title vux-1px-b">
+                <span>4</span>
+                <p>您是否愿意配送生鲜产品？</p>
+              </div>
+              <div class="content">
+                <p @click='select(4, 1)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select4 === 1'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>是，配送费根据自己公示规则收取</span>
+                </p>
+                <p @click='select(4, 2)'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='select4 === 2'>
+                  <img src="../../../assets/selectAdd/select.png" v-else>
+                  <span>否</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <footer>
+          <button @click='submit'>提交审核</button>
+          <p>请在48小时内到“我的-资质认证”页面查看审核结果，若审核成功，您还需到此查看是否需要交纳保证金。</p>
+          <p><a href="#">《保证金管理制度》</a></p>
+        </footer>
+      </div>
+
+      <div class="status">
+        <div class="item_wrapper">
+          <div class="item"></div>
+          <div class="item"></div>
+          <div class="item"></div>
+        </div>
+      </div>
+
+      <router-view></router-view>
+    </div>
+  </transition>
+</template>
+<script>
+  import XTitle from '@/components/x-title/x-title'
+  import { Uploader } from 'vant'
+  export default {
+    data () {
+      return {
+        complete: true,
+        title: '',
+        url: require('../../../assets/my/uploadicon.png'),
+        slideDown: false,
+        img1: false,
+        img2: false,
+        img3: false,
+        select1: null,
+        select2: null,
+        select3: null,
+        select4: null
+      }
+    },
+    created () {
+    },
+    methods: {
+      logContent (file) {
+        if (!this.$refs.img1) {
+          this.img1 = true
+          this.$nextTick(() => {
+            this.$refs.img1.setAttribute('src', file.content)
+          })
+        } else {
+          this.img2 = true
+          this.$nextTick(() => {
+            this.$refs.img2.setAttribute('src', file.content)
+          })
+        }
+      },
+      store (file) {
+        this.img3 = true
+        this.$nextTick(() => {
+          this.$refs.img3.setAttribute('src', file.content)
+        })
+      },
+      arrowToggle () {
+        this.slideDown = !this.slideDown
+        this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
+      },
+      close (n) {
+        if (n === 1) {
+          this.$refs.img1.setAttribute('src', '')
+          this.img1 = false
+        } else if (n === 2) {
+          this.$refs.img2.setAttribute('src', '')
+          this.img2 = false
+        } else {
+          this.$refs.img3.setAttribute('src', '')
+          this.img3 = false
+        }
+      },
+      select (n, m) {
+        if (n === 1) {
+          if (m === 1) {
+            this.select1 = 1
+          } else {
+            this.select1 = 2
+          }
+        } else if (n === 2) {
+          if (m === 1) {
+            this.select2 = 1
+          } else {
+            this.select2 = 2
+          }
+        } else if (n === 3) {
+          if (m === 1) {
+            this.select3 = 1
+          } else {
+            this.select3 = 2
+          }
+        } else {
+          if (m === 1) {
+            this.select4 = 1
+          } else {
+            this.select4 = 2
+          }
+        }
+      },
+      save () {
+        console.log('save')
+      },
+      submit () {
+        this.$router.push('/my/qualification/sure')
+      }
+    },
+    components: {
+      XTitle,
+      Uploader
+    }
+  }
+</script>
+<style lang="less" scoped>
+  @import '~common/less/variable.less';
+  .container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    min-height: 100vh;
+    background: #fff;
+    z-index: 1;
+    .main_wwrapper{
+      width: 100%;
+      height: calc(~"100vh - 50px");
+      main{
+        width: 100%;
+        h3{
+          position: relative;
+          padding-left: 36px;
+          height: 52px;
+          line-height: 52px;
+          letter-spacing: 1px;
+          background: #f4f4f4;
+          font-size: @font-size-medium-x;
+          &:before{
+            content: '';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translate3d(0, -50%, 0);
+            height: 20px;
+            width: 7px;
+            background: @color;
+          }
+        }
+        ul{
+          width: 100%;
+          padding-left: 15px;
+          font-size: @font-size-medium;
+          color: #333;
+          .item, .top{
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            display: flex;
+            flex-flow: row nowrap;
+            position: relative;
+            .right{
+              padding-right: 15px;
+              flex: 1;
+              text-align: right;
+              input{
+                width: 100%;
+                text-align: right;
+                height: 90%;
+                border: 0;
+                vertical-align: middle;
+              }
+              .arrow{
+                width: 18px;
+                height: 18px;
+                fill: @active-color;
+                vertical-align: -.3em;
+                overflow: hidden;
+              }
+            }
+            .placeholder{
+              position: absolute;
+              bottom: 0;
+              left: -15px;
+              right: 0;
+              height: 1px;
+            }
+          }
+          .upload{
+            width: 100%;
+            position: relative;
+            padding-bottom: 10px;
+            .top{
+              .right{
+                color: @color;
+              }
+            }
+            .wrapper{
+              padding-right: 15px;
+              width: 100%;
+              .slide_box{
+                width: 100%;
+                padding: 12px;
+                color: #666;
+                font-size: @font-size-small;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-between;
+                background: #f4f4f4;
+                p{
+                  line-height: 18px;
+                }
+              }
+              .uploader-container{
+                margin-top: 10px;
+                width: 100%;
+                display: flex;
+                flex-flow: row nowrap;
+                position: relative;
+                .box{
+                  position: relative;
+                  .close{
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    transform: translate3d(40%, -40%, 0);
+                    width: 20px;
+                    height: 20px;
+                  }
+                }
+                img{
+                  width: 82px;
+                  height: 82px;
+                }
+                .two{
+                  margin-left: 10px;
+                }
+              }
+            }
+            .placeholder{
+              position: absolute;
+              bottom: 0;
+              left: -15px;
+              right: 0;
+              height: 1px;
+            }
+          }
+        }
+        .select_wrapper{
+          width: 100%;
+          padding-bottom: 35px;
+          .select_item{
+            padding: 40px 15px 0;
+            width: 100%;
+            height: 176px;
+            display: flex;
+            flex-flow: column nowrap;
+            .title{
+              height: 52px;
+              width: 100%;
+              span{
+                color: #fff;
+                background: @color;
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                text-align: center;
+                line-height: 23px;
+              }
+              p{
+                margin-top: 10px;
+                padding-left: 10px;
+                font-size: @font-size-medium;
+                font-weight: bold;
+              }
+            }
+            .content{
+              flex: 1;
+              display: flex;
+              flex-flow: column nowrap;
+              justify-content: flex-end;
+              color: #666;
+              p~p{
+                margin-top: 10px;
+              }
+              img{
+                width: 18px;
+                height: 18px;
+                vertical-align: -.2em;
+                margin-right: 10px;
+              }
+              a{
+                color: @color;
+                border-bottom: 1px solid @color;
+              }
+            }
+          }
+        }
+      }
+      footer{
+        width: 100%;
+        height: 284px;
+        background: #f4f4f4;
+        padding: 40px 20px 0 27px;
+        button{
+          width: 95%;
+          height: 49px;
+          color: #fff;
+          background: @color;
+          letter-spacing: 4px;
+          text-align: center;
+          line-height: 49px;
+          border: 0;
+          margin-bottom: 20px;
+        }
+        p{
+          line-height: 22px;
+          font-size: @font-size-medium;
+          color: #333;
+          &~p{
+            margin-top: 10px;
+            a{
+              color: @color;
+              border-bottom: 1px solid @color;
+            }
+          }
+        }
+      }
+    }
+    .status{
+      width: 100%;
+      height: calc(~"100vh - 50px");
+      background: #f4f4f4;
+    }
+  }
+  .slide-enter-active, .slide-leave-active{
+    transition: all .5s;
+  }
+  .slide-enter, .slide-leave-to{
+    transform: translate3d(100%, 0, 0);
+  }
+</style>

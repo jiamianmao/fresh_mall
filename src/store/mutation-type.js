@@ -1,0 +1,1 @@
+export const SET_START_PAGE = 'SET_START_PAGE'
