@@ -151,9 +151,10 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 200vh;
+    min-height: 100vh;
     right: 0;
     background: #fff;
+    z-index: 1;
     main{
       width: 100%;
       .know{

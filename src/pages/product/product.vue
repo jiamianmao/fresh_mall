@@ -1,7 +1,7 @@
 <template>
   <scroll class='outBox' ref='scrollCom' :data='arr' :probeType='3' :pulldown='true' :listenScroll='true' @scroll='scroll' @pullDown='pullEnd'>
 
-    <div class='product_wrapper' ref='productWrapper'>
+    <div class='product_wrapper' ref='productWrapper' @touchmove.prevent>
 
       <div class="placeholder">
         <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
@@ -16,7 +16,7 @@
         <div class="desc">
           <div class="sells_volume">
             <div class="brand">关注品牌</div>
-            <div class="sells">销量: 260件</div>
+            <div class="sells"><span>库存: 400件</span><span>销量: 260件</span></div>
           </div>
           <div class="content">
             <h3 class="name">中天羊业甘肃民勤羔羊肉片</h3>
@@ -169,8 +169,8 @@
           </div>
           <div class="right">
             <h3>中天羊中天羊中天羊中天羊天羊中天羊天羊中天羊天羊中天羊天羊中天羊</h3>
-            <p>300g/盒</p>
-            <strong>¥29.9</strong>
+            <p class='middle'>300g/盒</p>
+            <p class='last'><strong>¥29.9</strong><span>库存: 29件</span></p>
           </div>
         </div>
         <div class="num">
@@ -385,6 +385,9 @@
             .sells{
               color: #a0a0a0;
               letter-spacing: 1px;
+              span:first-child{
+                margin-right: 8px;
+              }
             }
           }
           .content{
@@ -619,7 +622,7 @@
         }
       }
       .mask{
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
@@ -715,9 +718,18 @@
             letter-spacing: 1px;
             .no-wrap
           }
-          p{
+          .middle{
             color: #adadad;
             margin: 10px 0;
+          }
+          .last{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            span{
+              color: #adadad;
+              font-size: @font-size-medium;
+            }
           }
         }
       }

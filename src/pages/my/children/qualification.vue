@@ -1,7 +1,7 @@
 <template>
   <transition name='slide'>
     <div class="container">
-      <x-title :save='!complete' @save='save'>{{title}}</x-title>
+      <x-title :text='text' @rightClick='save'>{{title}}</x-title>
 
       <div class="main_wwrapper"  v-show='!complete'>
         <main>
@@ -200,11 +200,39 @@
         </footer>
       </div>
 
-      <div class="status">
-        <div class="item_wrapper">
-          <div class="item"></div>
-          <div class="item"></div>
-          <div class="item"></div>
+      <div class="status" v-show='complete'>
+        <div class="box">
+          <div class="item_wrapper">
+            <div class="item" :class='{active: 1 <= status}'>
+              <img src="../../../assets/my/status_1.png">
+              <p>提交审核</p>
+            </div>
+            <div class="placeholder" :class='{active: 2 <= status}'></div>
+            <div class="item" :class='{active: 2 <= status}'>
+              <img src="../../../assets/my/status_2.png">
+              <p>正在审核</p>
+            </div>
+            <div class="placeholder" :class='{active: 3 <= status}'></div>
+            <div class="item" :class='{active: 3 <= status}'>
+              <img src="../../../assets/my/status_3.png">
+              <p>审核成功</p>
+            </div>
+          </div>
+          <div class="content">
+            <div class="text_wrapper"  v-show='status < 3'>
+              <p>您可以继续浏览商品，把心仪的商品先收藏</p>
+              <a href="#">申请成为线下门店面免交保证金</a>
+            </div>
+            <div class="text_wrapper"  v-show='status < 3'>
+              <p>恭喜您审核成功，缴纳保证金即可购买</p>
+              <a href="#">缴纳保证金</a><br>
+              <a href="#">保证金管理制度</a>
+            </div>
+            <div class="text_wrapper"  v-show='status < 5'>
+              <p>请您仔细阅读资质认证的信息填写要求</p>
+              <p>修改并重新提交申请</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -218,8 +246,8 @@
   export default {
     data () {
       return {
-        complete: true,
-        title: '',
+        complete: false, // 是否完成来决定显示哪个
+        title: '资质认证',
         url: require('../../../assets/my/uploadicon.png'),
         slideDown: false,
         img1: false,
@@ -228,10 +256,22 @@
         select1: null,
         select2: null,
         select3: null,
-        select4: null
+        select4: null,
+        status: 3,
+        success: null,
+        text: '保存'
       }
     },
     created () {
+      this.$http.get('1').then(res => {
+        if (status) {
+          // this.complete = false
+          // this.title = '资质认证'
+        } else {
+          this.complete = true
+          this.title = '审核状态'
+        }
+      })
     },
     methods: {
       logContent (file) {
@@ -528,6 +568,75 @@
       width: 100%;
       height: calc(~"100vh - 50px");
       background: #f4f4f4;
+      padding-top: 27.907vh;
+      .box{
+        height: 216px;
+        width: 100vw;
+        .item_wrapper{
+          width: 100%;
+          height: 45px;
+          padding: 0 20px;
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: center;
+          justify-content: space-around;
+          .item{
+            width: 45px;
+            height: 45px;
+            background: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            p{
+              position: absolute;
+              bottom: -20px;
+              left: 50%;
+              transform: translate3d(-50%, 0, 0);
+              width: 60px;
+              font-size: @font-size-small;
+              text-align: center;
+              color: #999;
+            }
+            img{
+              width: 19px;
+              height: 19px;
+            }
+            &.active{
+              background: @color;
+              p{
+                color: @color;
+              }
+            }
+          }
+          .placeholder{
+            width: 65px;
+            border-top: 1px dashed #ccc;
+            &.active{
+              border-top: 1px dashed @color;
+            }
+          }
+        }
+        .content{
+          margin-top: 88px;
+          text-align: center;
+          color: #333;
+          font-size: @font-size-medium;
+          p{
+            line-height: 22px;
+          }
+          a{
+            display: inline-block;
+            margin: 15px 0;
+            color: @color;
+            border-bottom: 1px solid @color;
+            &~a{
+              margin: 0;
+            }
+          }
+        }
+      }
     }
   }
   .slide-enter-active, .slide-leave-active{

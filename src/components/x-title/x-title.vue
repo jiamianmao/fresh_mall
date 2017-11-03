@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper vux-1px-b" ref='wrapper'>
-    <slot></slot><span class='save' v-show='save' @click='toSave'>保存</span>
+    <slot></slot><span class='save' v-show='text' @click='toClick(text)'>{{text}}</span>
   </div>
 </template>
 <script>
@@ -10,9 +10,9 @@
         type: Boolean,
         default: true
       },
-      save: {
-        type: Boolean,
-        default: false
+      text: {
+        type: String,
+        default: ''
       }
     },
     data () {
@@ -20,8 +20,8 @@
       }
     },
     methods: {
-      toSave () {
-        this.$emit('save')
+      toClick (text) {
+        this.$emit('rightClick', text)
       }
     },
     mounted () {

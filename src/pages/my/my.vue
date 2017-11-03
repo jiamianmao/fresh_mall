@@ -1,81 +1,97 @@
 <template>
   <div class='container'>
-    <header :style='{backgroundImage: "url(" + "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2186541830,1770324829&fm=27&gp=0.jpg" + ")"}'>
+    <header ref='bg'>
       <div class="avatar">
-        <div class="img_wrapper" :style='{backgroundImage: "url(" + "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3022382586,679430293&fm=27&gp=0.jpg" + ")"}'>
+        <div @click='userinfo' class="img_wrapper" :style='{backgroundImage: "url(" + "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3022382586,679430293&fm=27&gp=0.jpg" + ")"}'>
         </div>
         <span class="name">陈冠希</span>
       </div>
     </header>
-    <main>
-      <div class="behavior">
-        <div>
-          <span>100</span>
-          <p>收藏商品</p>
-        </div>
-        <div>
-          <span>100</span>
-          <p>关注品牌</p>
-        </div>
-        <div>
-          <span>100</span>
-          <p>浏览记录</p>
-        </div>
-      </div>
-      <div class="order">
-        <div class="top">
-          <div class="left">我的订单</div>
-          <div class="right" @click='viewAllOrder'>查看全部订单<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-        </div>
-        <div class="order_desc" @click='viewOrder'>
-          <div class="item" id='1'>
-            <div class="img_wrapper">
-              <img src="../../assets/my/wait_pay.png">
-              <div class="num">1</div>
-            </div>待付款
+    <scroll class='scroll'>
+      <main>
+        <div class="behavior">
+          <div @click='collect'>
+            <span>100</span>
+            <p>收藏商品</p>
           </div>
-          <div class="item" id='2'>
-            <div class="img_wrapper">
-              <img src="../../assets/my/wait_sent.png">
-              <div class="num">2</div>
-            </div>待发货</div>
-          <div class="item" id='3'>
-            <div class="img_wrapper">
-              <img src="../../assets/my/wait_get.png">
-              <div class="num">2</div>
-            </div>待收货
+          <div @click='brand'>
+            <span>100</span>
+            <p>关注品牌</p>
           </div>
-          <div class="item" id='4'>
-            <div class="img_wrapper">
-              <img src="../../assets/my/wait_judge.png">
-            </div>待评价</div>
-          <div class="item" @click.stop='after_sell'>
-            <div class="img_wrapper">
-              <img src="../../assets/my/service.png">
-            </div>售后
+          <div @click='footmark'>
+            <span>100</span>
+            <p>浏览记录</p>
           </div>
         </div>
-        <div class='fun_wrapper'>
-          <div class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-          <div class="item" @click='address'>收货地址管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-          <div class="item">消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has"></div></div>
-          <div class="item" @click='account'>账号安全<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-          <div class="item">联系客服<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+        <div class="order">
+          <div class="top">
+            <div class="left">我的订单</div>
+            <div class="right" @click='viewAllOrder'>查看全部订单<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+          </div>
+          <div class="order_desc" @click='viewOrder'>
+            <div class="item" id='1'>
+              <div class="img_wrapper">
+                <img src="../../assets/my/wait_pay.png">
+                <div class="num">1</div>
+              </div>待付款
+            </div>
+            <div class="item" id='2'>
+              <div class="img_wrapper">
+                <img src="../../assets/my/wait_sent.png">
+                <div class="num">2</div>
+              </div>待发货</div>
+            <div class="item" id='3'>
+              <div class="img_wrapper">
+                <img src="../../assets/my/wait_get.png">
+                <div class="num">2</div>
+              </div>待收货
+            </div>
+            <div class="item" id='4'>
+              <div class="img_wrapper">
+                <img src="../../assets/my/wait_judge.png">
+              </div>待评价</div>
+            <div class="item" @click.stop='after_sell'>
+              <div class="img_wrapper">
+                <img src="../../assets/my/service.png">
+              </div>售后
+            </div>
+          </div>
+          <div class='fun_wrapper'>
+            <div class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+            <div class="item" @click='address'>收货地址管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+            <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has"></div></div>
+            <div class="item" @click='account'>账号安全<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+            <div class="item">联系客服<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </scroll>
     <router-view :status='status'></router-view>
   </div>
 </template>
 <script>
   import $ from 'jquery'
+  import Scroll from '@/components/scroll/scroll'
   export default {
     data () {
       return {
-        status: 0
+        status: 0,
+        scrollY: 0
       }
     },
     methods: {
+      collect () {
+        this.$router.push('/my/collect')
+      },
+      footmark () {
+        this.$router.push('/my/footmark')
+      },
+      brand () {
+        this.$router.push('/my/brand')
+      },
+      userinfo () {
+        this.$router.push('/my/userinfo')
+      },
       viewAllOrder () {
         this.status = 0
         this.$router.push('/my/order')
@@ -97,9 +113,23 @@
       address () {
         this.$router.push('/my/address')
       },
+      msg () {
+        this.$router.push({
+          path: '/my/msg'
+        })
+      },
       qualification () {
         this.$router.push('/my/qualification')
+      },
+      scroll (pos) {
+        this.scrollY = pos.y
       }
+    },
+    mounted () {
+      this.bgHeight = this.$refs.bg.clientHeight
+    },
+    components: {
+      Scroll
     }
   }
 </script>
@@ -110,13 +140,13 @@
     header{
       width: 100%;
       height: 84px;
-      background-position: 0 0;
-      background-size: 100% 100%;
+      background: url('../../assets/my/bg.png') 0 0 ~"/" 100% 100%;
       position: relative;
+      z-index: 1;
       .avatar{
         position: absolute;
         bottom: -20px;
-        left: 19px;
+        left: 5.06667%;
         height: 70px;
         display: flex;
         flex-flow: row nowrap;
@@ -137,6 +167,10 @@
           font-size: @font-size-large;
         }
       }
+    }
+    .scroll{
+      width: 100vw;
+      height: calc(~"100vh - 134px");
     }
     main
       width: 100%;

@@ -42,8 +42,7 @@
               <span class='pay'>实付: <strong>¥275.6</strong></span>
             </div>
             <div class="btn">
-              <button class='left'>申请退款</button>
-              <button class='right'>申请退款</button>
+              <button class='right' @click='refund'>申请退款</button>
             </div>
           </div>
         </div>
@@ -59,6 +58,11 @@
       }
     },
     mounted () {
+    },
+    methods: {
+      refund () {
+        this.$router.push('/my/refund')
+      }
     },
     components: {
       XTitle

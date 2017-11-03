@@ -26,6 +26,10 @@ const AddressAdd = () => import('@/pages/my/children/address_add')
 const Qualification = () => import('@/pages/my/children/qualification')
 const MyQualificationFresh = () => import('@/pages/my/children/qualification_fresh')
 const MyQualificationSure = () => import('@/pages/my/children/qualification_sure')
+const Msg = () => import('@/pages/my/children/msg')
+const Collect = () => import('@/pages/my/children/collect')
+const UserInfo = () => import('@/pages/my/children/userinfo')
+const Refund = () => import('@/pages/my/children/refund')
 
 const Signin = () => import('@/pages/signin/signin')
 const Signup = () => import('@/pages/signup/signup')
@@ -64,7 +68,13 @@ export default new Router({
           ]
         },
         // 这里没办法，只好挂载在/my路由上了
-        { path: 'qualification/sure', component: MyQualificationSure}
+        { path: 'qualification/sure', component: MyQualificationSure},
+        { path: 'msg', component: Msg },
+        { path: 'collect', component: Collect },
+        { path: 'footmark', component: Collect },
+        { path: 'brand', component: Collect },
+        { path: 'userinfo', component: UserInfo },
+        { path: 'refund', component: Refund }
       ]
     },
     { path: '/city', component: City },

@@ -1,7 +1,7 @@
 <template>
   <transition name='slide1'>
     <div class='fresh' @touchmove.prevent>
-      <x-title :save='true' @save='save'>生鲜储存资质</x-title>
+      <x-title :text='text' @rightClick='save'>生鲜储存资质</x-title>
       <main>
         <div class="title">门店资质</div>
         <div class="area">
@@ -42,7 +42,8 @@
         value: '',
         url: require('../../../assets/my/uploadicon.png'),
         img1: false,
-        img2: false
+        img2: false,
+        text: '保存'
       }
     },
     components: {
