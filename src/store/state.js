@@ -1,5 +1,6 @@
 const state = {
-  startPage: true
+  startPage: true,
+  token: ''
 }
 
 export default state

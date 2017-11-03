@@ -6,6 +6,7 @@
         <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
       </tab>
       <div class="order_wrapper">
+        <!-- <div class="not_order"><img src="../../../assets/my/not_order.png"></div> -->
         <div class="order">
           <div class="order_desc">
             <div class="order_num vux-1px-b">
@@ -160,6 +161,20 @@
     background: #f4f4f4;
     .order_wrapper{
       width: 100vw;
+      height: calc(~"100vh - 94px");
+      position: relative;
+      .not_order{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate3d(-50%, -50%, 0);
+        width: 131px;
+        height: 113px;
+        img{
+          width: 100%;
+          height: 100%;
+        }
+      }
       .order{
         width: 100%;
         background: #fff;

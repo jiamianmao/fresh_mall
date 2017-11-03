@@ -31,12 +31,16 @@
 </template>
 <script>
   import { Divider } from 'vux'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
         tel: '',
         pwd: ''
       }
+    },
+    created () {
+      storage.session.set('token', '123456')
     },
     methods: {
       seePassword () {

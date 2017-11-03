@@ -7,6 +7,7 @@ const Shopcart = () => import('@/pages/shopcart/shopcart')
 const Search = () => import('@/pages/search/search')
 const City = () => import('@/components/city/city')
 const Product = () => import('@/pages/product/product')
+const Map = () => import('@/pages/map/map')
 
 const Rate = () => import('@/pages/rate/rate')
 const GoodsList = () => import('@/pages/goods-list/goods-list')
@@ -79,7 +80,8 @@ export default new Router({
     },
     { path: '/city', component: City },
     { path: '/search', component: Search },
-    { path: '/product/:id', component: Product },
+    { path: '/product/:id', component: Product},
+    { path: '/map', component: Map},
     { path: '/rate', component: Rate },
     { path: '/goodslist', component: GoodsList },
     { path: '/desc', component: Desc },

@@ -30,7 +30,7 @@
         <!-- 支付方式（名字，价格信息等） -->
         <ul class="pay_way">
           <li class='title'>两种购买方式供您选择</li>
-          <li class=''>
+          <li class='' @click='map'>
             <span class='left'>到店购买:</span>
             <div class='center'>
               <p><a class='mark'>点击查看</a>附近的在售门店</p>
@@ -276,6 +276,9 @@
       // 滑动的时候直接给我pos值，来判断下拉的icon变化
       scroll (pos) {
         this.scrollY = pos.y
+      },
+      map () {
+        this.$router.push('/map')
       },
       _getProductDesc () {
         this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/getCategoryData').then(res => {

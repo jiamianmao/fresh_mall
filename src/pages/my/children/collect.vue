@@ -56,24 +56,27 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { CellSwipe } from 'vant'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
         title: '',
         text: '编辑',
         del: false,
-        arr: [1, 2],  // 模拟数据
+        arr: [],  // 模拟数据
         activeArr: [],  // 选择的待删除的item
         flag: false
       }
     },
     created () {
+      console.log(storage.session.get('token'))
       if (this.$route.path === '/my/collect') {
         this.title = '收藏商品'
       } else if (this.$route.path === '/my/footmark') {
         this.title = '浏览记录'
       } else if (this.$route.path === '/my/brand') {
         this.title = '关注品牌'
+        this._getBrand()
       }
     },
     methods: {
@@ -102,6 +105,17 @@
       },
       delOne () {
         alert(1)
+      },
+      _getBrand () {
+        var instance = this.$http.create({
+          'headers': {'content-type': 'application/x-www-form-urlencoded'}
+        })
+        instance.get('/nginx/api/brand/follow_list?api_token=123456').then(res => {
+          console.log(res.data.status)
+          // if (res.data.status === 200) {
+          //   this.arr = res.data.data
+          // }
+        })
       }
     },
     components: {

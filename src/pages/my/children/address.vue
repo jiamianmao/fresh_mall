@@ -2,32 +2,30 @@
   <transition name='slide'>
     <div class='box'>
       <x-title class='header'>收货地址</x-title>
-      <scroll :data='list' class='wrapper'>
-        <div class="container">
-          <div class="content" v-for='(item, index) of list'>
-            <div class="add vux-1px-b">
-              <div class="top">
-                <span class='name'>{{item.name}}</span>
-                <span>{{item.tel}}</span>
-              </div>
-              <div class="bottom">
-                {{item.add}}
-              </div>
+      <div class="container">
+        <div class="content" v-for='(item, index) of list'>
+          <div class="add vux-1px-b">
+            <div class="top">
+              <span class='name'>{{item.name}}</span>
+              <span>{{item.tel}}</span>
             </div>
-            <div class="config">
-              <div class="left" @click='select(index)'>
-                <img src="../../../assets/selectAdd/selected.png" v-if='item.flag'>
-                <img src="../../../assets/selectAdd/select.png" v-else>
-                <span>默认地址</span>
-              </div>
-              <div class="right">
-                <span><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
-                <span @click='del(index)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
-              </div>
+            <div class="bottom">
+              {{item.add}}
+            </div>
+          </div>
+          <div class="config">
+            <div class="left" @click='select(index)'>
+              <img src="../../../assets/selectAdd/selected.png" v-if='item.flag'>
+              <img src="../../../assets/selectAdd/select.png" v-else>
+              <span>默认地址</span>
+            </div>
+            <div class="right">
+              <span><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
+              <span @click='del(index)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
             </div>
           </div>
         </div>
-      </scroll>
+      </div>
       <button @click='addAddress'>新增地址</button>
       <actionsheet v-model="show" :menus="menus" @on-click-menu-delete="sure" show-cancel></actionsheet>
       <router-view></router-view>
@@ -94,7 +92,7 @@
     width: 100vw;
     min-height: 100vh;
     background: #f4f4f4;
-    padding-top: 50px;
+    padding-bottom: 50px;
     z-index: 1;
   }
   .header{
@@ -103,59 +101,54 @@
     left: 0;
     width: 100vw;
   }
-  .wrapper{
-    height: calc(~"100vh - 100px");
+  .container{
     width: 100vw;
-    overflow: hidden;
-    .container{
-      width: 100vw;
-      .content{
-        padding-left: 15px;
-        background: #fff;
-        .add{
-          width: 100%;
-          padding: 22px 15px 22px 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          .top{
-            margin-bottom: 12px;
-            .name{
-              margin-right: 15px;
-            }
-          }
-          .bottom{
-            color: #333;
-            font-size: @font-size-small;
-            line-height: 16px;
+    .content{
+      padding-left: 15px;
+      background: #fff;
+      .add{
+        width: 100%;
+        padding: 22px 15px 22px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        .top{
+          margin-bottom: 12px;
+          .name{
+            margin-right: 15px;
           }
         }
-        .config{
-          height: 40px;
-          display: flex;
-          flex-flow: row nowrap;
-          justify-content: space-between;
-          align-items: center;
-          padding-right: 12px;
+        .bottom{
           color: #333;
-          .left, .right{
-            height: 100%;
-            display: flex;
-            align-items: center;
-          }
-          .del{
-            margin-left: 22px;
-          }
-          img{
-            width: 18px;
-            height: 18px;
-            vertical-align: -.2em;
-            margin-right: 10px;
-          }
+          font-size: @font-size-small;
+          line-height: 16px;
         }
-        &~.content{
-          margin-top: 10px;
+      }
+      .config{
+        height: 40px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        padding-right: 12px;
+        color: #333;
+        .left, .right{
+          height: 100%;
+          display: flex;
+          align-items: center;
         }
+        .del{
+          margin-left: 22px;
+        }
+        img{
+          width: 18px;
+          height: 18px;
+          vertical-align: -.2em;
+          margin-right: 10px;
+        }
+      }
+      &~.content{
+        margin-top: 10px;
       }
     }
   }

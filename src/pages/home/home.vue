@@ -93,6 +93,7 @@
       // 定位拿到当前的城市
       var geolocation = new qq.maps.Geolocation()
       geolocation.getIpLocation((position) => {
+        console.log(position)
         let x = position.city
         this.city = x.slice(0, x.length - 1)
         storage.set('city', this.city)
