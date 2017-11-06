@@ -38,12 +38,12 @@ const SignupPersonal = () => import('@/pages/signup_personal/signup_personal')
 const SignupCompany = () => import('@/pages/signup_company/signup_company')
 const Bind = () => import('@/pages/bind/bind')
 
+const Message = () => import('@/pages/message/message')
+
 Vue.use(Router)
 
 /* eslint-disable */
-export default new Router({
-  mode: 'history',
-  routes: [
+export default [
     { path: '/', redirect: '/home' },
     { path: '/home', component: Home },
     { path: '/category', component: Category },
@@ -104,5 +104,5 @@ export default new Router({
         { path: 'company', component: SignupCompany }
       ]
     },
+    { path: '/message', component: Message }
   ]
-})

@@ -28,11 +28,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/nginx': {
+      '/apis': {
         target: 'http://ctx.17link.cc',
         changeOrigin: true,
         pathRewrite: {
-            '^/nginx': ''
+            '^/apis': ''
         }
       }
     },

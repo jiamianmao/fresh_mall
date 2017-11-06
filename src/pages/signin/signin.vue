@@ -13,7 +13,7 @@
       </div>
     </main>
     <div class="bottom">
-      <button>登录</button>
+      <button @click='login'>登录</button>
       <div class="fun">
         <div class="sign" @click='signup'>立即注册</div>
         <div class="forget" @click='forget'>忘记密码？</div>
@@ -40,7 +40,6 @@
       }
     },
     created () {
-      storage.session.set('token', '123456')
     },
     methods: {
       seePassword () {
@@ -56,6 +55,43 @@
       },
       forget () {
         this.$router.push('/signin/forgetpassword')
+      },
+      login () {
+        console.log(1)
+        let username = this.tel
+        let password = this.pwd
+        let client = 'wap'
+        this.$http({
+          url: '/apis/mobile/?act=login',
+          method: 'POST',
+          data: {
+            username,
+            password,
+            client,
+            code: 123
+          },
+          transformRequest: [function (data) {
+            // Do whatever you want to transform the data
+            let ret = ''
+            for (let it in data) {
+              ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            }
+            return ret
+          }],
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then(res => {
+          if (res.data.status === 200) {
+            storage.set('api_token', res.data.data.api_token)
+            let url = storage.get('currentUrl')
+            this.$router.push({
+              path: url
+            })
+          } else {
+            alert('账号密码错误')
+          }
+        })
       }
     },
     components: {

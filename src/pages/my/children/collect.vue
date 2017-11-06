@@ -107,14 +107,10 @@
         alert(1)
       },
       _getBrand () {
-        var instance = this.$http.create({
-          'headers': {'content-type': 'application/x-www-form-urlencoded'}
-        })
-        instance.get('/nginx/api/brand/follow_list?api_token=123456').then(res => {
-          console.log(res.data.status)
-          // if (res.data.status === 200) {
-          //   this.arr = res.data.data
-          // }
+        this.$http.get('/apis/api/brand/follow_list?api_token=123456').then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.arr = res.data.data
+          }
         })
       }
     },

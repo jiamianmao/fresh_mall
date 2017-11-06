@@ -68,7 +68,8 @@
         flag: false, // 控制x-title组件是否有border-bottom
         active: false,  // 控制选中状态
         show: false,  // modal框
-        cartdata: {}
+        cartdata: {},
+        activeArr: []
       }
     },
     created () {

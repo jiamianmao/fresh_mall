@@ -7,7 +7,7 @@
           <img src="../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
         </div>
         <div class="password vux-1px-t">
-          <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' placeholder='密码'>
+          <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' placeholder='密码' maxlength='20'>
           <svg class="icon" aria-hidden="true" @click='seePassword' ref='icon'>
             <use xlink:href="#icon-yanjing"></use>
           </svg>
@@ -28,7 +28,7 @@
           </div>
           <p>我已阅读并同意<span>《用户注册协议》</span></p>
         </div>
-        <button>注册</button>
+        <button @click='personal'>注册</button>
       </div>
     </div>
   </transition>
@@ -63,6 +63,33 @@
       finish () {
         this.start = false
         this.time = 60
+      },
+      personal () {
+        let phone = this.tel
+        let code = this.code
+        let password = this.pwd
+        this.$http({
+          url: '/apis/mobile/?act=login&op=register',
+          method: 'POST',
+          data: {
+            phone,
+            code,
+            password
+          },
+          transformRequest: [function (data) {
+            // Do whatever you want to transform the data
+            let ret = ''
+            for (let it in data) {
+              ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            }
+            return ret
+          }],
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then(res => {
+          console.log(res)
+        })
       }
     },
     components: {
