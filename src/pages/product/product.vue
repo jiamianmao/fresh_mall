@@ -195,6 +195,7 @@
   import RateItem from '@/components/rate_item/rate_item'
   import { Spinner } from 'vux'
   import Scroll from '@/components/scroll/scroll'
+  import Storage from 'good-storage'
   export default {
     data () {
       return {
@@ -226,6 +227,7 @@
       }
     },
     created () {
+      this.api_token = Storage.get('api_token')
       // 获得产品数据
       this._getProductDesc()
     },
@@ -236,6 +238,44 @@
     methods: {
       favoriteToggle () {
         this.favorite = !this.favorite
+        if (this.favorite) {
+          this.$http({
+            url: `/apis/mobile/?act=member_favorites&op=favorites_add`,
+            method: 'POST',
+            data: {
+              api_token: this.api_token,
+              goods_id: 38,
+              key: 123456
+            },
+            transformRequest: [(data) => {
+              let arr = ''
+              for (let i in data) {
+                arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
+              }
+              return arr
+            }]
+          }).then(res => {
+            console.log(res)
+          })
+        } else {
+          this.$http({
+            url: `/apis/mobile/?act=member_favorites&op=favorites_del`,
+            method: 'POST',
+            data: {
+              api_token: this.api_token,
+              fav_id: 38
+            },
+            transformRequest: [(data) => {
+              let arr = ''
+              for (let i in data) {
+                arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
+              }
+              return arr
+            }]
+          }).then(res => {
+            console.log(res)
+          })
+        }
       },
       goTop () {
         this.$refs.scrollCom.scrollTo(0, 0, 500)
@@ -245,7 +285,25 @@
       },
       submit () {
         this.addFlag = false
-        console.log(this.count)
+        this.$http({
+          url: `/apis/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`,
+          method: 'POST',
+          data: {
+            goods_id: 46,
+            quantity: this.count
+          },
+          transformRequest: [(data) => {
+            let arr = ''
+            for (let i in data) {
+              arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
+            }
+            return arr
+          }]
+        }).then(res => {
+          if (res.data.status === 200) {
+            // 获取购物车最新的数量
+          }
+        })
       },
       minus () {
         if (this.count === 1) {

@@ -61,6 +61,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
+  import Storage from 'good-storage'
   import { Confirm } from 'vux'
   export default {
     data () {
@@ -73,6 +74,7 @@
       }
     },
     created () {
+      this.api_token = Storage.get('api_token')
       this._getShopCart()
     },
     mounted () {
@@ -93,7 +95,8 @@
         this.show = true
       },
       _getShopCart () {
-        this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/shopcart').then(res => {
+        this.$http.get(`/apis/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+          console.log(res)
           if (res.data.status === 200) {
             this.cartdata = res.data.data
           }

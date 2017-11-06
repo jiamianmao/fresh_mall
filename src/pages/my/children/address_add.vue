@@ -34,6 +34,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { XAddress, ChinaAddressV4Data, XButton, Value2nameFilter as value2name, Alert } from 'vux'
+  import Storage from 'good-storage'
   export default {
     data () {
       return {
@@ -48,11 +49,15 @@
         msg: '信息输入有误'
       }
     },
+    created () {
+      this.api_token = Storage.get('api_token')
+    },
     methods: {
       selectArea () {
         this.showAddress = true
       },
       getName (value) {
+        console.log(value)
         this.address1 = value2name(value, ChinaAddressV4Data)
       },
       submit () {
@@ -88,10 +93,11 @@
           return
         }
         if (regName.test(this.name.trim()) && regTel.test(this.tel.trim()) && this.address && this.desc) {
-          console.log(this.name)
-          console.log(this.tel)
-          console.log(this.address1)
-          console.log(this.desc)
+          this.$http.post(`/apis/mobile/?act=member_address&op=address_add&api_token=${this.api_token}`, {
+
+          }).then(res => {
+            console.log(res)
+          })
         }
       }
     },

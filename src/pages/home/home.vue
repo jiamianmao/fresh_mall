@@ -69,18 +69,7 @@
   export default {
     data () {
       return {
-        swiperUrlList: [
-          {
-            'url': 'https://www.baidu.com',
-            'img': 'http://placeholder.qiniudn.com/800x300/FF3B3B/ffffff'
-          }, {
-            'img': 'http://placeholder.qiniudn.com/800x300/FFEF7D/ffffff'
-          }, {
-            'img': 'http://placeholder.qiniudn.com/800x300/8AEEB1/ffffff'
-          }, {
-            'img': 'http://placeholder.qiniudn.com/800x300/CCCCCC/ffffff'
-          }
-        ],
+        swiperUrlList: [],
         swiperHeight: '0px',
         curIndx: 0,
         city: '北京',
@@ -101,7 +90,16 @@
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
       this.$http.get('/apis/api/advert/banner').then(res => {
-        // console.log(res)
+        if (res.data.status === 200) {
+          console.log(res.data)
+          // this.swiperUrlList = res.data.data
+          res.data.data.forEach(item => {
+            this.swiperUrlList.push({
+              url: item.pic_url,
+              img: 'http://' + item.pic_img
+            })
+          })
+        }
       })
     },
     mounted () {
