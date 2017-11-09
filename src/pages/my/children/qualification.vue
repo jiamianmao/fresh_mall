@@ -235,7 +235,7 @@
           </div>
         </div>
       </div>
-      <alert v-model="show" title="请核对信息">{{msg}}</alert>
+      <alert v-model="show" title="请注意">{{msg}}</alert>
       <router-view></router-view>
     </div>
   </transition>
@@ -244,7 +244,8 @@
   import XTitle from '@/components/x-title/x-title'
   import { Uploader } from 'vant'
   import { Alert } from 'vux'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapMutations } from 'vuex'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
@@ -267,7 +268,6 @@
         company_name: '',
         business_licence_number: '',
         bank_account_name: '',
-        bank_name: '',
         bank_account: '',
         bank_address: '',
         bank_subbranch_name: '',
@@ -280,27 +280,38 @@
       }
     },
     created () {
-      this.$http.get('1').then(res => {
-        if (status) {
-          // this.complete = false
-          // this.title = '资质认证'
-        } else {
-          this.complete = true
-          this.title = '审核状态'
-        }
-      })
+      Object.assign(this, storage.get('upload'))
+      // this.$http.get('1').then(res => {
+      //   if (status) {
+          // this.company_name = upload.company_name
+          // this.business_licence_number = upload.business_licence_number
+          // this.bank_account_name = upload.bank_account_name
+          // this.bank_account = upload.bank_account
+          // this.bank_address = upload.bank_address
+          // this.bank_subbranch_name = upload.bank_subbranch_name
+          // this.authenticator_truename = upload.authenticator_truename
+          // this.authenticator_idnumber = upload.authenticator_idnumber
+          // this.licence_pic = upload.licence_pic
+          // this.shop_pic = upload.shop_pic
+          // this.store_condition = upload.store_condition
+          // this.store_condition_pic = upload.store_condition_pic
+      //   } else {
+      //     this.complete = true
+      //     this.title = '审核状态'
+      //   }
+      // })
     },
     methods: {
       logContent (file) {
         if (!this.$refs.img1) {
           this.img1 = true
-          this.licence_pic.unshift(file.file)
+          this.licence_pic.unshift(file)
           this.$nextTick(() => {
             this.$refs.img1.setAttribute('src', file.content)
           })
         } else {
           this.img2 = true
-          this.licence_pic.push(file.file)
+          this.licence_pic.push(file)
           this.$nextTick(() => {
             this.$refs.img2.setAttribute('src', file.content)
           })
@@ -308,7 +319,7 @@
       },
       store (file) {
         this.img3 = true
-        this.shop_pic = file.file
+        this.shop_pic = file
         this.$nextTick(() => {
           this.$refs.img3.setAttribute('src', file.content)
         })
@@ -361,19 +372,57 @@
         }
       },
       save () {
-        console.log('save')
+        storage.set('upload', {
+          is_yinliu: this.is_yinliu,
+          is_ziti: this.is_ziti,
+          is_storegoods: this.is_storegoods,
+          is_dispatching: this.is_dispatching,
+          company_name: this.company_name,
+          business_licence_number: this.business_licence_number,
+          bank_account_name: this.bank_account_name,
+          bank_account: this.bank_account,
+          bank_address: this.bank_address,
+          bank_subbranch_name: this.bank_subbranch_name,
+          authenticator_truename: this.authenticator_truename,
+          authenticator_idnumber: this.authenticator_idnumber,
+          store_condition: this.store_condition
+        })
+        this.show = true
+        this.msg = '已成功保存'
       },
       submit () {
-        if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching) {
+        if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching) {
           this.show = true
           this.msg = '请完整输入信息'
         } else if (this.is_storegoods === 1 && !this.storeCondition) {
           this.show = true
           this.msg = '请上传生鲜存储资质'
         } else {
+          // 提交审核也是保存，采用vuex，上边的save()采用缓存
+          this.set_qualification({
+            is_yinliu: this.is_yinliu,
+            is_ziti: this.is_ziti,
+            is_storegoods: this.is_storegoods,
+            is_dispatching: this.is_dispatching,
+            company_name: this.company_name,
+            business_licence_number: this.business_licence_number,
+            bank_account_name: this.bank_account_name,
+            bank_account: this.bank_account,
+            bank_address: this.bank_address,
+            bank_subbranch_name: this.bank_subbranch_name,
+            authenticator_truename: this.authenticator_truename,
+            authenticator_idnumber: this.authenticator_idnumber,
+            store_condition: this.store_condition,
+            licence_pic: this.licence_pic,
+            shop_pic: this.shop_pic,
+            store_condition_pic: this.store_condition_pic
+          })
+          this.$router.push('/my/qualification/sure')
         }
-        // this.$router.push('/my/qualification/sure')
-      }
+      },
+      ...mapMutations({
+        set_qualification: 'SET_QUALIFICATION'
+      })
     },
     computed: {
       ...mapGetters([

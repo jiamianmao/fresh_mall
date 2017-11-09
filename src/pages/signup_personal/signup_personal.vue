@@ -30,12 +30,13 @@
         </div>
         <button @click='personal'>注册</button>
       </div>
+       <alert v-model="show" title="请注意">{{msg}}</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Countdown } from 'vux'
+  import { Countdown, Alert } from 'vux'
   export default {
     data () {
       return {
@@ -44,7 +45,9 @@
         code: '',
         time: 60,
         start: false,
-        active: false
+        active: false,
+        msg: '',
+        show: false
       }
     },
     methods: {
@@ -68,33 +71,27 @@
         let phone = this.tel
         let code = this.code
         let password = this.pwd
-        this.$http({
-          url: '/mobile/?act=login&op=register',
-          method: 'POST',
-          data: {
-            phone,
-            code,
-            password
-          },
-          transformRequest: [function (data) {
-            // Do whatever you want to transform the data
-            let ret = ''
-            for (let it in data) {
-              ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-            }
-            return ret
-          }],
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
+        console.log(phone)
+        console.log(code)
+        this.$http.post('/mobile/?act=login&op=register', {
+          phone,
+          code,
+          password
         }).then(res => {
-          console.log(res)
+          if (res.data.status === 200) {
+            // 跳转到登录页面
+            this.$router.push('/signin')
+          } else {
+            this.show = true
+            this.msg = res.data.data.error
+          }
         })
       }
     },
     components: {
       XTitle,
-      Countdown
+      Countdown,
+      Alert
     }
   }
 </script>

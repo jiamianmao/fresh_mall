@@ -27,91 +27,93 @@
           </div>
           <div class="item vux-1px-b">
             <span>公司全称</span>
-            <span>腾讯科技</span>
+            <span>{{qualification.company_name}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>营业执照注册号</span>
-            <span></span>
+            <span>{{qualification.business_licence_number}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>银行开户名</span>
-            <span></span>
+            <span>{{qualification.bank_account_name}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>开户行所在城市</span>
-            <span></span>
+            <span>{{qualification.bank_address}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>开户银行支行名称</span>
-            <span></span>
+            <span>{{qualification.bank_subbranch_name}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>公司对公账号</span>
-            <span></span>
+            <span>{{qualification.bank_account}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>营业执照照片</span>
             <div class="img_wrapper">
-              <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=523832774,4006167394&fm=58&bpow=600&bpoh=900" alt="">
+              <img v-for='item of qualification.licence_pic' v-lazy='item.content'>
             </div>
           </div>
           <div class="item vux-1px-b">
             <span>门店照片</span>
             <div class="img_wrapper">
-              <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=523832774,4006167394&fm=58&bpow=600&bpoh=900" alt="">
+              <img v-lazy='qualification.shop_pic.content'>
             </div>
           </div>
           <div class="item vux-1px-b">
             <span>认证申请人真实姓名</span>
-            <span></span>
+            <span>{{qualification.authenticator_truename}}</span>
           </div>
           <div class="item vux-1px-b">
             <span>认证申请人身份证号</span>
-            <span></span>
+            <span>{{qualification.authenticator_idnumber}}</span>
           </div>
         </div>
         <div class="select_item">
           <div class="title vux-1px-b">
             <span>1</span>
-            <p>xxxx</p>
+            <p>{{msg1}}</p>
           </div>
         </div>
         <div class="select_item">
           <div class="title vux-1px-b">
             <span>2</span>
-            <p>xxxx</p>
+            <p>{{msg2}}</p>
           </div>
         </div>
         <div class="select_item">
           <div class="title vux-1px-b">
             <span>3</span>
-            <p>xxxx</p>
+            <p>{{msg3}}</p>
           </div>
-          <div class="store">
+          <div class="store" v-show='qualification.is_storegoods === 1'>
             <p>门店资质</p>
             <div class="area">
-              <textarea :placeholder='placeholder'></textarea>
+              <p>{{storeCondition}}</p>
             </div>
             <div class="img_wrapper">
-              <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=523832774,4006167394&fm=58&bpow=600&bpoh=900">
+              <img v-for='item of storeConditionPic' v-lazy="item.content">
             </div>
           </div>
         </div>
         <div class="select_item">
           <div class="title vux-1px-b">
             <span>4</span>
-            <p>xxxx</p>
+            <p>{{msg4}}</p>
           </div>
         </div>
       </main>
       <footer>
-        <button>确认提交</button>
+        <button @click='submit'>确认提交</button>
       </footer>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import { mapGetters } from 'vuex'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
@@ -120,6 +122,9 @@
         placeholder: '请具体介绍门店的存储设备、可为平台业务提供的设备容量、设备温度区间等'
       }
     },
+    created () {
+      this.api_token = storage.get('api_token')
+    },
     mounted () {
       this.$refs.arrow.style.transform = 'rotate(0.5turn)'
     },
@@ -127,7 +132,64 @@
       arrowToggle () {
         this.slideDown = !this.slideDown
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
+      },
+      submit () {
+        this.$http.post(`/mobile/?act=member_index&op=company_authority&api_token=${this.api_token}`, {
+          business_licence_number: this.qualification.business_licence_number,
+          bank_account_name: this.qualification.bank_account_name,
+          bank_account: this.qualification.bank_account,
+          bank_address: this.qualification.bank_address,
+          bank_subbranch_name: this.qualification.bank_subbranch_name,
+          authenticator_truename: this.qualification.authenticator_truename,
+          authenticator_idnumber: this.qualification.authenticator_idnumber,
+          licence_pic: this.qualification.licence_pic,
+          shop_pic: this.qualification.shop_pic,
+          store_condition: this.qualification.store_condition,
+          store_condition_pic: this.qualification.store_condition_pic,
+          is_yinliu: this.qualification.is_yinliu,
+          is_ziti: this.qualification.is_ziti,
+          is_storegoods: this.qualification.is_storegoods,
+          is_dispatching: this.qualification.is_dispatching,
+          company_name: this.qualification.company_name
+        }).then(res => {
+          console.log(res)
+        })
       }
+    },
+    computed: {
+      msg1 () {
+        if (this.qualification.is_yinliu === 1) {
+          return '我愿意成为平台在售门店'
+        } else {
+          return '我不愿意成为平台在售门店'
+        }
+      },
+      msg2 () {
+        if (this.qualification.is_ziti === 1) {
+          return '我愿意成为平台自提门店'
+        } else {
+          return '我不愿意成为平台自提门店'
+        }
+      },
+      msg3 () {
+        if (this.qualification.is_storegoods === 1) {
+          return '我愿意代收生鲜产品'
+        } else {
+          return '我不愿意代收生鲜产品'
+        }
+      },
+      msg4 () {
+        if (this.qualification.is_dispatching === 1) {
+          return '我愿意配送生鲜产品'
+        } else {
+          return '我不愿意配送生鲜产品'
+        }
+      },
+      ...mapGetters([
+        'qualification',
+        'storeConditionPic',
+        'storeCondition'
+      ])
     },
     components: {
       XTitle
@@ -284,7 +346,7 @@
           }
           .area{
             height: 180px;
-            textarea{
+            p{
               padding: 15px 25px 15px 15px;
               width: 100%;
               height: 100%;

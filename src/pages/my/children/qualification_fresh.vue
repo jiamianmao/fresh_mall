@@ -59,14 +59,14 @@
     methods: {
       logContent1 (file) {
         this.img1 = true
-        this.store_condition_pic.unshift(file.file)
+        this.store_condition_pic.unshift(file)
         this.$nextTick(() => {
           this.$refs.img1.setAttribute('src', file.content)
         })
       },
       logContent2 (file) {
         this.img2 = true
-        this.store_condition_pic.push(file.file)
+        this.store_condition_pic.push(file)
         this.$nextTick(() => {
           this.$refs.img2.setAttribute('src', file.content)
         })
