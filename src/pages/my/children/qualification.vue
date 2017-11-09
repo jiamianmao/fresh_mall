@@ -10,37 +10,37 @@
             <li class='item vux-1px-b'>
               <div class="left">公司全称</div>
               <div class="right">
-                <input type='text' placeholder='请输入营业执照上的公司全称' />
+                <input type='text' placeholder='请输入营业执照上的公司全称' v-model='company_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">营业执照注册号</div>
               <div class="right">
-                <input type='text' placeholder='输入纳税识别号' />
+                <input type='text' placeholder='输入纳税识别号' v-model='business_licence_number' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">银行开户名</div>
               <div class="right">
-                <input type='text' />
+                <input type='text' v-model='bank_account_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户行所在城市</div>
               <div class="right">
-                <input type='text' />
+                <input type='text' v-model='bank_address' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户银行支行名称</div>
               <div class="right">
-                <input type='text' />
+                <input type='text' v-model='bank_subbranch_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">公司对公账号</div>
               <div class="right">
-                <input type='tel' />
+                <input type='tel' v-model='bank_account' />
               </div>
             </li>
             <li class='upload'>
@@ -106,14 +106,14 @@
             <li class='item'>
               <div class="left">认证申请人真实姓名</div>
               <div class="right">
-                <input type='text' placeholder='申请人真实姓名' />
+                <input type='text' placeholder='申请人真实姓名' v-model='authenticator_truename' />
               </div>
               <div class="placeholder vux-1px-b"></div>
             </li>
             <li class='item'>
               <div class="left">认证申请人身份证号</div>
               <div class="right">
-                <input type='text' placeholder='申请人身份证号' />
+                <input type='text' placeholder='申请人身份证号' v-model='authenticator_idnumber' />
               </div>
             </li>
           </ul>
@@ -126,12 +126,12 @@
               </div>
               <div class="content">
                 <p @click='select(1, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select1 === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，我已阅读<a href="#">《在售门店规则》</a></span>
                 </p>
                 <p @click='select(1, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select1 === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -144,12 +144,12 @@
               </div>
               <div class="content">
                 <p @click='select(2, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select2 === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，我已阅读<a href="#">《自提门店规则》</a></span>
                 </p>
                 <p @click='select(2, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select2 === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -162,12 +162,12 @@
               </div>
               <div class="content">
                 <p @click='select(3, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select3 === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，<router-link to="/my/qualification/fresh">点击上传</router-link>生鲜存储资质</span>
                 </p>
                 <p @click='select(3, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select3 === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -180,12 +180,12 @@
               </div>
               <div class="content">
                 <p @click='select(4, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select4 === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，配送费根据自己公示规则收取</span>
                 </p>
                 <p @click='select(4, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='select4 === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -235,7 +235,7 @@
           </div>
         </div>
       </div>
-
+      <alert v-model="show" title="请核对信息">{{msg}}</alert>
       <router-view></router-view>
     </div>
   </transition>
@@ -243,6 +243,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Uploader } from 'vant'
+  import { Alert } from 'vux'
   export default {
     data () {
       return {
@@ -253,13 +254,26 @@
         img1: false,
         img2: false,
         img3: false,
-        select1: null,
-        select2: null,
-        select3: null,
-        select4: null,
-        status: 3,
+        show: false,
+        msg: '请核对信息',
+        is_yinliu: null,
+        is_ziti: null,
+        is_storegoods: null,
+        is_dispatching: null,
+        status: 3,  // 审核状态
         success: null,
-        text: '保存'
+        text: '保存',
+        company_name: '',
+        business_licence_number: '',
+        bank_account_name: '',
+        bank_name: '',
+        bank_account: '',
+        bank_address: '',
+        bank_subbranch_name: '',
+        authenticator_truename: '',
+        authenticator_idnumber: '',
+        licence_pic: [],
+        shop_pic: ''
       }
     },
     created () {
@@ -277,11 +291,13 @@
       logContent (file) {
         if (!this.$refs.img1) {
           this.img1 = true
+          this.licence_pic.unshift(file.file)
           this.$nextTick(() => {
             this.$refs.img1.setAttribute('src', file.content)
           })
         } else {
           this.img2 = true
+          this.licence_pic.push(file.file)
           this.$nextTick(() => {
             this.$refs.img2.setAttribute('src', file.content)
           })
@@ -289,6 +305,7 @@
       },
       store (file) {
         this.img3 = true
+        this.shop_pic = file.file
         this.$nextTick(() => {
           this.$refs.img3.setAttribute('src', file.content)
         })
@@ -297,14 +314,18 @@
         this.slideDown = !this.slideDown
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
       },
+      // 删除上传的图片，这里实现的机制不完美
       close (n) {
         if (n === 1) {
+          this.licence_pic.shift()
           this.$refs.img1.setAttribute('src', '')
           this.img1 = false
         } else if (n === 2) {
+          this.licence_pic.pop()
           this.$refs.img2.setAttribute('src', '')
           this.img2 = false
         } else {
+          this.shop_pic = ''
           this.$refs.img3.setAttribute('src', '')
           this.img3 = false
         }
@@ -312,27 +333,27 @@
       select (n, m) {
         if (n === 1) {
           if (m === 1) {
-            this.select1 = 1
+            this.is_yinliu = 1
           } else {
-            this.select1 = 2
+            this.is_yinliu = 2
           }
         } else if (n === 2) {
           if (m === 1) {
-            this.select2 = 1
+            this.is_ziti = 1
           } else {
-            this.select2 = 2
+            this.is_ziti = 2
           }
         } else if (n === 3) {
           if (m === 1) {
-            this.select3 = 1
+            this.is_storegoods = 1
           } else {
-            this.select3 = 2
+            this.is_storegoods = 2
           }
         } else {
           if (m === 1) {
-            this.select4 = 1
+            this.is_dispatching = 1
           } else {
-            this.select4 = 2
+            this.is_dispatching = 2
           }
         }
       },
@@ -340,12 +361,17 @@
         console.log('save')
       },
       submit () {
-        this.$router.push('/my/qualification/sure')
+        if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching) {
+          this.show = true
+          this.msg = '请完整输入信息'
+        }
+        // this.$router.push('/my/qualification/sure')
       }
     },
     components: {
       XTitle,
-      Uploader
+      Uploader,
+      Alert
     }
   }
 </script>

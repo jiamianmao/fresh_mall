@@ -15,7 +15,7 @@
         <!-- 名字，价格信息等 -->
         <div class="desc">
           <div class="sells_volume">
-            <div class="brand">关注品牌</div>
+            <div class="brand" @click='brand' :class='{active_brand: brandFlag}'>{{brandText}}</div>
             <div class="sells"><span>库存: 400件</span><span>销量: 260件</span></div>
           </div>
           <div class="content">
@@ -99,7 +99,7 @@
 
         <div class="company_card">
           <div class="brand">
-            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg" alt="">
+            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
           </div>
           <div class="pv">
             <h3>企业名片</h3>
@@ -195,7 +195,7 @@
   import RateItem from '@/components/rate_item/rate_item'
   import { Spinner } from 'vux'
   import Scroll from '@/components/scroll/scroll'
-  import Storage from 'good-storage'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
@@ -217,7 +217,8 @@
           spaceBetween: 10,
           initialSlide: 1
         },  // 顶部的swiper组件
-        favorite: false,   // 收藏
+        favorite: false,   // 收藏商品
+        brandFlag: true,  // 收藏品牌
         returnFlag: false,  // 放回顶部
         addFlag: false,   // 是否点加入购物车
         count: 1, // 加入购物车的数量
@@ -227,7 +228,7 @@
       }
     },
     created () {
-      this.api_token = Storage.get('api_token')
+      this.api_token = storage.get('api_token')
       // 获得产品数据
       this._getProductDesc()
     },
@@ -240,7 +241,7 @@
         this.favorite = !this.favorite
         if (this.favorite) {
           this.$http({
-            url: `/apis/mobile/?act=member_favorites&op=favorites_add`,
+            url: `/mobile/?act=member_favorites&op=favorites_add`,
             method: 'POST',
             data: {
               api_token: this.api_token,
@@ -259,7 +260,7 @@
           })
         } else {
           this.$http({
-            url: `/apis/mobile/?act=member_favorites&op=favorites_del`,
+            url: `/mobile/?act=member_favorites&op=favorites_del`,
             method: 'POST',
             data: {
               api_token: this.api_token,
@@ -286,7 +287,7 @@
       submit () {
         this.addFlag = false
         this.$http({
-          url: `/apis/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`,
+          url: `/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`,
           method: 'POST',
           data: {
             goods_id: 46,
@@ -335,6 +336,51 @@
       scroll (pos) {
         this.scrollY = pos.y
       },
+      brand () {
+        if (this.brandFlag) {
+          this.$http({
+            url: `/api/brand/cancel_follow?api_token=${this.api_token}&id=79`,
+            method: 'POST',
+            data: {
+              api_token: this.api_token,
+              id: 79
+            },
+            transformRequest: [function (data) {
+              // Do whatever you want to transform the data
+              let ret = ''
+              for (let it in data) {
+                ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+              }
+              return ret
+            }]
+          }).then(res => {
+            if (res.data.status === 200) {
+              this.brandFlag = false
+            }
+          })
+        } else {
+          this.$http({
+            url: '/api/brand/follow',
+            method: 'POST',
+            data: {
+              api_token: this.api_token,
+              id: 79
+            },
+            transformRequest: [function (data) {
+            // Do whatever you want to transform the data
+              let ret = ''
+              for (let it in data) {
+                ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+              }
+              return ret
+            }]
+          }).then(res => {
+            if (res.data.status === 200) {
+              this.brandFlag = true
+            }
+          })
+        }
+      },
       map () {
         this.$router.push('/map')
       },
@@ -349,6 +395,9 @@
     computed: {
       swiper () {
         return this.$refs.mySwiper.swiper
+      },
+      brandText () {
+        return this.brandFlag ? '已关注' : '关注品牌'
       }
     },
     watch: {
@@ -435,13 +484,19 @@
             justify-content: space-between;
             font-size: @font-size-small;
             .brand{
-              color: #7ABFAF;
+              color: @color;
               height: 18px;
               width: 56px;
-              border: 1px solid #7ABFAF;
+              border: 1px solid @color;
               text-align: center;
               line-height: 18px;
               border-radius: 4px;
+              background: #fff;
+              &.active_brand{
+                color: #fff;
+                background: @color;
+                border: 1px solid #fff;
+              }
             }
             .sells{
               color: #a0a0a0;

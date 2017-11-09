@@ -12,7 +12,7 @@
           <x-icon type="ios-arrow-right" size="22"></x-icon>
         </div>
       </div>
-      <router-view :correct='flag' :title='title' :tels='tels'></router-view>
+      <router-view :correct='correct' :title='title' :tels='tels' :text='text'></router-view>
     </div>
   </transition>
 </template>
@@ -23,18 +23,21 @@
       return {
         title: '',
         tels: false,
-        flag: false
+        correct: false,
+        text: ''
       }
     },
     methods: {
       password () {
         this.title = '修改密码'
-        this.flag = true
+        this.correct = true
+        this.tels = false
+        this.text = '新密码'
         this.$router.push('/my/account/password')
       },
       tel () {
         this.title = '更改手机号'
-        this.flag = false
+        this.correct = false
         this.tels = true
         this.$router.push('/my/account/tel')
       }

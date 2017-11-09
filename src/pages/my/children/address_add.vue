@@ -46,64 +46,145 @@
         tel: '',
         desc: '',
         show: false,
-        msg: '信息输入有误'
+        msg: '信息输入有误',
+        city_id: 0,
+        area_id: 0
       }
     },
     created () {
       this.api_token = Storage.get('api_token')
+      this.id = this.$route.query.id
+      if (this.id) {
+        this.$http.post(`/mobile/?act=member_address&op=address_info&api_token=${this.api_token}`, {
+          address_id: this.id
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.flag = false
+            let info = res.data.data.address_info
+            this.address1 = info.area_info
+            this.name = info.true_name
+            this.tel = info.tel_phone
+            this.city_id = parseInt(info.city_id)
+            this.area_id = parseInt(info.area_id)
+            this.desc = info.address
+          }
+        })
+      }
     },
     methods: {
       selectArea () {
         this.showAddress = true
       },
       getName (value) {
-        console.log(value)
         this.address1 = value2name(value, ChinaAddressV4Data)
       },
       submit () {
+        // 表单校验
+        // 名字校验: 1，非空值。 2，非数字1位以上
         let regName = /\D{1,}/
         let regTel = /^1[34578]{1}\d{9}$/
         if (!this.name.trim()) {
-          console.log(1)
           this.msg = '请输入收货人姓名'
           this.show = true
           return
         } else if (!regName.test(this.name.trim())) {
-          console.log(1)
           this.msg = '请正确输入您的姓名'
           this.show = true
           return
         }
-        if (!regTel.test(this.tel.trim()) || !this.name.trim()) {
-          console.log(2)
-          this.msg = '手机号码为11位数字'
+        // 11位数字 这里简单实现，13x 14x 15x 17x 18x 号码段
+        if (!regTel.test(this.tel.trim())) {
+          this.msg = '请正确输入手机号码'
           this.show = true
           return
         }
         if (!this.address1) {
-          console.log(3)
           this.msg = '请选择省市区'
           this.show = true
           return
         }
         if (!this.desc) {
-          console.log(4)
           this.msg = '请输入您的详细地址'
           this.show = true
           return
         }
-        if (regName.test(this.name.trim()) && regTel.test(this.tel.trim()) && this.address && this.desc) {
-          this.$http.post(`/apis/mobile/?act=member_address&op=address_add&api_token=${this.api_token}`, {
-
+        // 这里不需要判断了
+        // if (regName.test(this.name.trim()) && regTel.test(this.tel.trim()) && this.address && this.desc) {
+        // }
+        if (this.id) {
+          // 修改地址
+          this.$http.post(`/mobile/?act=member_address&op=address_edit&api_token=${this.api_token}`, {
+            true_name: this.name,
+            area_info: this.address1,
+            address: this.desc,
+            tel_phone: this.tel,
+            area_id: this.area_id,
+            city_id: this.city_id,
+            is_default: 0,
+            address_id: this.id
           }).then(res => {
-            console.log(res)
+            if (res.data.status === 200) {
+              this.$router.go(-1)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          // 添加地址
+          this.$http.post(`/mobile/?act=member_address&op=address_add&api_token=${this.api_token}`, {
+            true_name: this.name,
+            area_info: this.address1,
+            address: this.desc,
+            tel_phone: this.tel,
+            area_id: this.area_id,
+            city_id: this.city_id,
+            is_default: 0
+          }).then(res => {
+            if (res.data.status === 200) {
+              this.$router.go(-1)
+            }
+          }).catch(err => {
+            console.log(err)
           })
         }
       }
     },
     watch: {
+      // 用的vux 初始得到的地区id 然后拿到对应的真实地区
       address (value) {
+        if (!this.flag) {
+          this.flag = true
+          return
+        }
         this.getName(value)
+      },
+      // 拿到真实地区后 来换取后端需要的地区id  麻烦不？？？？？
+      address1 (newVal) {
+        // 用来防止修改地址的时候，会触发address1的改变，会报错
+        if (!this.flag) {
+          this.flag = true
+          return
+        }
+        let arr = newVal.split(' ')
+        this.$http.get('/api/area/area').then(res => {
+          let json = res.data
+          let one = json.find(item => {
+            return arr[0].indexOf(item.area_name) !== -1
+          })
+          let two
+          if (one.sub.length === 1) {
+            two = one.sub[0]
+          } else {
+            two = one.sub.find(item => {
+              return arr[1] === item.area_name
+            })
+          }
+          this.city_id = two.area_id
+          let three = two.sub.find(item => {
+            return arr[2] === item.area_name
+          })
+          this.area_id = three.area_id
+        })
       }
     },
     components: {

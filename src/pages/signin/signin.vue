@@ -62,7 +62,7 @@
         let password = this.pwd
         let client = 'wap'
         this.$http({
-          url: '/apis/mobile/?act=login',
+          url: '/mobile/?act=login',
           method: 'POST',
           data: {
             username,

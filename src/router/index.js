@@ -22,6 +22,7 @@ const Order = () => import('@/pages/my/children/order')
 const AfterSell = () => import('@/pages/my/children/after_sell')
 const Account = () => import('@/pages/my/children/account')
 const ForgetPwd = () => import('@/pages/my/children/signin_forgetpwd')
+const ForgetTel = () => import('@/pages/my/children/signin_forgetTel')
 const Address = () => import('@/pages/my/children/address')
 const AddressAdd = () => import('@/pages/my/children/address_add')
 const Qualification = () => import('@/pages/my/children/qualification')
@@ -55,7 +56,11 @@ export default [
         { path: 'account', component: Account,
           children: [
             { path: 'password', component: ForgetPwd },
-            { path: 'tel', component: ForgetPwd }
+            { path: 'tel', component: ForgetPwd,
+              children: [
+                { path: 'newtel', component: ForgetTel }
+              ]
+            }
           ]
         },
         { path: 'address', component: Address,

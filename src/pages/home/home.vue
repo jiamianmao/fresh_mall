@@ -89,14 +89,13 @@
       })
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
-      this.$http.get('/apis/api/advert/banner').then(res => {
+      this.$http.get('/api/advert/banner').then(res => {
         if (res.data.status === 200) {
-          console.log(res.data)
           // this.swiperUrlList = res.data.data
           res.data.data.forEach(item => {
             this.swiperUrlList.push({
               url: item.pic_url,
-              img: 'http://' + item.pic_img
+              img: item.pic_img
             })
           })
         }

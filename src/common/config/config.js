@@ -1,1 +1,1 @@
-export const baseUrl = '/apis'
+// export const baseUrl = '/apis'

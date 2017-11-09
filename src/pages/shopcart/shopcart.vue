@@ -105,7 +105,7 @@
       },
       onConfirm () {
         this.$http({
-          url: `/apis/mobile/?act=member_cart&op=cart_del&api_token=${this.api_token}`,
+          url: `/mobile/?act=member_cart&op=cart_del&api_token=${this.api_token}`,
           method: 'POST',
           data: {
             cart_id: this.currentClick
@@ -196,7 +196,7 @@
         })
       },
       _getShopCart () {
-        this.$http.get(`/apis/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
             this.cartdata = res.data.data
             this.sum = res.data.data.sum
@@ -210,7 +210,7 @@
       },
       _changeNum (quantity, cartId) {
         this.$http({
-          url: `/apis/mobile/?act=member_cart&op=cart_edit_quantity&api_token=${this.api_token}`,
+          url: `/mobile/?act=member_cart&op=cart_edit_quantity&api_token=${this.api_token}`,
           method: 'POST',
           data: {
             cart_id: cartId,

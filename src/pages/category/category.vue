@@ -28,7 +28,6 @@
 <script>
   import Search from '@/components/search/search'
   import Scroll from '@/components/scroll/scroll'
-  import { baseUrl } from 'common/config/config'
   import { Loading } from 'vux'
   export default {
     data () {
@@ -56,7 +55,7 @@
         this.$router.push('/goodslist')
       },
       _getCategory () {
-        this.$http.get(`${baseUrl}/mobile/?act=goods_class&op=goods_list`).then(res => {
+        this.$http.get('/mobile/?act=goods_class&op=goods_list').then(res => {
           if (res.data.status === 200) {
             this.cate_list = res.data.data.class_list
             if (this.cate_list) {
@@ -67,7 +66,7 @@
       },
       _getType (id) {
         this.loading = true
-        this.$http.get(`${baseUrl}/mobile/?act=goods_class&op=goods_list&gc_id=${id}`).then(res => {
+        this.$http.get(`/mobile/?act=goods_class&op=goods_list&gc_id=${id}`).then(res => {
           if (res.data.status === 200) {
             this.loading = false
             this.type_list = res.data.data.class_list

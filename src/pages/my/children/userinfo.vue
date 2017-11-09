@@ -5,9 +5,18 @@
       <main class='vux-1px-b'>
         <div class="item vux-1px-b">
           <div class="left">头像</div>
+          <!-- 
           <div class="right">
             <div class="img_wrapper">
               <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1722988955,2520640048&fm=58">
+            </div>
+          </div>
+          -->
+          <div class="uploader-container right">
+            <div class="box">
+              <van-uploader class='upload_item img_wrapper' :after-read="store">
+                <img :src="url">
+              </van-uploader>
             </div>
           </div>
         </div>
@@ -15,13 +24,13 @@
           <div class="left">性别</div>
           <div class="right">
             <div class="radio_wrapper">
-              <p @click='man'>
-                <img src="../../../assets/selectAdd/selected.png" v-if='sex === "man"'>
+              <p @click='sex = 1'>
+                <img src="../../../assets/selectAdd/selected.png" v-if='sex === 1'>
                 <img src="../../../assets/selectAdd/select.png" v-else>男
               </p>
-              <p @click='woman'>
-                <img src="../../../assets/selectAdd/selected.png" v-if='sex === "woman"'>
-              <img src="../../../assets/selectAdd/select.png" v-else>女
+              <p @click='sex = 2'>
+                <img src="../../../assets/selectAdd/selected.png" v-if='sex === 2'>
+                <img src="../../../assets/selectAdd/select.png" v-else>女
               </p>
             </div>
           </div>
@@ -41,29 +50,41 @@
           </div>
         </div>
       </main>
-      <button>保存</button>
+      <button @click='submit'>保存</button>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
         sex: null,
         msg: 'SpawN',
-        email: '308634583@qq.com'
+        email: '308634583@qq.com',
+        url: 'https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1722988955,2520640048&fm=58'
       }
     },
+    created () {
+      this.api_token = storage.get('api_token')
+    },
     methods: {
-      man () {
-        this.sex = 'man'
+      store (file) {
+        this.file = file.file
+        this.url = file.content
       },
-      woman () {
-        this.sex = 'woman'
-      },
-      change () {
-
+      submit () {
+        this.$http.post(`/mobile/?act=member_index&op=save_memberinfo&api_token=${this.api_token}`, {
+          member_name: this.msg,
+          member_sex: this.sex,
+          member_email: this.email,
+          member_avatar: this.file
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.$router.go(-1)
+          }
+        })
       }
     },
     components: {
@@ -72,7 +93,7 @@
   }
 </script>
 <style lang="less" scoped>
-@import '~common/less/variable.less';
+  @import '~common/less/variable.less';
   .container{
     position: absolute;
     top: 0;

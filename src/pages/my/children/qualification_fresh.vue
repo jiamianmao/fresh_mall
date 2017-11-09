@@ -5,7 +5,7 @@
       <main>
         <div class="title">门店资质</div>
         <div class="area">
-          <textarea :placeholder='placeholder' maxlength='200'></textarea>
+          <textarea :placeholder='placeholder' maxlength='200' v-model='store_condition'></textarea>
         </div>
         <div class="wrapper">
           <div class="uploader-container">
@@ -39,11 +39,12 @@
     data () {
       return {
         placeholder: '请具体介绍门店的存储设备、可为平台业务提供的设备容量、设备温度区间等',
-        value: '',
+        store_condition: '',
         url: require('../../../assets/my/uploadicon.png'),
         img1: false,
         img2: false,
-        text: '保存'
+        text: '保存',
+        store_condition_pic: []
       }
     },
     components: {
@@ -52,21 +53,25 @@
     methods: {
       logContent1 (file) {
         this.img1 = true
+        this.store_condition_pic.unshift(file.file)
         this.$nextTick(() => {
           this.$refs.img1.setAttribute('src', file.content)
         })
       },
       logContent2 (file) {
         this.img2 = true
+        this.store_condition_pic.push(file.file)
         this.$nextTick(() => {
           this.$refs.img2.setAttribute('src', file.content)
         })
       },
       close (n) {
         if (n === 1) {
+          this.store_condition_pic.shift()
           this.$refs.img1.setAttribute('src', '')
           this.img1 = false
         } else {
+          this.store_condition_pic.pop()
           this.$refs.img2.setAttribute('src', '')
           this.img2 = false
         }

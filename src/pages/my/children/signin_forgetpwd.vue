@@ -14,7 +14,7 @@
           </div>
         </div>
         <div class="password vux-1px-t" v-show='!tels'>
-          <img src="../../../assets/login/pwd.png"><input type="password" ref='pwd1' v-model='pwd1' placeholder='密码'>
+          <img src="../../../assets/login/pwd.png"><input type="password" ref='pwd1' v-model='pwd1' :placeholder='text'>
           <svg class="icon" aria-hidden="true" @click='seePassword(1)' ref='icon1'>
             <use xlink:href="#icon-yanjing"></use>
           </svg>
@@ -29,19 +29,22 @@
       <div class="bottom">
         <div class="text" v-show='correct'>
           <div class='icon' @click='active = !active'>
-            <img src="../../../assets/selectAdd/select.png" v-if='active'>
-            <img src="../../../assets/selectAdd/selected.png" v-else>
+            <img src="../../../assets/selectAdd/selected.png" v-if='active'>
+            <img src="../../../assets/selectAdd/select.png" v-else>
           </div>
           <p>我已阅读并同意<span>《用户注册协议》</span></p>
         </div>
-        <button>完成</button>
+        <button @click='submit'>{{btn}}</button>
       </div>
+      <alert v-model="show" title="请核对信息">{{msg}}</alert>
+      <router-view></router-view>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Countdown } from 'vux'
+  import { Countdown, Alert } from 'vux'
+  import storage from 'good-storage'
   export default {
     props: {
       correct: {
@@ -55,6 +58,10 @@
       tels: {
         type: Boolean,
         default: false
+      },
+      text: {
+        type: String,
+        default: '密码'
       }
     },
     data () {
@@ -64,8 +71,24 @@
         pwd2: '',
         code: '',
         time: 60,
-        start: false,
-        active: false
+        start: false, // 倒计时的flag
+        active: true,   // 协议按钮的flag
+        msg: '',
+        show: false,      // alert的flag
+        btn: '完成'
+      }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      // 用来手机验证的，因为要验证两次 所以提取出来
+      this.regTel = /^1[34578]{1}\d{9}$/
+      if (!this.title) {
+        this.$router.go(-1)
+      }
+      if (this.title === '更改手机号') {
+        this.btn = '下一步'
+      } else {
+        this.btn = '完成'
       }
     },
     methods: {
@@ -89,16 +112,73 @@
         }
       },
       getCode () {
-        this.start = true
+        if (!this.regTel.test(this.tel.trim())) {
+          this.msg = '请正确输入手机号码'
+          this.show = true
+          return
+        } else {
+          // 获取验证码
+          this.start = true
+        }
       },
+      // 倒计时结束
       finish () {
         this.start = false
         this.time = 60
+      },
+      submit () {
+        // 修改密码
+        if (this.title === '修改密码') {
+          if (!this.regTel.test(this.tel.trim())) {
+            this.msg = '请正确输入手机号码'
+            this.show = true
+            return
+          } else if (this.pwd1 !== this.pwd2) {
+            this.msg = '两次输入的密码不一致'
+            this.show = true
+          } else if (!this.active) {
+            this.msg = '请接受用户注册协议'
+            this.show = true
+          } else {
+            this.$http.post(`/mobile/?act=member_account&op=edit_password&api_token=${this.api_token}`, {
+              phone: this.tel,
+              auth_code: this.code,
+              password: this.pwd1,
+              password1: this.pwd2
+            }).then(res => {
+              if (res.data.status === 200) {
+                this.$router.go(-2)
+              } else {
+                this.msg = '验证码输入错误'
+                this.show = true
+              }
+            })
+          }
+        } else if (this.title === '更改手机号') {
+          if (!this.regTel.test(this.tel.trim())) {
+            this.msg = '请正确输入手机号码'
+            this.show = true
+            return
+          } else {
+            this.$http.post(`/mobile/?act=member_account&op=edit_phoneone&api_token=${this.api_token}`, {
+              auth_code: this.code
+            }).then(res => {
+              if (res.data.status === 200) {
+                console.log(1)
+                this.$router.push('/my/account/tel/newtel')
+              } else {
+                this.msg = '验证码输入错误'
+                this.show = true
+              }
+            })
+          }
+        }
       }
     },
     components: {
       XTitle,
-      Countdown
+      Countdown,
+      Alert
     }
   }
 </script>

@@ -1,27 +1,27 @@
 <template>
   <transition name='slide'>
     <div class='box'>
-      <x-title class='header'>收货地址</x-title>
+      <x-title>收货地址</x-title>
       <div class="container">
         <div class="content" v-for='(item, index) of list'>
           <div class="add vux-1px-b">
             <div class="top">
-              <span class='name'>{{item.name}}</span>
-              <span>{{item.tel}}</span>
+              <span class='name'>{{item.true_name}}</span>
+              <span>{{item.tel_phone}}</span>
             </div>
             <div class="bottom">
-              {{item.add}}
+              {{item.area_info | blank}}{{item.address}}
             </div>
           </div>
           <div class="config">
-            <div class="left" @click='select(index)'>
-              <img src="../../../assets/selectAdd/selected.png" v-if='item.flag'>
+            <div class="left" @click='select(item)'>
+              <img src="../../../assets/selectAdd/selected.png" v-if='parseInt(item.is_default)'>
               <img src="../../../assets/selectAdd/select.png" v-else>
               <span>默认地址</span>
             </div>
             <div class="right">
-              <span><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
-              <span @click='del(index)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
+              <span @click='change(item.address_id)'><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
+              <span @click='del(item.address_id)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
             </div>
           </div>
         </div>
@@ -35,6 +35,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
+  import storage from 'good-storage'
   import { Actionsheet } from 'vux'
   export default {
     data () {
@@ -49,30 +50,57 @@
       }
     },
     created () {
+      this.api_token = storage.get('api_token')
       this._getAddList()
     },
     methods: {
-      select (idx) {
-        this.list.forEach(item => {
-          item.flag = 0
+      select (item) {
+        this.$http.post(`/mobile/?act=member_address&op=address_edit&api_token=${this.api_token}`, {
+          true_name: item.true_name,
+          area_info: item.area_info,
+          address: item.address,
+          tel_phone: item.tel_phone,
+          area_id: item.area_id,
+          city_id: item.city_id,
+          is_default: 1,
+          address_id: item.address_id
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.$router.go(-1)
+            // this._getAddList()
+          }
         })
-        this.list[idx].flag = 1
       },
       addAddress () {
         this.$router.push({
           path: '/my/address/add'
         })
       },
-      del (idx) {
-        this.current = idx
+      // 删除用了一个modal做了层拦截，sure方法是Handler函数
+      del (id) {
+        this.current = id
         this.show = true
       },
       sure () {
-        console.log(this.current)
+        this.$http.post(`/mobile/?act=member_address&op=address_del&api_token=${this.api_token}`, {
+          address_id: this.current
+        }).then(res => {
+          if (res.data.status === 200) {
+            this._getAddList()
+          }
+        })
+      },
+      change (id) {
+        this.$router.push({
+          path: '/my/address/add',
+          query: {
+            id
+          }
+        })
       },
       _getAddList () {
-        this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/add').then(res => {
-          this.list = res.data.data
+        this.$http.get(`/mobile/?act=member_address&op=address_list&api_token=${this.api_token}`).then(res => {
+          this.list = res.data.data.address_list
         })
       }
     },
@@ -80,6 +108,19 @@
       XTitle,
       Scroll,
       Actionsheet
+    },
+    // 这里是把addressAdd组件里数据不做处理，在address组件里处理，因为还需要编辑，处理起来比较麻烦
+    filters: {
+      blank (value) {
+        return value.replace(/\s/g, '')
+      }
+    },
+    watch: {
+      $route () {
+        if (this.$route.path === '/my/address') {
+          this._getAddList()
+        }
+      }
     }
   }
 </script>
@@ -94,12 +135,6 @@
     background: #f4f4f4;
     padding-bottom: 50px;
     z-index: 1;
-  }
-  .header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
   }
   .container{
     width: 100vw;
@@ -132,6 +167,7 @@
         align-items: center;
         padding-right: 12px;
         color: #333;
+        font-size: @font-size-medium;
         .left, .right{
           height: 100%;
           display: flex;

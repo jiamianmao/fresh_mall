@@ -12,7 +12,7 @@
       </svg>
       <span>首页</span>
     </div>
-    <div class="item">
+    <div class="item" @click='shopCart'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-shopcart"></use>
       </svg>
@@ -36,6 +36,9 @@
       },
       addCart () {
         this.$emit('add')
+      },
+      shopCart () {
+        this.$router.push('/shopcart')
       }
     }
   }

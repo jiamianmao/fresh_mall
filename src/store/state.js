@@ -1,6 +1,8 @@
 const state = {
   startPage: true,
-  token: ''
+  token: '',
+  storeConditionPic: [],
+  storeCondition: ''
 }
 
 export default state

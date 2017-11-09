@@ -17,6 +17,8 @@
             </div>
           </div>
         </div> -->
+
+        <!-- 商品列表 -->
         <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-show='flag'>
           <van-cell-group>
             <div class="goods">
@@ -36,17 +38,18 @@
           <div class='deltext' slot="right" @click='delOne(item.fav_id)'>删除</div>
         </van-cell-swipe>
 
-        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-show='!flag' >
+        <!-- 收藏列表 -->
+        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-show='!flag'>
           <van-cell-group>
             <div class="brand">
               <div class='icon' ref='icon' @click='active(index)' v-show='del'></div>
               <div class="image">
-                <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
+                <img :src='item.brand.brand_pic'>
               </div>
-              <p>恒源祥</p>
+              <p>{{item.brand.brand_name}}</p>
             </div>
           </van-cell-group>
-          <div class='deltext1' slot="right" @click='delOne'>删除</div>
+          <div class='deltext1' slot="right" @click='delOne(item.id)'>删除</div>
         </van-cell-swipe>
 
       </div>
@@ -83,9 +86,6 @@
     },
     methods: {
       active (idx) {
-        console.log(idx)
-        console.log('active')
-        console.log(this.$refs.icon[idx])
         let index = this.activeArr.indexOf(idx)
         if (index === -1) {
           this.$refs.icon[idx].classList.add('active')
@@ -108,27 +108,26 @@
           this.del = false
         }
       },
-      delOne (favId) {
-        this.$http({
-          url: `/apis/mobile/?act=member_favorites&op=favorites_del`,
-          method: 'POST',
-          data: {
+      delOne (id) {
+        if (this.title === '收藏商品') {
+          this.$http.post('/mobile/?act=member_favorites&op=favorites_del', {
             api_token: this.api_token,
-            fav_id: favId
-          },
-          transformRequest: [(data) => {
-            let arr = ''
-            for (let i in data) {
-              arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
-            }
-            return arr
-          }]
-        }).then(res => {
-          console.log(res)
-        })
+            fav_id: id
+          }).then(res => {
+            console.log(res)
+          })
+        } else if (this.title === '浏览记录') {
+
+        } else if (this.title === '关注品牌') {
+          this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}`, {
+            id
+          }).then(res => {
+            console.log(res)
+          })
+        }
       },
       _getBrand () {
-        this.$http.get(`/apis/api/brand/follow_list?api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/brand/follow_list?api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
             this.flag = false
             this.arr = res.data.data
@@ -136,7 +135,7 @@
         })
       },
       _getFootMark () {
-        this.$http.get(`/apis/mobile/?act=member_goodsbrowse&op=browse_list&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/mobile/?act=member_goodsbrowse&op=browse_list&api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
             this.flag = false
             this.arr = res.data.data
@@ -144,7 +143,7 @@
         })
       },
       _getCollect () {
-        this.$http.get(`/apis/mobile/?act=member_favorites&op=favorites_list&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/mobile/?act=member_favorites&op=favorites_list&api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
             this.flag = true
             this.arr = res.data.data.favorites_list

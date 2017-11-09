@@ -5,6 +5,7 @@ import FastClick from 'fastclick'
 import routes from './router'
 import App from './App'
 import store from './store'
+import qs from 'qs'
 import Vuelazyload from 'vue-lazyload'
 import VueRouter from 'vue-router'
 import axios from 'axios'
@@ -18,6 +19,16 @@ import Storage from 'good-storage'
 
 Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
+
+axios.defaults.baseURL = '/apis'
+axios.interceptors.request.use(
+  config => {
+    if (config.method === 'post') {
+      config.data = qs.stringify(config.data)
+    }
+    return config
+  }
+)
 
 Vue.prototype.$http = axios
 
