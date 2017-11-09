@@ -30,11 +30,14 @@
           </div>
         </div>
       </main>
+      <alert v-model="show" title="请核对信息">{{msg}}</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import { mapActions } from 'vuex'
+  import { Alert } from 'vux'
   export default {
     data () {
       return {
@@ -44,11 +47,14 @@
         img1: false,
         img2: false,
         text: '保存',
-        store_condition_pic: []
+        store_condition_pic: [],
+        show: false,
+        msg: ''
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Alert
     },
     methods: {
       logContent1 (file) {
@@ -77,8 +83,21 @@
         }
       },
       save () {
-        console.log('save')
-      }
+        if (!this.store_condition_pic.length || !this.store_condition) {
+          this.show = true
+          this.msg = '请填写完整信息'
+        } else {
+          let commitData = {
+            storeCondition: this.store_condition,
+            storeConditionPic: this.store_condition_pic
+          }
+          this.fresh(commitData)
+          this.$router.go(-1)
+        }
+      },
+      ...mapActions([
+        'fresh'
+      ])
     }
   }
 </script>

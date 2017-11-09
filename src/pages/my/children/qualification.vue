@@ -244,6 +244,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { Uploader } from 'vant'
   import { Alert } from 'vux'
+  import { mapGetters } from 'vuex'
   export default {
     data () {
       return {
@@ -273,7 +274,9 @@
         authenticator_truename: '',
         authenticator_idnumber: '',
         licence_pic: [],
-        shop_pic: ''
+        shop_pic: '',
+        store_condition: '',
+        store_condition_pic: []
       }
     },
     created () {
@@ -364,9 +367,19 @@
         if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching) {
           this.show = true
           this.msg = '请完整输入信息'
+        } else if (this.is_storegoods === 1 && !this.storeCondition) {
+          this.show = true
+          this.msg = '请上传生鲜存储资质'
+        } else {
         }
         // this.$router.push('/my/qualification/sure')
       }
+    },
+    computed: {
+      ...mapGetters([
+        'storeConditionPic',
+        'storeCondition'
+      ])
     },
     components: {
       XTitle,
