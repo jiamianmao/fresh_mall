@@ -1,21 +1,25 @@
 <template>
   <div class="container">
     <div class="image">
-      <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=983039966,269769360&fm=58&u_exp_0=416006351,4231431246&fm_exp_0=86&bpow=670&bpoh=818">
+      <img v-lazy='goods.goods_image'>
     </div>
     <div class="content">
-      <h3>奥兰达利亚</h3>
-      <p class='desc'>脂肪含量饺子</p>
-      <span class='type'>1 kg</span>
-      <div class="iconWrapper">
-        <span>谷饲</span>
+      <h3>{{goods.goods_name}}</h3>
+      <p class='desc'>{{goods.goods_jingle}}</p>
+      <div class='wrapper'>
+        <div class="typeWrapper">
+          <span class='type' v-for='n of goods.goods_attr'>{{n.attr_name}}</span>
+        </div>
+        <div class="iconWrapper">
+          <span v-for='n of goods.goods_attr'>{{n.attr_value_name}}</span>
+        </div>
       </div>
       <div class="sellInfo">
         <div class="price">
-          ¥ <strong>548</strong>
+          ¥ <strong>{{goods.goods_price}}</strong>
         </div>
         <div class="num">
-          总销量: 12345份
+          总销量:{{goods.goods_salenum}}份
         </div>
       </div>
     </div>
@@ -23,6 +27,12 @@
 </template>
 <script>
   export default {
+    props: {
+      goods: {
+        type: Object,
+        default: {}
+      }
+    },
     data () {
       return {
       }
@@ -31,14 +41,15 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .container{
     width: 100vw;
-    height: 126px;
+    height: 33.6vw;
     padding: 0 18px 0 11px;
     display: flex;
     flex-flow: row nowrap;
     .image{
-      width: 126px;
+      width: 33.6vw;
       height: inherit;
       margin-right: 15px;
       img{
@@ -47,28 +58,21 @@
       }
     }
     .content{
-      flex: 1;
+      // 这里还用不了 flex:1 MMP
+      width: 54.666vw;
       display: flex;
       flex-direction: column;
       position: relative;
-      // justify-content: space-around;
-      h3, .type{
-        margin: 10px 0;
+      h3{
+        margin: 8px 0;
         font-size: @font-size-medium;
-      }
-      .iconWrapper{
-        span{
-          height: 12px;
-          border: 1px solid @color;
-          padding: 2px;
-          font-size: @font-size-small-s;
-          border-radius: 4px;
-          color: @color;
-        }
+        width: 100%;
+        .no-wrap
       }
       .desc{
         color: #666;
         font-size: @font-size-small;
+        height: 12px;
       }
       .sellInfo{
         position: absolute;
@@ -88,6 +92,33 @@
         .num{
           color: #666;
           font-size: @font-size-small;
+        }
+      }
+      .wrapper{
+        display: flex;
+        flex-flow: column wrap;
+        .iconWrapper{
+          display: flex;
+          flex-flow: row wrap;
+          span{
+            // height: 12px;
+            border: 1px solid @color;
+            padding: 2px;
+            font-size: @font-size-small-s;
+            border-radius: 4px;
+            color: @color;
+            margin-top: 3px;
+          }
+        }
+        .typeWrapper{
+          span{
+            margin-bottom: 8px;
+            margin-top: 8px;
+            font-size: @font-size-medium;
+          }
+        }
+        span~span{
+          margin-left: 6px;
         }
       }
     }

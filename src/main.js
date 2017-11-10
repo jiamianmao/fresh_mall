@@ -46,11 +46,15 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
-    Storage.set('currentUrl', to.path)
     next('/signin')
+    Storage.set('currentUrl', to.fullPath)
+  } else if (to.path === '/signin' && Storage.get('api_token')) {
+    next('/')
+  } else {
+    next()
   }
-  next()
 })
 
 /* eslint-disable no-new */

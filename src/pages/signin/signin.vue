@@ -68,45 +68,14 @@
         }).then(res => {
           if (res.data.status === 200) {
             storage.set('api_token', res.data.data.api_token)
-            let url = storage.get('currentUrl')
+            storage.set('member_class', res.data.data.member_class)
             this.$router.push({
-              path: url
+              path: storage.get('currentUrl')
             })
           } else {
             alert('账号密码错误')
           }
         })
-        // this.$http({
-        //   url: '/mobile/?act=login',
-        //   method: 'POST',
-        //   data: {
-        //     username,
-        //     password,
-        //     client,
-        //     code: 123
-        //   },
-        //   transformRequest: [function (data) {
-        //     // Do whatever you want to transform the data
-        //     let ret = ''
-        //     for (let it in data) {
-        //       ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-        //     }
-        //     return ret
-        //   }],
-        //   headers: {
-        //     'Content-Type': 'application/x-www-form-urlencoded'
-        //   }
-        // }).then(res => {
-        //   if (res.data.status === 200) {
-        //     storage.set('api_token', res.data.data.api_token)
-        //     let url = storage.get('currentUrl')
-        //     this.$router.push({
-        //       path: url
-        //     })
-        //   } else {
-        //     alert('账号密码错误')
-        //   }
-        // })
       }
     },
     components: {

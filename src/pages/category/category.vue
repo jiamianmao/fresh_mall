@@ -43,7 +43,7 @@
       this._getCategory()
     },
     mounted () {
-      this.$refs.serach.changeColor()
+      // this.$refs.serach.changeColor()
     },
     methods: {
       active (key, id) {

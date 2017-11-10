@@ -21,7 +21,7 @@
       <transition name='slide'>
         <scroll :data='descData' class='box vux-1px-b vux-1px-t' v-show='descFlag' ref='scroll'>
           <div class="descWrapper">
-            <div class="desc" :class='{active_desc: idxDesc.indexOf(index) !== -1}' v-for='(item, index) of descData' @click='selectDesc(index)'>
+            <div class="desc" :class='{active_desc: attrDest.indexOf(index) !== -1}' v-for='(item, index) of descData' @click='selectDesc(index)'>
               {{item}}
             </div>
           </div>
@@ -37,8 +37,9 @@
       </transition>
     </div>
 
+    <!-- 这里没处理好，该商品样式没复用，竟然还抽离出个组件 -->
     <div class="goods-wrapper">
-      <x-goods class='x-goods' @click.native='selectGoods'></x-goods>
+      <x-goods v-for='(item, index) of goodsData' :goods='item' class='x-goods' :key='index' @click.native='selectGoods'></x-goods>
     </div>
   </div>
 </template>
@@ -46,18 +47,22 @@
   import Search from '@/components/search/search'
   import Scroll from '@/components/scroll/scroll'
   import XGoods from '@/components/x-goods/x-goods'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
-        sortArr: [],
-        placeholder: false,
+        sortArr: [],  // 品牌/品种/部位 等信息
+        placeholder: false,  // 对desc做个横线
         descFlag: false,
         idx: 0,
-        idxDesc: [],
-        descData: []
+        attrDest: [],  // 用户选择用来搜索的信息
+        descData: [],  // 部位/品种 下面的详情信息
+        goodsData: []
       }
     },
     created () {
+      this.api_token = storage.get('api_token')
+      this.gc_id = this.$route.query.gc_id
       this._getSort()
     },
     methods: {
@@ -77,19 +82,19 @@
         this.descFlag = true
       },
       selectDesc (index) {
-        let x = this.idxDesc.findIndex((n) => n === index)
+        let x = this.attrDest.findIndex((n) => n === index)
         if (x === -1) {
-          this.idxDesc.push(index)
+          this.attrDest.push(index)
         } else {
-          this.idxDesc.splice(x, 1)
+          this.attrDest.splice(x, 1)
         }
       },
       reset () {
-        this.idxDesc = []
+        this.attrDest = []
       },
       sure () {
         this.descFlag = false
-        console.log(this.idxDesc)
+        console.log(this.attrDest)
       },
       selectGoods () {
         this.$router.push('/product/1')
@@ -97,8 +102,27 @@
       _getSort () {
         this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/sortrule').then(res => {
           this.sortArr = res.data.data
+          // 方法有点蠢，不灵活 只能两组加横线
           this.sortArr.length > 4 && (this.placeholder = true)
           this.descData = this.sortArr[this.idx].list
+          // 防止页面重绘
+          this.$nextTick(() => {
+            this._getGoodsData()
+          })
+        })
+      },
+      _getGoodsData () {
+        let url
+        // 这里需要对api_token做个判断，后端需要维护用过户浏览行为，所以传参不同的
+        if (this.api_token) {
+          url = `/api/good_class/recommend?api_token=${this.api_token}&id=${this.gc_id}`
+        } else {
+          url = `/api/good_class/recommend?id=${this.gc_id}`
+        }
+        this.$http.get(url).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.goodsData = res.data.data
+          }
         })
       }
     },
@@ -110,7 +134,7 @@
     watch: {
       descFlag () {
         this.$nextTick(() => {
-          this.idxDesc = []
+          this.attrDest = []
           this.$refs.scroll.refresh()
         })
       },

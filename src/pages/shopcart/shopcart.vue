@@ -209,20 +209,9 @@
         })
       },
       _changeNum (quantity, cartId) {
-        this.$http({
-          url: `/mobile/?act=member_cart&op=cart_edit_quantity&api_token=${this.api_token}`,
-          method: 'POST',
-          data: {
-            cart_id: cartId,
-            quantity
-          },
-          transformRequest: [(data) => {
-            let ret = ''
-            for (let i in data) {
-              ret += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
-            }
-            return ret
-          }]
+        this.$http.post(`/mobile/?act=member_cart&op=cart_edit_quantity&api_token=${this.api_token}`, {
+          cart_id: cartId,
+          quantity
         }).then(res => {
           this._getShopCart()
         })

@@ -13,15 +13,15 @@
         </div>
         <div class="vux-1px-t">
           <label for="pwd1">密码</label>
-          <input class='pwd' type="password" id='pwd1' ref='pwd1' v-model='pwd1'>
-          <svg class="icon" aria-hidden="true" @click='seePassword(1)' ref='icon1'>
+          <input class='pwd' type="password" id='pwd1' v-model='pwd1'>
+          <svg class="icon" aria-hidden="true" @click='seePassword(0)'>
             <use xlink:href="#icon-yanjing"></use>
           </svg>
         </div>
         <div class="vux-1px-t">
           <label for="pwd2">确认密码</label>
-          <input class='pwd' type="password" id='pwd2' ref='pwd2' v-model='pwd2'>
-          <svg class="icon" aria-hidden="true" @click='seePassword(2)' ref='icon2'>
+          <input class='pwd' type="password" id='pwd2' v-model='pwd2'>
+          <svg class="icon" aria-hidden="true" @click='seePassword(1)'>
             <use xlink:href="#icon-yanjing"></use>
           </svg>
         </div>
@@ -46,14 +46,16 @@
           </div>
           <p>我已阅读并同意<span>《用户注册协议》</span></p>
         </div>
-        <button>注册</button>
+        <button @click='submit'>注册</button>
       </div>
+      <alert v-model="show" title="请注意">{{msg}}</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Countdown } from 'vux'
+  import { Countdown, Alert } from 'vux'
+  import $ from 'jquery'
   export default {
     data () {
       return {
@@ -65,40 +67,68 @@
         code: '',
         time: 60,
         start: false,
-        active: false
+        active: false,
+        show: false,
+        msg: ''
       }
     },
     methods: {
-      seePassword (idx) {
-        if (idx === 1) {
-          if (this.$refs.pwd1.getAttribute('type') === 'text') {
-            this.$refs.pwd1.setAttribute('type', 'password')
-            this.$refs.icon1.style.fill = '#5eb29e'
-          } else {
-            this.$refs.pwd1.setAttribute('type', 'text')
-            this.$refs.icon1.style.fill = '#333'
-          }
+      seePassword (n) {
+        if ($(`.pwd:eq(${n})`).attr('type') === 'text') {
+          $(`.pwd:eq(${n})`).attr('type', 'password')
+          $(`.icon:eq(${n})`).css({fill: '#5eb29e'})
         } else {
-          if (this.$refs.pwd2.getAttribute('type') === 'text') {
-            this.$refs.pwd2.setAttribute('type', 'password')
-            this.$refs.icon2.style.fill = '#5eb29e'
-          } else {
-            this.$refs.pwd2.setAttribute('type', 'text')
-            this.$refs.icon2.style.fill = '#333'
-          }
+          $(`.pwd:eq(${n})`).attr('type', 'text')
+          $(`.icon:eq(${n})`).css({fill: '#333'})
         }
       },
       getCode () {
+        let regTel = /^1[34578]{1}\d{9}$/
+        if (!regTel.test(this.tel.trim())) {
+          this.show = true
+          this.msg = '请正确输入您的手机号'
+          return
+        }
         this.start = true
       },
       finish () {
         this.start = false
         this.time = 60
+      },
+      submit () {
+        if (this.active) {
+          this.show = true
+          this.msg = '请阅读并同意用户注册协议'
+          return
+        }
+        let phone = this.tel
+        let password = this.pwd1
+        let passwordConfirm = this.pwd2
+        let code = this.code
+        let businessName = this.name
+        let taxNumber = this.tax
+        this.$http.post('/mobile/?act=login&op=company_register', {
+          phone,
+          password,
+          password_confirm: passwordConfirm,
+          code,
+          business_name: businessName,
+          tax_number: taxNumber
+        }).then(res => {
+          if (res.data.status === 200) {
+            // 跳转到登录页面
+            this.$router.go(-2)
+          } else {
+            this.show = true
+            this.msg = res.data.data.error
+          }
+        })
       }
     },
     components: {
       XTitle,
-      Countdown
+      Countdown,
+      Alert
     }
   }
 </script>

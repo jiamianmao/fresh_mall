@@ -5,10 +5,12 @@
         <img src="../../assets/tab/home.png">
         <img src="../../assets/tab/home_active.png">
       </tab-item>
+      <!--
       <tab-item @on-item-click='category' :class='i_category'>
         <img src="../../assets/tab/category.png">
         <img src="../../assets/tab/category_active.png">
       </tab-item>
+      -->
       <tab-item @on-item-click='shopcart' :class='i_shopcart'>
         <img src="../../assets/tab/shopcart.png">
         <img src="../../assets/tab/shopcart_active.png">

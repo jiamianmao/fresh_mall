@@ -34,7 +34,7 @@
       <transition name='slide_nav'>
         <nav ref='nav'>
           <div class="left" ref='navLeft'>
-            <span v-for='(n, key) of 12' :class='{active: activeIdx === key}' @click='selectCate(key)' ref='navItem'>{{n}}</span>
+            <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index)' ref='navItem'>{{item.gc_name}}</span>
           </div>
           <div class='arrow_box' @click='arrowToggle'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
@@ -61,10 +61,9 @@
   /* eslint-disable no-undef */
   import { Swiper } from 'vux'
   import { mapGetters, mapMutations } from 'vuex'
-  // import { baseUrl } from 'common/config/config'
   import storage from 'good-storage'
   import TypeList from '@/components/typeList/typeList'
-  import $ from 'jquery'
+  // import $ from 'jquery'
 
   export default {
     data () {
@@ -75,7 +74,8 @@
         city: '北京',
         // nav 的上下标识符
         slideDown: false,
-        activeIdx: 0
+        activeIdx: 0,
+        cate_list: []
       }
     },
     created () {
@@ -89,17 +89,8 @@
       })
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
-      this.$http.get('/api/advert/banner').then(res => {
-        if (res.data.status === 200) {
-          // this.swiperUrlList = res.data.data
-          res.data.data.forEach(item => {
-            this.swiperUrlList.push({
-              url: item.pic_url,
-              img: item.pic_img
-            })
-          })
-        }
-      })
+      this._getBanner()
+      this._getCategory()
     },
     mounted () {
       this.swiperHeight = `${this.$refs.swiperWrapper.clientHeight}px`
@@ -147,7 +138,8 @@
         this.slideDown = !this.slideDown
         let navLeft = this.$refs.navLeft
         if (this.slideDown) {
-          navLeft.style.height = `${this.navHeight * 3}px`
+          let num = Math.ceil(this.cate_list.length / 4)
+          navLeft.style.height = this.navHeight * num + 'px'
           navLeft.style.flexWrap = 'wrap'
           navLeft.style.overflowX = 'visible'
         } else {
@@ -164,9 +156,16 @@
         } else {
           this.slideDown = false
         }
-        let navLeft = this.$refs.navLeft
-        let step = navLeft.clientWidth / 4 * key
-        $(navLeft).animate({scrollLeft: step}, 500)
+        // let navLeft = this.$refs.navLeft
+        // let step = navLeft.clientWidth / 4 * key
+        // $(navLeft).animate({scrollLeft: step}, 500)
+        let gcId = this.cate_list[key].gc_id
+        this.$router.push({
+          path: '/goodslist',
+          query: {
+            'gc_id': gcId
+          }
+        })
       },
       _downArrow () {
         let ctx = this.$refs.down_canvas.getContext('2d')
@@ -188,6 +187,26 @@
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         ctx.stroke()
+      },
+      _getBanner () {
+        this.$http.get('/api/advert/banner').then(res => {
+          if (res.data.status === 200) {
+            // this.swiperUrlList = res.data.data
+            res.data.data.forEach(item => {
+              this.swiperUrlList.push({
+                url: item.pic_url,
+                img: item.pic_img
+              })
+            })
+          }
+        })
+      },
+      _getCategory () {
+        this.$http.get('/mobile/?act=goods_class&op=goods_list').then(res => {
+          if (res.data.status === 200) {
+            this.cate_list = res.data.data.class_list
+          }
+        })
       },
       ...mapMutations({
         'set_start_page': 'SET_START_PAGE'

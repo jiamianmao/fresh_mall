@@ -7,8 +7,15 @@
           <img src="../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
         </div>
         <div class="password vux-1px-t">
-          <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' placeholder='密码' maxlength='20'>
-          <svg class="icon" aria-hidden="true" @click='seePassword' ref='icon'>
+          <img src="../../assets/login/pwd.png">
+          <input type="password" class='pwd' v-model='pwd' placeholder='密码' maxlength='20'>
+          <svg class="icon" aria-hidden="true" @click='seePassword(0)'>
+            <use xlink:href="#icon-yanjing"></use>
+          </svg>
+        </div>
+        <div class="password vux-1px-t">
+          <img src="../../assets/login/pwd.png"><input type="password" class='pwd' v-model='pwd1' placeholder='确认密码' maxlength='20'>
+          <svg class="icon" aria-hidden="true" @click='seePassword(1)'>
             <use xlink:href="#icon-yanjing"></use>
           </svg>
         </div>
@@ -37,11 +44,13 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Countdown, Alert } from 'vux'
+  import $ from 'jquery'
   export default {
     data () {
       return {
         tel: '',
         pwd: '',
+        pwd1: '',
         code: '',
         time: 60,
         start: false,
@@ -51,16 +60,22 @@
       }
     },
     methods: {
-      seePassword () {
-        if (this.$refs.pwd.getAttribute('type') === 'text') {
-          this.$refs.pwd.setAttribute('type', 'password')
-          this.$refs.icon.style.fill = '#5eb29e'
+      seePassword (n) {
+        if ($(`.pwd:eq(${n})`).attr('type') === 'text') {
+          $(`.pwd:eq(${n})`).attr('type', 'password')
+          $(`.icon:eq(${n})`).css({fill: '#5eb29e'})
         } else {
-          this.$refs.pwd.setAttribute('type', 'text')
-          this.$refs.icon.style.fill = '#333'
+          $(`.pwd:eq(${n})`).attr('type', 'text')
+          $(`.icon:eq(${n})`).css({fill: '#333'})
         }
       },
       getCode () {
+        let regTel = /^1[34578]{1}\d{9}$/
+        if (!regTel.test(this.tel.trim())) {
+          this.show = true
+          this.msg = '请正确输入您的手机号'
+          return
+        }
         this.start = true
       },
       finish () {
@@ -68,19 +83,23 @@
         this.time = 60
       },
       personal () {
+        if (this.active) {
+          this.show = true
+          this.msg = '请阅读并同意用户注册协议'
+          return
+        }
         let phone = this.tel
         let code = this.code
         let password = this.pwd
-        console.log(phone)
-        console.log(code)
+        let passwordConfirm = this.pwd1
         this.$http.post('/mobile/?act=login&op=register', {
           phone,
           code,
-          password
+          password,
+          password_confirm: passwordConfirm
         }).then(res => {
           if (res.data.status === 200) {
-            // 跳转到登录页面
-            this.$router.push('/signin')
+            this.$router.go(-2)
           } else {
             this.show = true
             this.msg = res.data.data.error

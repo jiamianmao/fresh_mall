@@ -127,6 +127,7 @@
         this.time = 60
       },
       submit () {
+        console.log(this.title)
         // 修改密码
         if (this.title === '修改密码') {
           if (!this.regTel.test(this.tel.trim())) {
@@ -136,9 +137,11 @@
           } else if (this.pwd1 !== this.pwd2) {
             this.msg = '两次输入的密码不一致'
             this.show = true
+            return
           } else if (!this.active) {
             this.msg = '请接受用户注册协议'
             this.show = true
+            return
           } else {
             this.$http.post(`/mobile/?act=member_account&op=edit_password&api_token=${this.api_token}`, {
               phone: this.tel,
@@ -168,6 +171,30 @@
                 this.$router.push('/my/account/tel/newtel')
               } else {
                 this.msg = '验证码输入错误'
+                this.show = true
+              }
+            })
+          }
+        } else if (this.title === '忘记密码') {
+          if (!this.regTel.test(this.tel.trim())) {
+            this.msg = '请正确输入手机号码'
+            this.show = true
+            return
+          } else if (this.pwd1 !== this.pwd2) {
+            this.msg = '两次输入的密码不一致'
+            this.show = true
+            return
+          } else {
+            this.$http.post('/mobile/?act=login&op=forget_password', {
+              phone: this.tel,
+              code: this.code,
+              password: this.pwd1,
+              password_confirm: this.pwd2
+            }).then(res => {
+              if (res.data.status === 200) {
+                this.$router.go(-1)
+              } else {
+                this.msg = res.data.data.error
                 this.show = true
               }
             })

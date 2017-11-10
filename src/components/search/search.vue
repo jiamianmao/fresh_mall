@@ -28,11 +28,10 @@
         msg: ''
       }
     },
-    mounted () {
-    },
     methods: {
       clear () {
-        this.msg = ''
+        this.$emit('toSearch', this.msg)
+        // this.msg = ''
       },
       toSearch () {
         this.$emit('toSearch', this.msg)
@@ -56,6 +55,7 @@
   }
 </script>
 <style lang="less" scoped>
+  @import '~common/less/variable.less';
   .search{
     position: relative;
     height: 50px;
@@ -82,10 +82,15 @@
         overflow: hidden;
       }
       input{
+        display: flex;
+        align-items: center;
         border: 0;
         background: transparent;
-        padding-left: 14px;
+        padding: 5px 0 5px 14px;
         width: 100%;
+        font-size: @font-size-small;
+        height: 20px;
+        line-height: 20px;
       }
     }
     .right{

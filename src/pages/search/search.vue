@@ -2,12 +2,12 @@
   <div class='container'>
     <search @close='close' @toSearch='toSearch' :rightContent='rightContent'></search>
     <div class="main">
-      <div class="item" v-for='n of 3'>
-        <img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=838889014,1211497536&fm=27&gp=0.jpg" alt="">
+      <div class="item" v-for='item of result' @click='select(item.goods_id)'>
+        <img v-lazy='item.goods_image'>
         <div class="down">
-          <h1 class='title'>泰国原装进口山竹</h1>
-          <p class='desc'>雪白多汁，清新爽口</p>
-          <p class='price'>¥98</p>
+          <h1 class='title'>{{item.goods_name}}</h1>
+          <p class='desc'>{{item.goods_jingle}}</p>
+          <p class='price'>¥{{item.goods_price}}</p>
         </div>
       </div>
     </div>
@@ -15,19 +15,31 @@
 </template>
 <script>
   import Search from '@/components/search/search'
+  import Storage from 'good-storage'
   export default {
     data () {
       return {
-        rightContent: '取消'
+        rightContent: '取消',
+        result: []
       }
+    },
+    created () {
+      this.api_token = Storage.get('api_token')
     },
     methods: {
       close () {
         this.$router.go(-1)
       },
-      toSearch (word) {
+      toSearch (keyword) {
         // 拿到搜索关键词去交互
-        console.log(word)
+        this.$http.get(`/api/goods/list?api_token=${this.api_token}&name=${keyword}`).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.result = res.data.data
+          }
+        })
+      },
+      select (id) {
+        this.$router.push(`product/${id}`)
       }
     },
     components: {
@@ -69,10 +81,12 @@
           .desc{
             font-size: @font-size-small;
             color: #858585;
+            height: 12px;
           }
           .price{
             font-size: @font-size-small;
             font-weight: bold;
+            margin-top: 6px;
           }
         }
       }
