@@ -2,7 +2,8 @@ const state = {
   startPage: true,
   storeConditionPic: [],
   storeCondition: '',
-  qualification: {}
+  qualification: {},
+  invoice: {}
 }
 
 export default state

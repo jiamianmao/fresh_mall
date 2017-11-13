@@ -37,7 +37,7 @@
         </div>
         <button @click='personal'>注册</button>
       </div>
-       <alert v-model="show" title="请注意">{{msg}}</alert>
+      <alert v-model="show" title="请注意">{{msg}}</alert>
     </div>
   </transition>
 </template>

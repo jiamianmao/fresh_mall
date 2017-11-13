@@ -12,8 +12,10 @@ const Map = () => import('@/pages/map/map')
 const Rate = () => import('@/pages/rate/rate')
 const GoodsList = () => import('@/pages/goods-list/goods-list')
 const Desc = () => import('@/pages/desc/desc')
+
 const FirmOrder = () => import('@/pages/firmorder/firmorder')
-const Invoice = () => import('@/pages/invoice/invoice')
+const Invoice = () => import('@/pages/firmorder/children/invoice')
+
 const BrandGoodsList = () => import('@/pages/brandGoodsList/brandGoodsList')
 const Pay = () => import('@/pages/pay/pay')
 
@@ -83,6 +85,11 @@ export default [
         { path: 'refund', component: Refund }
       ]
     },
+    { path: '/firmorder', component: FirmOrder,
+      children: [
+        { path: 'invoice', component: Invoice }
+      ]
+    },
     { path: '/city', component: City },
     { path: '/search', component: Search },
     { path: '/product/:id', component: Product},
@@ -90,11 +97,6 @@ export default [
     { path: '/rate', component: Rate },
     { path: '/goodslist', component: GoodsList },
     { path: '/desc', component: Desc },
-    { path: '/firmorder', component: FirmOrder,
-      children: [
-        { path: 'invoice', component: Invoice }
-      ]
-    },
     { path: '/brandGoodsList', component: BrandGoodsList },
     { path: '/pay', component: Pay },
     { path: '/signin', component: Signin,

@@ -12,6 +12,9 @@ const mutations = {
   },
   [types.SET_QUALIFICATION] (state, qualification) {
     state.qualification = qualification
+  },
+  [types.SET_INVOICE] (state, invoice) {
+    state.invoice = invoice
   }
 }
 

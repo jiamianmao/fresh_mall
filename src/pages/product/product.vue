@@ -229,6 +229,7 @@
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.id = this.$route.params.id
       // 获得产品数据
       this._getProductDesc()
     },
@@ -240,39 +241,17 @@
       favoriteToggle () {
         this.favorite = !this.favorite
         if (this.favorite) {
-          this.$http({
-            url: `/mobile/?act=member_favorites&op=favorites_add`,
-            method: 'POST',
-            data: {
-              api_token: this.api_token,
-              goods_id: 38,
-              key: 123456
-            },
-            transformRequest: [(data) => {
-              let arr = ''
-              for (let i in data) {
-                arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
-              }
-              return arr
-            }]
+          this.$http.post('/mobile/?act=member_favorites&op=favorites_add', {
+            api_token: this.api_token,
+            goods_id: 38,
+            key: 123456
           }).then(res => {
             console.log(res)
           })
         } else {
-          this.$http({
-            url: `/mobile/?act=member_favorites&op=favorites_del`,
-            method: 'POST',
-            data: {
-              api_token: this.api_token,
-              fav_id: 38
-            },
-            transformRequest: [(data) => {
-              let arr = ''
-              for (let i in data) {
-                arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
-              }
-              return arr
-            }]
+          this.$http.post('/mobile/?act=member_favorites&op=favorites_del', {
+            api_token: this.api_token,
+            fav_id: 38
           }).then(res => {
             console.log(res)
           })
@@ -286,20 +265,9 @@
       },
       submit () {
         this.addFlag = false
-        this.$http({
-          url: `/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`,
-          method: 'POST',
-          data: {
-            goods_id: 46,
-            quantity: this.count
-          },
-          transformRequest: [(data) => {
-            let arr = ''
-            for (let i in data) {
-              arr += encodeURIComponent(i) + '=' + encodeURIComponent(data[i]) + '&'
-            }
-            return arr
-          }]
+        this.$http.post(`/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`, {
+          goods_id: 2,
+          quantity: this.count
         }).then(res => {
           if (res.data.status === 200) {
             // 获取购物车最新的数量
@@ -338,42 +306,18 @@
       },
       brand () {
         if (this.brandFlag) {
-          this.$http({
-            url: `/api/brand/cancel_follow?api_token=${this.api_token}&id=79`,
-            method: 'POST',
-            data: {
-              api_token: this.api_token,
-              id: 79
-            },
-            transformRequest: [function (data) {
-              // Do whatever you want to transform the data
-              let ret = ''
-              for (let it in data) {
-                ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-              }
-              return ret
-            }]
+          this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}&id=79`, {
+            api_token: this.api_token,
+            id: 79
           }).then(res => {
             if (res.data.status === 200) {
               this.brandFlag = false
             }
           })
         } else {
-          this.$http({
-            url: '/api/brand/follow',
-            method: 'POST',
-            data: {
-              api_token: this.api_token,
-              id: 79
-            },
-            transformRequest: [function (data) {
-            // Do whatever you want to transform the data
-              let ret = ''
-              for (let it in data) {
-                ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-              }
-              return ret
-            }]
+          this.$http.post('/api/brand/follow', {
+            api_token: this.api_token,
+            id: 79
           }).then(res => {
             if (res.data.status === 200) {
               this.brandFlag = true
@@ -385,7 +329,8 @@
         this.$router.push('/map')
       },
       _getProductDesc () {
-        this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/getCategoryData').then(res => {
+        this.$http.get(`/api/goods/detail?api_token=${this.api_token}&id=${this.id}`).then(res => {
+          console.log(res)
           if (res.status === 200) {
             this.arr = res.data.data[0].list
           }

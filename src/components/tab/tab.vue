@@ -1,21 +1,15 @@
 <template>
   <div>
-    <tab class='tab vux-1px-t' :animate='true' :bar-active-color='red' :line-width='0' ref='tab'>
-      <tab-item @on-item-click='home' :class='i_home'>
+    <tab class='tab vux-1px-t' :animate='true' :line-width='0'>
+      <tab-item @on-item-click='go(0)'>
         <img src="../../assets/tab/home.png">
         <img src="../../assets/tab/home_active.png">
       </tab-item>
-      <!--
-      <tab-item @on-item-click='category' :class='i_category'>
-        <img src="../../assets/tab/category.png">
-        <img src="../../assets/tab/category_active.png">
-      </tab-item>
-      -->
-      <tab-item @on-item-click='shopcart' :class='i_shopcart'>
+      <tab-item @on-item-click='go(1)'>
         <img src="../../assets/tab/shopcart.png">
         <img src="../../assets/tab/shopcart_active.png">
       </tab-item>
-      <tab-item @on-item-click='my' :class='i_my'>
+      <tab-item @on-item-click='go(2)'>
         <img src="../../assets/tab/my.png">
         <img src="../../assets/tab/my_active.png">
       </tab-item>
@@ -24,63 +18,21 @@
 </template>
 <script>
   import { Tab, TabItem } from 'vux'
+  import $ from 'jquery'
   export default {
-    data () {
-      return {
-        red: 'red',
-        i_home: '',
-        i_category: '',
-        i_shopcart: '',
-        i_my: ''
-      }
-    },
     created () {
-      let href = location.pathname
-      if (href === '/home') {
-        this.i_home = 'vux-tab-selected'
-      } else if (href === '/category') {
-        this.i_category = 'vux-tab-selected'
-      } else if (href === '/shopcart') {
-        this.i_shopcart = 'vux-tab-selected'
-      } else if (href === '/my') {
-        this.i_my = 'vux-tab-selected'
-      }
+      this.arr = ['/home', '/shopcart', '/my']
     },
     methods: {
-      clear () {
-        this.i_home = ''
-        this.i_category = ''
-        this.i_shopcart = ''
-        this.i_my = ''
-        this.$refs.tab.$el.style.backgroundColor = ''
-      },
-      home () {
-        this.clear()
-        this.$router.push('/home')
-      },
-      category () {
-        this.clear()
-        this.$router.push('/category')
-      },
-      shopcart () {
-        this.clear()
-        this.$router.push('/shopcart')
-      },
-      my () {
-        this.$router.push('/my')
+      go (idx) {
+        this.$router.push(this.arr[idx])
       }
     },
     watch: {
       $route () {
-        let url = this.$route.path
-        if (url === '/category') {
-          this.$refs.tab.$el.style.backgroundColor = 'rgba(255, 255, 255, .2)'
-        }
-        if (url === '/home' || url === '/category' || url === '/shopcart' || url === '/my') {
-          this.$refs.tab.$el.style.display = 'flex'
-        } else {
-          this.$refs.tab.$el.style.display = 'none'
-        }
+        $('.tab').find('.vux-tab-item').attr('class', 'vux-tab-item')
+        let idx = this.arr.indexOf(this.$route.path)
+        $('.vux-tab-item').eq(idx).addClass('vux-tab-selected')
       }
     },
     components: {

@@ -39,7 +39,7 @@
 
     <!-- 这里没处理好，该商品样式没复用，竟然还抽离出个组件 -->
     <div class="goods-wrapper">
-      <x-goods v-for='(item, index) of goodsData' :goods='item' class='x-goods' :key='index' @click.native='selectGoods'></x-goods>
+      <x-goods v-for='(item, index) of goodsData' :goods='item' class='x-goods' :key='index' @click.native='selectGoods(item.goods_id)'></x-goods>
     </div>
   </div>
 </template>
@@ -96,8 +96,8 @@
         this.descFlag = false
         console.log(this.attrDest)
       },
-      selectGoods () {
-        this.$router.push('/product/1')
+      selectGoods (id) {
+        this.$router.push(`/product/${id}`)
       },
       _getSort () {
         this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/sortrule').then(res => {
@@ -261,7 +261,7 @@
               background: #fff;
             }
             &.sure{
-              background: red;
+              background: @color;
               color: #fff;
             }
           }

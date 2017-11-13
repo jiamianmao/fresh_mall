@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <x-title>确认订单</x-title>
-    <div class="address">
+    <div class="address" v-show='!member_c' @click='selectAddress'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-zuobiao"></use>
       </svg>
@@ -15,61 +15,46 @@
       </span>
     </div>
 
-    <div class="order_desc">
+    <div class="order_desc" v-for='brand of list'>
       <div class="name vux-1px-b">
-        <span>中天杨业</span>
-        <span class='tel'>企业联系电话：1234-56789012</span>
+        <span>{{brand.brand_name}}</span>
+        <span class='tel' v-show='!member_c'>企业联系电话：{{brand.store_phone}}</span>
       </div>
-      <div class="goods_box vux-1px-b">
+      <div class="goods_box vux-1px-b" v-for='goods of brand.goods'>
         <div class="left">
-          <img src="https://ss1.baidu.com/70cFfyinKgQFm2e88IuM_a/forum/pic/item/023b5bb5c9ea15ceeb50a509bd003af33a87b270.jpg">
+          <img v-lazy='goods.goods_image'>
         </div>
         <div class="right">
           <div class="title">中天羊肉片</div>
           <div class="spec">300g装</div>
           <div class="price">
-            <strong>¥29</strong>
-            <span class="count">x <span>4</span></span>
+            <strong>¥{{goods.goods_price}}</strong>
+            <span class="count">x <span>{{goods.goods_num}}</span></span>
           </div>
         </div>
       </div>
-      <div class="leave_word vux-1px-b">
-        <div class="left">买家留言:</div>
-        <div class="right">
-          <textarea placeholder='选填（45字以内）' maxlength='45'></textarea>
-        </div>
-      </div>
-      <div class="price vux-1px-b">
-        <span>以上产品由京东配送</span>
-        <span>小计<strong>:291.5</strong></span>
-      </div>
-    </div>
 
-    <div class="order_desc">
-      <div class="name vux-1px-b">
-        <span>中天杨业</span>
-        <span class='tel'>企业联系电话：1234-56789012</span>
-      </div>
-      <div class="goods_box vux-1px-b">
-        <div class="left">
-          <img src="https://ss1.baidu.com/70cFfyinKgQFm2e88IuM_a/forum/pic/item/023b5bb5c9ea15ceeb50a509bd003af33a87b270.jpg">
-        </div>
-        <div class="right">
-          <div class="title">中天羊肉片</div>
-          <div class="spec">300g装</div>
-          <div class="price">
-            <strong>¥29</strong>
-            <span class="count">x <span>4</span></span>
-          </div>
-        </div>
-      </div>
       <div class="leave_word vux-1px-b">
         <div class="left">买家留言:</div>
         <div class="right">
           <textarea placeholder='选填（45字以内）' maxlength='45'></textarea>
         </div>
       </div>
-      <div class="price vux-1px-b">
+
+      <div class="address memberc vux-1px-b" v-if='member_c' @click='selectAddress'>
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-zuobiao"></use>
+        </svg>
+        <div class='add1'>收货方式</div>
+        <!-- <div class="add2">
+          <p><span>林俊杰</span><span>18137855555</span></p>
+          <p>四九城四九城四九城四九城四九城四九城四九城四九城四九城四九城城四九城四九城</p>
+        </div> -->
+        <span class='arrow'>
+          <x-icon type="ios-arrow-right" size="18"></x-icon>
+        </span>
+      </div>
+      <div class="prices vux-1px-b" v-else>
         <span>以上产品由京东配送</span>
         <span>小计<strong>:291.5</strong></span>
       </div>
@@ -80,7 +65,8 @@
     <div class="invoice vux-1px-t" @click='invoice'>
       <span>发票</span>
       <span>
-        纸质 (明细-世纪华联超市)
+        <span v-if='!invoiceFlag'>无</span>
+        <span v-else>{{invoiceInfo.invoice}} - {{invoiceInfo.person}}</span>
         <x-icon type="ios-arrow-right" size="18"></x-icon>
       </span>
     </div>
@@ -88,7 +74,7 @@
     <div class="sure_order vux-1px-t">
       <div class="left">
         <p><strong>2</strong> 种共 <strong>8</strong> 件</p>
-        <p>合计：<strong>¥275.6</strong></p>
+        <p>合计：<strong>¥{{price}}</strong></p>
       </div>
       <button>确认订单</button>
     </div>
@@ -98,19 +84,90 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Divider } from 'vux'
+  import storage from 'good-storage'
+  import { mapGetters } from 'vuex'
   export default {
     data () {
       return {
+        member_c: true,
+        invoiceFlag: false,
+        list: [],
+        price: 0,
+        invoiceInfo: {}
       }
+    },
+    created () {
+      // 对用户的身份进行区分
+      this.member_class = storage.get('member_class')
+      if (parseInt(this.member_class) === 2) {
+        this.member_c = false
+      }
+
+      // 通过购物车那里传来的cart_id取对应数据
+      this.cartArr = this.$route.query.cartId
+      this.api_token = storage.get('api_token')
+      this._getOrderData()
     },
     methods: {
       invoice () {
         this.$router.push('/firmorder/invoice')
+      },
+      selectAddress () {
+        this.$router.push('/my/address')
+      },
+      _getOrderData () {
+        // 这里有点奇葩，后端用 cart_id[]=1&cart_id[]=2 的形式传参
+        let str = ''
+        for (let i = 0; i < this.cartArr.length; i++) {
+          str += 'cart_id[]=' + this.cartArr[i] + '&'
+        }
+        str = str.slice(0, -1)
+        this.$http.get(`/api/order/confirm?api_token=${this.api_token}&${str}`).then(res => {
+          let data = res.data.data
+          for (let i in data) {
+            if (data.hasOwnProperty(i)) {
+              if (i === 'price') {
+                this.price = data[i]
+              } else {
+                this.list.push(data[i])
+              }
+            }
+          }
+        })
       }
+    },
+    computed: {
+      ...mapGetters({
+        'invoiceType': 'invoice'
+      })
     },
     components: {
       XTitle,
       Divider
+    },
+    watch: {
+      $route () {
+        if (this.$route.path === '/firmorder') {
+          let data = {
+            invoice: {
+              1: '纸质发票',
+              2: '电子发票'
+            },
+            person: {
+              1: '个人',
+              2: '单位'
+            }
+          }
+          // 通过vuex拿到发票信息
+          if (this.invoiceType.invoice) {
+            this.invoiceFlag = true
+            this.invoiceInfo.invoice = data.invoice[this.invoiceType.invoice]
+            this.invoiceInfo.person = data.person[this.invoiceType.person]
+          } else {
+            this.invoiceFlag = false
+          }
+        }
+      }
     }
   }
 </script>
@@ -125,12 +182,12 @@
     .address{
       position: relative;
       background: #fff;
-      // height: 45px;
       width: 100vw;
       padding: 0 15px;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      margin-bottom: 10px;
       border-top: 0;
       border-left: 0;
       border-right: 0;
@@ -139,6 +196,9 @@
         transparent 0, transparent 1em,
         #e56d66 0, #e56d66 1.5em,
         transparent 0, transparent 2em);
+      &.memberc{
+        margin-bottom: 0;
+      }
       .add1{
         margin-left: 10px;
         line-height: 45px;
@@ -179,7 +239,6 @@
     }
     .order_desc{
       width: 100vw;
-      margin-top: 10px;
       background: #fff;
       font-size: @font-size-medium;
       .name{
@@ -216,6 +275,7 @@
           justify-content: space-around;
           .spec{
             color: #999;
+            // margin-top: 10px;
           }
           .price{
             display: flex;
@@ -229,7 +289,7 @@
         }
       }
       .leave_word{
-        padding: 15px;
+        padding: 0 15px;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;
@@ -255,7 +315,7 @@
           }
         }
       }
-      .price{
+      .prices{
         height: 45px;
         display: flex;
         padding: 0 15px;

@@ -120,6 +120,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Tab, TabItem } from 'vux'
+  import storage from 'good-storage'
   export default {
     props: {
       status: {
@@ -135,12 +136,23 @@
         index: 0
       }
     },
+    created () {
+      this.api_token = storage.get('api_token')
+      this._getOrder()
+    },
     mounted () {
       this.$nextTick(() => {
         this.index = this.status
       })
     },
     methods: {
+      _getOrder () {
+        this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            console.log(res.data)
+          }
+        })
+      }
     },
     components: {
       XTitle,

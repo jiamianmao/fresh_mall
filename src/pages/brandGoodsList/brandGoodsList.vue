@@ -1,45 +1,15 @@
 <template>
   <div class="container">
-    <x-title :bottom='bottom'>中天羊业</x-title>
+    <x-title :bottom='false'>中天羊业</x-title>
     <div class="goods_wrapper">
-      <div class="goods">
+      <div class="goods" v-for='item of goodsList' @click='selectGoods(item.goods_id)'>
         <div class="brand">
-          <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=2492932565,1746567970&fm=58&bpow=1280&bpoh=853">
+          <img v-lazy='item.goods_image'>
         </div>
         <div class="desc">
-          <h3>内蒙古清真生羊肉</h3>
-          <span>优质高阳，美味健康</span>
-          <strong>¥98</strong>
-        </div>
-      </div>
-      <div class="goods">
-        <div class="brand">
-          <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=2492932565,1746567970&fm=58&bpow=1280&bpoh=853">
-        </div>
-        <div class="desc">
-          <h3>内蒙古清真生羊肉</h3>
-          <span>优质高阳，美味健康</span>
-          <strong>¥98</strong>
-        </div>
-      </div>
-      <div class="goods">
-        <div class="brand">
-          <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=2492932565,1746567970&fm=58&bpow=1280&bpoh=853">
-        </div>
-        <div class="desc">
-          <h3>内蒙古清真生羊肉</h3>
-          <span>优质高阳，美味健康</span>
-          <strong>¥98</strong>
-        </div>
-      </div>
-      <div class="goods">
-        <div class="brand">
-          <img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=2492932565,1746567970&fm=58&bpow=1280&bpoh=853">
-        </div>
-        <div class="desc">
-          <h3>内蒙古清真生羊肉</h3>
-          <span>优质高阳，美味健康</span>
-          <strong>¥98</strong>
+          <h3>{{item.goods_name}}</h3>
+          <span>{{item.goods_jingle}}</span>
+          <strong>¥{{item.goods_price}}</strong>
         </div>
       </div>
     </div>
@@ -47,10 +17,28 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
-        bottom: false
+        goodsList: []
+      }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      this.id = this.$route.query.id
+      this._getGoodsList()
+    },
+    methods: {
+      selectGoods (id) {
+        this.$router.push(`/product/${id}`)
+      },
+      _getGoodsList () {
+        this.$http.get(`/api/goods/list?api_token=${this.api_token}&brand_id=${this.id}`).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.goodsList = res.data.data
+          }
+        })
       }
     },
     components: {
@@ -60,6 +48,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .container{
     .goods_wrapper{
       width: 100vw;
@@ -85,11 +74,15 @@
           align-items: center;
           font-size: @font-size-small-s;
           h3{
+            width: 100%;
+            padding: 0 4px;
             font-size: @font-size-medium;
+            .no-wrap
           }
           span{
             line-height: 30px;
             color: #999;
+            height: 30px;
           }
         }
       }

@@ -28,6 +28,10 @@
       </div>
       <button @click='addAddress'>新增地址</button>
       <actionsheet v-model="show" :menus="menus" @on-click-menu-delete="sure" show-cancel></actionsheet>
+      <div class="mask" v-show='setUp'>
+        <x-icon type="ios-checkmark-outline" size="38"></x-icon>
+        <p>设置成功</p>
+      </div>
       <router-view></router-view>
     </div>
   </transition>
@@ -43,6 +47,7 @@
         list: [],
         show: false,
         current: 0,
+        setUp: false,
         menus: {
           title: '是否确认删除该地址',
           delete: '<span style="color:red">删除</span>'
@@ -66,8 +71,8 @@
           address_id: item.address_id
         }).then(res => {
           if (res.data.status === 200) {
-            this.$router.go(-1)
-            // this._getAddList()
+            this._getAddList()
+            this.setUp = true
           }
         })
       },
@@ -100,7 +105,9 @@
       },
       _getAddList () {
         this.$http.get(`/mobile/?act=member_address&op=address_list&api_token=${this.api_token}`).then(res => {
-          this.list = res.data.data.address_list
+          if (res.data.status === 200) {
+            this.list = res.data.data.address_list
+          }
         })
       }
     },
@@ -119,6 +126,14 @@
       $route () {
         if (this.$route.path === '/my/address') {
           this._getAddList()
+        }
+      },
+      setUp (newVal) {
+        if (newVal === true) {
+          // 这里不需要做清除处理
+          setTimeout(() => {
+            this.setUp = false
+          }, 3000)
         }
       }
     }
@@ -198,6 +213,27 @@
     position: fixed;
     bottom: 0;
     left: 0;
+  }
+  .mask{
+    width: 120px;
+    height: 100px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, .5);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    .vux-x-icon {
+      fill: #fff;
+    }
+    p{
+      margin-top: 15px;
+    }
   }
   .slide-enter-active, .slide-leave-active{
     transition: all .5s;

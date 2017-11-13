@@ -53,7 +53,7 @@
       <span class='all'>全选</span>
       <p class='num'><strong>{{cartType}}</strong>种共<strong>{{cartCount}}</strong>件</p>
       <p>合计:<strong>¥{{sum}}</strong></p>
-      <button>结算</button>
+      <button @click='submit'>结算</button>
     </div>
     <confirm v-model="show" title='确认删除吗？' content='再考虑考虑吧' @on-confirm='onConfirm'></confirm>
   </div>
@@ -82,9 +82,6 @@
       this.api_token = Storage.get('api_token')
       this._getShopCart()
     },
-    mounted () {
-      // this.$refs.minus.style.color = '#999'
-    },
     methods: {
       minus (quantity, cartId) {
         if (quantity === 1) {
@@ -101,22 +98,16 @@
       },
       toBrand (id) {
         // 去品牌店铺
-        console.log(id)
+        this.$router.push({
+          path: 'brandGoodsList',
+          query: {
+            id
+          }
+        })
       },
       onConfirm () {
-        this.$http({
-          url: `/mobile/?act=member_cart&op=cart_del&api_token=${this.api_token}`,
-          method: 'POST',
-          data: {
-            cart_id: this.currentClick
-          },
-          transformRequest: [data => {
-            let ret = []
-            for (let x in data) {
-              ret += encodeURIComponent(x) + '=' + encodeURIComponent(data[x]) + '&'
-            }
-            return ret
-          }]
+        this.$http.post(`/mobile/?act=member_cart&op=cart_del&api_token=${this.api_token}`, {
+          cart_id: this.currentClick
         }).then(res => {
           if (res.data.status === 200) {
             this._getShopCart()
@@ -130,7 +121,8 @@
         let data = []
         goods.forEach(item => {
           data.push({
-            goodsId: item.goods_id
+            goodsId: item.goods_id,
+            cartId: item.cart_id
           })
         })
         if (idx === -1) {
@@ -150,7 +142,8 @@
           this.activeArr.push({
             brandId,
             goodsData: [{
-              goodsId: item.goods_id
+              goodsId: item.goods_id,
+              cartId: item.cart_id
             }]
           })
         } else {
@@ -161,7 +154,8 @@
             // 当前商品没有active了
             if (index === -1) {
               this.activeArr[idx].goodsData.push({
-                goodsId: item.goods_id
+                goodsId: item.goods_id,
+                cartId: item.cart_id
               })
               // 当前商品已经active了
             } else {
@@ -169,7 +163,8 @@
             }
           } else {
             this.activeArr[idx].goodsData = [{
-              goodsId: item.goods_id
+              goodsId: item.goods_id,
+              cartId: item.cart_id
             }]
           }
         }
@@ -181,12 +176,27 @@
           this._all()
         }
       },
+      submit () {
+        let cartId = []
+        this.activeArr.forEach(item => {
+          item.goodsData.forEach(x => {
+            cartId.push(x.cartId)
+          })
+        })
+        this.$router.push({
+          path: '/firmorder',
+          query: {
+            cartId
+          }
+        })
+      },
       _all () {
         this.cartdata.cart_list.forEach(item => {
           let arr = []
           item.goods.forEach(x => {
             arr.push({
-              goodsId: x.goods_id
+              goodsId: x.goods_id,
+              cartId: x.cart_id
             })
           })
           this.activeArr.push({

@@ -1,0 +1,266 @@
+<template>
+  <transition name='slide'>
+    <div class='invoice_wrapper' @touchmove.prevent>
+      <x-title>确认订单</x-title>
+      <div class="main">
+        <div class="type vux-1px-b">
+          <p class='top'>发票类型</p>
+          <p @click='selectInvoice' class='allType'>
+            <span class='active' data-id='1'>纸质发票</span>
+            <span data-id='2'>电子发票</span>
+          </p>
+        </div>
+        <div class="email vux-1px-b" v-show='!person'>
+          <div class="left">
+            请输入您的邮箱
+          </div>
+          <div class="right">
+            <input type="text" placeholder='您的邮箱地址' v-model='email'>
+          </div>
+        </div>
+        <div class="invoice_title vux-1px-b">
+          <p class='top'>发票抬头</p>
+          <p>
+            <span class='s1' @click='selectTitle'>
+              <img src="../../../assets/selectAdd/select.png" v-if='!person'>
+              <img src="../../../assets/selectAdd/selected.png" v-else>
+              个人
+            </span>
+            <span class='s2' @click='selectTitle'>
+              <img src="../../../assets/selectAdd/select.png" v-if='person'>
+              <img src="../../../assets/selectAdd/selected.png" v-else>
+              单位
+            </span>
+          </p>
+        </div>
+        <div class="info_box"  v-if='!person'>
+          <div class="info vux-1px-b">发票信息</div>
+          <div class="company_name vux-1px-b">
+            <p>单位名称</p>
+            <div class="right">
+              <input type="text" v-model='company_name' placeholder='请输入单位名称'>
+            </div>
+          </div>
+          <div class="num vux-1px-b">
+            <p>纳税人识别号</p>
+            <div class="right">
+              <input type="text" v-model='tax_num' placeholder='请再次填写纳税人识别号'>
+            </div>
+          </div>
+          <div class="desc">
+            <p>明细</p>
+          </div>
+        </div>
+        <div class="info_box"  v-else>
+          <div class="info vux-1px-b">发票信息</div>
+          <div class="desc">
+            <p>明细</p>
+          </div>
+        </div>
+      </div>
+      <button @click='submit'>确定</button>
+      <alert v-model="show" title="请注意">{{msg}}</alert>
+    </div>
+  </transition>
+</template>
+<script>
+  import XTitle from '@/components/x-title/x-title'
+  import { Alert } from 'vux'
+  import { mapMutations } from 'vuex'
+  import $ from 'jquery'
+  export default {
+    data () {
+      return {
+        email: '',
+        person: true,  // 选择个人
+        company_name: '',
+        tax_num: '',
+        show: false,
+        msg: '',
+        invoice: 1  // 1代表纸质，2代表电子
+      }
+    },
+    methods: {
+      selectInvoice (e) {
+        $('.allType span').removeClass('active')
+        $(e.target).addClass('active')
+        this.invoice = ~~e.target.dataset.id
+      },
+      selectTitle (e) {
+        if (e.currentTarget.getAttribute('class') === 's1') {
+          this.person = true
+        } else {
+          this.person = false
+        }
+      },
+      submit () {
+        let data
+        if (!this.person) {
+          let re = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+          if (re.test(this.email) && this.company_name && this.tax_num) {
+            data = {
+              invoice: this.invoice,
+              email: this.email,
+              person: 2,
+              company_name: this.company_name,
+              tax_num: this.tax_num
+            }
+          } else {
+            this.show = true
+            this.msg = '请完善信息'
+          }
+        } else {
+          data = {
+            invoice: this.invoice,
+            person: 1
+          }
+        }
+        this.set_invoice(data)
+        this.$router.go(-1)
+      },
+      ...mapMutations({
+        'set_invoice': 'SET_INVOICE'
+      })
+    },
+    components: {
+      XTitle,
+      Alert
+    }
+  }
+</script>
+<style lang="less" scoped>
+  @import '~common/less/variable.less';
+  .invoice_wrapper{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background: #fff;
+    .main{
+      font-size: @font-size-medium;
+      width: 100vw;
+      .type{
+        height: 88px;
+        padding: 0 15px;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        .top{
+          margin-bottom: 15px;
+        }
+        span{
+          color: #333;
+          height: 28px;
+          width: 78px;
+          display: inline-block;
+          border-radius: 4px;
+          border: 1px solid #333;
+          line-height: 28px;
+          text-align: center;
+          &:first-child{
+           margin-right: 10px; 
+          }
+          &.active{
+            border: 1px solid @color;
+            color: @color;
+          }
+        }
+      }
+      .email{
+        height: 50px;
+        padding: 0 15px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        .left{
+          width: 40%;
+        }
+        .right{
+          width: 60%;
+          input{
+            width: 100%;
+            text-align: right;
+            border: 0;
+          }
+        }
+      }
+      .invoice_title{
+        height: 74px;
+        width: 100%;
+        padding: 0 15px;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        .top{
+          margin-bottom: 15px;
+        }
+        span{
+          color: #333;
+          height: 28px;
+          width: 78px;
+          display: inline-block;
+          img{
+            height: 16px;
+            width: 16px;
+            vertical-align: -.25em;
+            margin-right: 6px;
+          }
+          &:first-child{
+           margin-right: 10px; 
+          }
+        }
+      }
+      .info_box{
+        width: 100vw;
+        padding-left: 15px;
+        .info, .company_name, .num, .desc{
+          width: 100%;
+          height: 45px;
+          line-height: 45px;
+        }
+        .company_name, .num{
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+          padding-right: 15px;
+          p{
+            width: 40%;
+          }
+          .right{
+            width: 60%;
+            input{
+              width: 100%;
+              text-align: right;
+              border: 0;
+            }
+          }
+        }
+      }
+      .desc{
+        color: #666;
+        font-size: @font-size-small;
+      }
+    }
+    button{
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: 50px;
+      line-height: 50px;
+      border: 0;
+      background: @color;
+      color: #fff;
+      letter-spacing: 12px;
+    }
+  }
+  .slide-enter-active, .slide-leave-active{
+    transition: all .5s;
+  }
+  .slide-enter, .slide-leave-to{
+    transform: translate3d(100%, 0, 0);
+  }
+</style>
