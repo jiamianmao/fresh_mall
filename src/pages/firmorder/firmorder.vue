@@ -1,15 +1,16 @@
 <template>
   <div class="container">
     <x-title>确认订单</x-title>
-    <div class="address" v-show='!member_c' @click='selectAddress'>
+    <!-- 这里做了个hack方法，因为B端和C端都需要拿到地址信息，C端通过Brand_id来拿到对应的地址，B端因为多个Brand_id,所以直接用defautl来代替好了 -->
+    <div class="address" v-show='!member_c' @click="selectAddress('default')">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-zuobiao"></use>
       </svg>
-      <div class='add1'>收货地址</div>
-      <!-- <div class="add2">
-        <p><span>林俊杰</span><span>18137855555</span></p>
-        <p>四九城四九城四九城四九城四九城四九城四九城四九城四九城四九城城四九城四九城</p>
-      </div> -->
+      <div class='add1' v-if='!address.default'>收货地址</div>
+      <div class="add2" v-else>
+        <p><span>{{address.default.true_name}}</span><span>{{address.default.tel_phone}}</span></p>
+        <p>{{address.default.area_info | blank}}{{address.default.address}}</p>
+      </div>
       <span class='arrow'>
         <x-icon type="ios-arrow-right" size="18"></x-icon>
       </span>
@@ -25,8 +26,8 @@
           <img v-lazy='goods.goods_image'>
         </div>
         <div class="right">
-          <div class="title">中天羊肉片</div>
-          <div class="spec">300g装</div>
+          <div class="title">{{goods.goods_name}}</div>
+          <div class="spec">{{goods.goods_jingle}}</div>
           <div class="price">
             <strong>¥{{goods.goods_price}}</strong>
             <span class="count">x <span>{{goods.goods_num}}</span></span>
@@ -41,26 +42,38 @@
         </div>
       </div>
 
-      <div class="address memberc vux-1px-b" v-if='member_c' @click='selectAddress'>
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-zuobiao"></use>
-        </svg>
-        <div class='add1'>收货方式</div>
-        <!-- <div class="add2">
-          <p><span>林俊杰</span><span>18137855555</span></p>
-          <p>四九城四九城四九城四九城四九城四九城四九城四九城四九城四九城城四九城四九城</p>
-        </div> -->
+      <div class="address memberc vux-1px-b" v-if='member_c' @click='delivery'>
+
+        <div class='add1' v-if='!address[brand.brand_id]'>
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-zuobiao"></use>
+          </svg>
+          配送方式</div>
+
+        <div class="add3" v-else>
+          <div class="left">
+            <p>配送到位:</p>
+          </div>
+          <div class="right">
+            <p>{{address[brand.brand_id].area_info | blank}}{{address[brand.brand_id].address}}</p>
+            <p class='people'><span>{{address[brand.brand_id].true_name}}</span> &nbsp; <span>{{address[brand.brand_id].tel_phone}}</span></p>
+          </div>
+        </div>
+
         <span class='arrow'>
           <x-icon type="ios-arrow-right" size="18"></x-icon>
         </span>
       </div>
+
       <div class="prices vux-1px-b" v-else>
-        <span>以上产品由京东配送</span>
-        <span>小计<strong>:291.5</strong></span>
+        <span></span>
+        <span>小计<strong>:{{brand.price}}</strong></span>
       </div>
+
+      <confirm v-model='show' title='请选择收货方式' confirm-text='门店代收暂存' cancel-text='直接配送到家' @on-cancel='selectAddress(brand.brand_id)' @on-confirm='selectStore'></confirm>
     </div>
 
-    <divider class='divider'>我是有底线的</divider>
+    <divider class='divider' v-show='types >= 3'>我是有底线的</divider>
 
     <div class="invoice vux-1px-t" @click='invoice'>
       <span>发票</span>
@@ -73,17 +86,18 @@
 
     <div class="sure_order vux-1px-t">
       <div class="left">
-        <p><strong>2</strong> 种共 <strong>8</strong> 件</p>
+        <p><strong>{{types}}</strong> 种共 <strong>{{count}}</strong> 件</p>
         <p>合计：<strong>¥{{price}}</strong></p>
       </div>
-      <button>确认订单</button>
+      <button @click='orderSubmit'>确认订单</button>
     </div>
+    <alert v-model="alertFlag">{{msg}}</alert>
     <router-view></router-view>
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Divider } from 'vux'
+  import { Divider, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
   import { mapGetters } from 'vuex'
   export default {
@@ -91,9 +105,12 @@
       return {
         member_c: true,
         invoiceFlag: false,
-        list: [],
+        list: [], // data数据
         price: 0,
-        invoiceInfo: {}
+        invoiceInfo: {},
+        show: false,  // modal的信号
+        alertFlag: false, // alert的信号
+        msg: '' // alert的提示语
       }
     },
     created () {
@@ -109,11 +126,48 @@
       this._getOrderData()
     },
     methods: {
+      // 选发票
       invoice () {
         this.$router.push('/firmorder/invoice')
       },
-      selectAddress () {
-        this.$router.push('/my/address')
+      // 配送方式的选择框
+      delivery () {
+        this.show = true
+      },
+      selectAddress (id) {
+        this.$router.push({
+          path: '/my/address',
+          query: {
+            id
+          }
+        })
+      },
+      selectStore () {
+        this.$router.push({
+          path: '/map',
+          query: {
+
+          }
+        })
+      },
+      orderSubmit () {
+        // 来判断地址是否选择够，因为C端是多地址的
+        if (this.member_c) {
+          if (Object.keys(this.address).length === this.list.length) {
+            // todo
+          } else {
+            this.alertFlag = true
+            this.msg = '您还有商品未设置收货方式'
+          }
+        } else {
+          // B端只需判断default地址存在就ok
+          if (this.address.default) {
+            // todo
+          } else {
+            this.alertFlag = true
+            this.msg = '您还有商品未设置收货方式'
+          }
+        }
       },
       _getOrderData () {
         // 这里有点奇葩，后端用 cart_id[]=1&cart_id[]=2 的形式传参
@@ -137,17 +191,42 @@
       }
     },
     computed: {
+      types () {
+        let x = 0
+        this.list.forEach(brand => {
+          x += brand.goods.length
+        })
+        return x
+      },
+      count () {
+        let x = 0
+        this.list.forEach(brand => {
+          brand.goods.forEach(item => {
+            x += item.goods_num
+          })
+        })
+        return x
+      },
       ...mapGetters({
-        'invoiceType': 'invoice'
+        'invoiceType': 'invoice',
+        'address': 'address'
       })
+    },
+    filters: {
+      blank (value) {
+        return value.replace(/\s/g, '')
+      }
     },
     components: {
       XTitle,
-      Divider
+      Divider,
+      Confirm,
+      Alert
     },
     watch: {
       $route () {
         if (this.$route.path === '/firmorder') {
+          // 通过vuex拿到发票信息
           let data = {
             invoice: {
               1: '纸质发票',
@@ -158,7 +237,6 @@
               2: '单位'
             }
           }
-          // 通过vuex拿到发票信息
           if (this.invoiceType.invoice) {
             this.invoiceFlag = true
             this.invoiceInfo.invoice = data.invoice[this.invoiceType.invoice]
@@ -221,10 +299,32 @@
           .no-wrap
         }
       }
+      .add3{
+        display: flex;
+        flex-flow: row nowrap;
+        padding: 20px 0;
+        .left{
+          width: 70px;
+          height: 100%;
+        }
+        .right{
+          flex: 1;
+          height: 100%;
+          padding-right: 10px;
+          p{
+            width: 260px;
+            .no-wrap
+          }
+          .people{
+            margin-top: 10px;
+          }
+        }
+      }
       .arrow{
         position: absolute;
+        top: 50%;
         right: 12px;
-        top: 12px;
+        transform: translate3d(0, -50%, 0);
         .vux-x-icon{
           fill: #666;
         }
@@ -232,7 +332,7 @@
       .icon {
         width: 24px; 
         height: 24px;
-        vertical-align: -0.15em;
+        vertical-align: -0.25em;
         fill: @color;
         overflow: hidden;
       }
@@ -273,8 +373,13 @@
           display: flex;
           flex-flow: column nowrap;
           justify-content: space-around;
+          .title{
+            width: 66vw;
+            .no-wrap
+          }
           .spec{
             color: #999;
+            height: 12px;
             // margin-top: 10px;
           }
           .price{
@@ -289,7 +394,7 @@
         }
       }
       .leave_word{
-        padding: 0 15px;
+        padding: 10px 15px;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;
@@ -300,10 +405,8 @@
         }
         .right{
           flex: 1;
-          white-space: wrap;
           display: flex;
           align-items: center;
-          height: 50px;
           textarea{
             border: 0;
             width: 100%;
@@ -311,6 +414,7 @@
             font-size: @font-size-medium;
             letter-spacing: 1px;
             position: relative;
+            line-height: 16px;
             top: 8px;
           }
         }
@@ -352,6 +456,7 @@
       width: 100vw;
       height: 49px;
       padding-left: 15px;
+      z-index: 1;
       display: flex;
       flex-flow: row nowrap;
       background: #fff;

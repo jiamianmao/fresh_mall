@@ -370,6 +370,7 @@
             .spec{
               color: #666;
               font-size: @font-size-small;
+              height: 12px;
             }
             .price{
               font-size: @font-size-large;

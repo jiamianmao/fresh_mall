@@ -15,6 +15,9 @@ const mutations = {
   },
   [types.SET_INVOICE] (state, invoice) {
     state.invoice = invoice
+  },
+  [types.SET_ADDRESS] (state, ids) {
+    state.address[ids.brand_id] = ids.address
   }
 }
 

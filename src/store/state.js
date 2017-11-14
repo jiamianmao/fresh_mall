@@ -3,7 +3,8 @@ const state = {
   storeConditionPic: [],
   storeCondition: '',
   qualification: {},
-  invoice: {}
+  invoice: {},
+  address: {}
 }
 
 export default state

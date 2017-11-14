@@ -41,6 +41,7 @@
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import { Actionsheet } from 'vux'
+  import { mapMutations } from 'vuex'
   export default {
     data () {
       return {
@@ -56,6 +57,7 @@
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.brand_id = this.$route.query.id
       this._getAddList()
     },
     methods: {
@@ -95,6 +97,7 @@
           }
         })
       },
+      // 编辑地址
       change (id) {
         this.$router.push({
           path: '/my/address/add',
@@ -107,16 +110,31 @@
         this.$http.get(`/mobile/?act=member_address&op=address_list&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
             this.list = res.data.data.address_list
+            if (this.brand_id) {
+              this.list.forEach(item => {
+                if (~~item.is_default === 1) {
+                  this.address = item
+                }
+              })
+              let ids = {
+                brand_id: this.brand_id,
+                address: this.address
+              }
+              this.SET_ADDRESS(ids)
+            }
           }
         })
-      }
+      },
+      ...mapMutations([
+        'SET_ADDRESS'
+      ])
     },
     components: {
       XTitle,
       Scroll,
       Actionsheet
     },
-    // 这里是把addressAdd组件里数据不做处理，在address组件里处理，因为还需要编辑，处理起来比较麻烦
+    // 这里是把addressAdd组件里数据不做处理，在address组件里处理。因为还需要编辑，处理起来比较麻烦
     filters: {
       blank (value) {
         return value.replace(/\s/g, '')

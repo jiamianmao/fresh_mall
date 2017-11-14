@@ -18,7 +18,7 @@
             <input type="text" placeholder='您的邮箱地址' v-model='email'>
           </div>
         </div>
-        <div class="invoice_title vux-1px-b">
+        <div class="invoice_title">
           <p class='top'>发票抬头</p>
           <p>
             <span class='s1' @click='selectTitle'>
@@ -33,25 +33,16 @@
             </span>
           </p>
         </div>
-        <div class="info_box"  v-if='!person'>
-          <div class="info vux-1px-b">发票信息</div>
-          <div class="company_name vux-1px-b">
-            <p>单位名称</p>
-            <div class="right">
-              <input type="text" v-model='company_name' placeholder='请输入单位名称'>
-            </div>
+        <div class="info_box" v-show='!person'>
+          <div class="company_name">
+            <input type="text" v-model='company_name' placeholder='请输入单位名称'>
           </div>
-          <div class="num vux-1px-b">
-            <p>纳税人识别号</p>
-            <div class="right">
-              <input type="text" v-model='tax_num' placeholder='请再次填写纳税人识别号'>
-            </div>
-          </div>
-          <div class="desc">
-            <p>明细</p>
+          <div class="num">
+            <input type="text" v-model='tax_num' placeholder='请输入统一社会信用代码'>
           </div>
         </div>
-        <div class="info_box"  v-else>
+
+        <div class="info_box">
           <div class="info vux-1px-b">发票信息</div>
           <div class="desc">
             <p>明细</p>
@@ -108,6 +99,7 @@
           } else {
             this.show = true
             this.msg = '请完善信息'
+            return
           }
         } else {
           data = {
@@ -116,7 +108,9 @@
           }
         }
         this.set_invoice(data)
-        this.$router.go(-1)
+        setTimeout(() => {
+          this.$router.go(-1)
+        }, 500)
       },
       ...mapMutations({
         'set_invoice': 'SET_INVOICE'
@@ -221,21 +215,20 @@
           height: 45px;
           line-height: 45px;
         }
+        .num{
+          margin: 10px 0 20px 0;
+        }
         .company_name, .num{
-          display: flex;
-          flex-flow: row nowrap;
-          justify-content: space-between;
           padding-right: 15px;
-          p{
-            width: 40%;
+          input{
+            width: 100%;
+            background: #F4F4F4;
+            text-align: left;
+            border: 0;
+            padding-left: 10px;
           }
-          .right{
-            width: 60%;
-            input{
-              width: 100%;
-              text-align: right;
-              border: 0;
-            }
+          input::-webkit-input-placeholder{
+            color: @color;
           }
         }
       }

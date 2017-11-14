@@ -13,10 +13,10 @@
       </div>
       <div class="content">
         <div class="item tel vux-1px-b">
-          <img src="./tel.png"> 18137855665
+          门店联系电话：<img src="./tel.png">18137855665
         </div>
         <div class="item transport vux-1px-b">
-          您可以选择配送/自提的收货方式: 
+          您可以选择门店配送到家/到店自提: 
           <div class="radio_wrapper">
             <p @click='peisong'>
               <img src="../../assets/selectAdd/selected.png" v-if='transport === "peisong"'>
@@ -29,13 +29,16 @@
           </div>
         </div>
         <div class="item rule vux-1px-b">
-          <div class="left"><p>配送规则:</p></div>
+          <div class="left">
+            <p v-if='transport === "peisong"'>配送规则:</p>
+            <p v-else>自提规则</p>
+          </div>
           <div class="right">
             <p>1.配送时间：9:00-18:00</p>
             <p>2.满51元免配送费，不满51元收取10元配送费</p>
           </div>
         </div>
-        <div class="item rule address" @click='selectAdd'>
+        <div class="item rule address" @click='selectAdd' v-show='transport === "peisong"'>
           <div class="left"><p>配送地址:</p></div>
           <div class="right">
             <p>北京市还带去海淀区</p>
@@ -49,7 +52,7 @@
           <use xlink:href="#icon-close47"></use>
         </svg>
       </div>
-      <button>确定</button>
+      <button @click='sure'>确定</button>
     </div>
   </div>
 </template>
@@ -133,6 +136,8 @@
       },
       selectAdd () {
         this.$router.push('/my/address')
+      },
+      sure () {
       }
     },
     components: {
@@ -145,10 +150,11 @@
   .container{
     width: 100vw;
     height: 100vh;
+    position: relative;
+    z-index: 1;
     .map{
       width: 100%;
       height: calc(~"100vh - 50px");
-      // background: red;
     }
     .modal{
       position: fixed;
@@ -203,6 +209,9 @@
       .content{
         width: 100%;
         padding-left: 18px;
+        .right{
+          color: #666;
+        }
         .item{
           // height: 58px;
           padding: 17px 0;
@@ -233,8 +242,8 @@
         .tel{
           img{
             height: 22px;
-            vertical-align: -.25em;
-            margin-right: 6px;
+            vertical-align: -.5em;
+            margin: 0 6px 0 15px;
           }
         }
         .transport{

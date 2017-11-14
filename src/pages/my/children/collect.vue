@@ -3,7 +3,7 @@
     <div class="container">
       <x-title :text='text' @rightClick='delAll'>{{title}}</x-title>
       <div class="goods_wrapper">
-        <!-- 
+        <!--  这是客户原来的需求，我更改了下
         <div class="goods" v-for='(item, index) of arr' :class='{"vux-1px-t": index > 0}'>
           <div class='icon' ref='icon' @click='active(index)' v-show='del'></div>
           <div class="image">
@@ -19,16 +19,16 @@
         </div> -->
 
         <!-- 商品列表 -->
-        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-show='flag'>
+        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-if='flag'>
           <van-cell-group>
             <div class="goods">
-              <div class='icon' ref='icon' @click='active(index)' v-show='del'></div>
+              <div class='icon' ref='icon' @click='active(index, item.fav_id)' v-show='del'></div>
               <div class="image">
-                <img v-lazy='item.goods_image_url'>
+                <!--<img v-lazy='item.goods_image_url'>-->
               </div>
               <div class="content">
                 <p>{{item.goods_name}}</p>
-                <span>{{item.guige}}</span>
+                <span>{{item.jingle}}</span>
                 <div class="price">
                   <strong>¥{{item.goods_price}}</strong>
                 </div>
@@ -39,7 +39,7 @@
         </van-cell-swipe>
 
         <!-- 收藏列表 -->
-        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-show='!flag'>
+        <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' v-else>
           <van-cell-group>
             <div class="brand">
               <div class='icon' ref='icon' @click='active(index)' v-show='del'></div>
@@ -66,13 +66,14 @@
         title: '',
         text: '编辑',
         del: false,
-        arr: [],  // 模拟数据
-        activeArr: [],  // 选择的待删除的item
+        arr: [],
+        activeArr: [],  // 选择的待删除的item  商品存放的是fav_id
         flag: false
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      // 三个页面写在一起了，这里要根据url来选择不同的渲染
       if (this.$route.path === '/my/collect') {
         this.title = '收藏商品'
         this._getCollect()
@@ -85,11 +86,11 @@
       }
     },
     methods: {
-      active (idx) {
-        let index = this.activeArr.indexOf(idx)
+      active (idx, id) {
+        let index = this.activeArr.indexOf(id)
         if (index === -1) {
           this.$refs.icon[idx].classList.add('active')
-          this.activeArr.push(idx)
+          this.activeArr.push(id)
         } else {
           this.activeArr.splice(index, 1)
           this.$refs.icon[idx].classList.remove('active')
@@ -97,9 +98,24 @@
       },
       delAll (text) {
         if (text === '编辑') {
-          this.text = '完成'
+          this.text = '删除'
           this.del = true
         } else if (text === '删除') {
+          // 批量删除收藏商品
+          if (this.title === '收藏商品') {
+            this.$http.post('/mobile/?act=member_favorites&op=favorites_del', {
+              api_token: this.api_token,
+              fav_id: this.activeArr
+            })
+          } else if (this.title === '浏览记录') {
+            // 批量删除收藏浏览记录
+          } else {
+            // 批量删除关注品牌
+            this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}`, {
+              id: 1
+            }).then(res => {
+            })
+          }
           this.text = '完成'
           this.activeArr = []
           // todos
