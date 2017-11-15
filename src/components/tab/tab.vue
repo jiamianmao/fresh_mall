@@ -1,6 +1,6 @@
 <template>
   <div>
-    <tab class='tab vux-1px-t' :animate='true' :line-width='0'>
+    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab'>
       <tab-item @on-item-click='go(0)'>
         <img src="../../assets/tab/home.png">
         <img src="../../assets/tab/home_active.png">
@@ -30,8 +30,13 @@
     },
     watch: {
       $route () {
-        $('.tab').find('.vux-tab-item').attr('class', 'vux-tab-item')
         let idx = this.arr.indexOf(this.$route.path)
+        if (idx > -1) {
+          this.$refs.tab.$el.style.display = 'flex'
+        } else {
+          this.$refs.tab.$el.style.display = 'none'
+        }
+        $('.tab').find('.vux-tab-item').attr('class', 'vux-tab-item')
         $('.vux-tab-item').eq(idx).addClass('vux-tab-selected')
       }
     },

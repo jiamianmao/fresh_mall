@@ -19,18 +19,18 @@
           您可以选择门店配送到家/到店自提: 
           <div class="radio_wrapper">
             <p @click='peisong'>
-              <img src="../../assets/selectAdd/selected.png" v-if='transport === "peisong"'>
+              <img src="../../assets/selectAdd/selected.png" v-if='transport === 2'>
               <img src="../../assets/selectAdd/select.png" v-else>配送
             </p>
             <p @click='ziti'>
-              <img src="../../assets/selectAdd/selected.png" v-if='transport === "ziti"'>
+              <img src="../../assets/selectAdd/selected.png" v-if='transport === 3'>
             <img src="../../assets/selectAdd/select.png" v-else>自提
             </p>
           </div>
         </div>
         <div class="item rule vux-1px-b">
           <div class="left">
-            <p v-if='transport === "peisong"'>配送规则:</p>
+            <p v-if='transport === 2'>配送规则:</p>
             <p v-else>自提规则</p>
           </div>
           <div class="right">
@@ -38,12 +38,22 @@
             <p>2.满51元免配送费，不满51元收取10元配送费</p>
           </div>
         </div>
-        <div class="item rule address" @click='selectAdd' v-show='transport === "peisong"'>
+        <div class="item rule address" @click='selectAdd' v-show='transport === 2'>
           <div class="left"><p>配送地址:</p></div>
-          <div class="right">
-            <p>北京市还带去海淀区</p>
-            <p>隔壁老王 1819562566</p>
+          <div class="right" v-if='1'>
+            <p>请选择配送地址</p>
           </div>
+          <div class="right" v-else>
+            <p>{{address[id].area_info | blank}}{{address[id].address}}</p>
+            <p class='people'><span>{{address[id].true_name}}</span> &nbsp; <span>{{address[id].tel_phone}}</span></p>
+          </div>
+          <!-- <div class="right" v-if='address[id]'>
+            <p>{{address[id].area_info | blank}}{{address[id].address}}</p>
+            <p class='people'><span>{{address[id].true_name}}</span> &nbsp; <span>{{address[id].tel_phone}}</span></p>
+          </div>
+          <div class="right" v-else>
+            <p>请选择配送地址</p>
+          </div> -->
           <x-icon type="ios-arrow-right" size="30"></x-icon>
         </div>
       </div>
@@ -59,14 +69,17 @@
 <script>
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
+  import { mapGetters, mapMutations } from 'vuex'
   export default {
     data () {
       return {
         active: false,
-        transport: null
+        transport: 0, // 配送方式
+        id: 0  // url传参传过来的Brand_id
       }
     },
     created () {
+      this.id = ~~this.$route.query.id
       var geolocation = new qq.maps.Geolocation()
       geolocation.getIpLocation((position) => {
         this.lat = position.lat
@@ -126,18 +139,50 @@
     },
     methods: {
       peisong () {
-        this.transport = 'peisong'
+        this.transport = 2
       },
       ziti () {
-        this.transport = 'ziti'
+        this.transport = 3
       },
       close () {
         this.active = false
       },
       selectAdd () {
-        this.$router.push('/my/address')
+        this.$router.push({
+          path: '/my/address',
+          query: {
+            id: this.id
+          }
+        })
       },
       sure () {
+        let data = {
+          id: this.id,
+          transport: this.transport
+        }
+        this.addressType(data)
+        this.$router.go(-1)
+      },
+      ...mapMutations({
+        'addressType': 'SET_ADDRESS_TYPE'
+      })
+    },
+    computed: {
+      ...mapGetters({
+        'address': 'address'
+      })
+    },
+    filters: {
+      blank (value) {
+        return value.replace(/\s/g, '')
+      }
+    },
+    watch: {
+      address: {
+        handler (val) {
+          console.log(val)
+        },
+        deep: true
       }
     },
     components: {
@@ -209,8 +254,13 @@
       .content{
         width: 100%;
         padding-left: 18px;
+        .left{
+          width: 20%;
+        }
         .right{
           color: #666;
+          width: 72%;
+          padding-right: 28px;
         }
         .item{
           // height: 58px;

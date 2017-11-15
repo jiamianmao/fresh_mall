@@ -18,6 +18,9 @@ const mutations = {
   },
   [types.SET_ADDRESS] (state, ids) {
     state.address[ids.brand_id] = ids.address
+  },
+  [types.SET_ADDRESS_TYPE] (state, data) {
+    state.addressType[data.id] = data.transport
   }
 }
 

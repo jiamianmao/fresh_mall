@@ -70,7 +70,7 @@
         <span>小计<strong>:{{brand.price}}</strong></span>
       </div>
 
-      <confirm v-model='show' title='请选择收货方式' confirm-text='门店代收暂存' cancel-text='直接配送到家' @on-cancel='selectAddress(brand.brand_id)' @on-confirm='selectStore'></confirm>
+      <confirm v-model='show' title='请选择收货方式' confirm-text='门店代收暂存' cancel-text='直接配送到家' @on-cancel='selectAddress(brand.brand_id)' @on-confirm='selectStore(brand.brand_id)'></confirm>
     </div>
 
     <divider class='divider' v-show='types >= 3'>我是有底线的</divider>
@@ -142,19 +142,41 @@
           }
         })
       },
-      selectStore () {
+      selectStore (id) {
         this.$router.push({
           path: '/map',
           query: {
-
+            id
           }
         })
       },
       orderSubmit () {
         // 来判断地址是否选择够，因为C端是多地址的
         if (this.member_c) {
+          // ES5语法，不需要配置babel-polyfill(babel-polyfill无法按需引入)
+          // babel-preset-es2015 只能对es6语法转码，不能对api转码  babel-preset-env 还没正式好
           if (Object.keys(this.address).length === this.list.length) {
             // todo
+            let obj1 = {
+              'cart_id': this.cartArr
+            }
+            let addData = Object.entries(this.address)
+            let obj2 = {}
+            addData.forEach(item => {
+              let type
+              if (item[0] in this.addressType) {
+                type = this.addressType[item[0]]
+              } else {
+                type = 1
+              }
+              let str1 = `address[${item[0]}][id]`
+              let str2 = `address[${item[0]}][type]`
+              obj2[str1] = item[1].address_id
+              obj2[str2] = type
+            })
+            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
+              console.log(res)
+            })
           } else {
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
@@ -171,12 +193,17 @@
       },
       _getOrderData () {
         // 这里有点奇葩，后端用 cart_id[]=1&cart_id[]=2 的形式传参
-        let str = ''
-        for (let i = 0; i < this.cartArr.length; i++) {
-          str += 'cart_id[]=' + this.cartArr[i] + '&'
-        }
-        str = str.slice(0, -1)
-        this.$http.get(`/api/order/confirm?api_token=${this.api_token}&${str}`).then(res => {
+        // let str = ''
+        // for (let i = 0; i < this.cartArr.length; i++) {
+        //   str += 'cart_id[]=' + this.cartArr[i] + '&'
+        // }
+        // str = str.slice(0, -1)
+        this.$http.get(`/api/order/confirm`, {
+          params: {
+            api_token: this.api_token,
+            cart_id: this.cartArr
+          }
+        }).then(res => {
           let data = res.data.data
           for (let i in data) {
             if (data.hasOwnProperty(i)) {
@@ -209,7 +236,8 @@
       },
       ...mapGetters({
         'invoiceType': 'invoice',
-        'address': 'address'
+        'address': 'address',
+        'addressType': 'addressType'
       })
     },
     filters: {

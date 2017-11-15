@@ -266,7 +266,7 @@
       submit () {
         this.addFlag = false
         this.$http.post(`/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`, {
-          goods_id: 2,
+          goods_id: this.id,
           quantity: this.count
         }).then(res => {
           if (res.data.status === 200) {

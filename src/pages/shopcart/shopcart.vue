@@ -17,7 +17,7 @@
           </div>
           <div class="bottom" v-for='(item, keyIndex) of goodsItem.goods'>
             <div class='icon' @click='selectGoods(goodsItem.brand_id, item)'>
-              <img src="../../assets/selectAdd/selected.png" v-if='activeArr[index] && activeArr[index].goodsData[keyIndex] && activeArr[index].goodsData[keyIndex].goodsId === item.goods_id'>
+              <img src="../../assets/selectAdd/selected.png" v-if='cartType.indexOf(item.goods_id) > -1'>
               <img src="../../assets/selectAdd/select.png" v-else>
             </div>
             <div class="right">
@@ -51,7 +51,7 @@
         <img src="../../assets/selectAdd/select.png" v-else>
       </div>
       <span class='all'>全选</span>
-      <p class='num'><strong>{{cartType}}</strong>种共<strong>{{cartCount}}</strong>件</p>
+      <p class='num'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p>
       <p>合计:<strong>¥{{sum}}</strong></p>
       <button @click='submit'>结算</button>
     </div>
@@ -74,7 +74,7 @@
         currentClick: 0, // 维护当前点击要删除的，保存cart_id
         sum: 0,       // 维护总价
         cartCount: 0, // 维护多少件
-        cartType: 0, // 维护多少种
+        cartType: [], // 维护多少种,其实是维护一个选中的goods_id,既能维护多少种，又能维护产品的active
         all: false
       }
     },
@@ -135,6 +135,7 @@
         }
       },
       selectGoods (brandId, item) {
+        // 判断是否已经选过这个品牌
         let idx = this.activeArr.findIndex(x => {
           return x.brandId === brandId
         })
@@ -258,7 +259,7 @@
         handler (newVal) {
           let sum = 0
           let cartCount = 0
-          let cartType = 0
+          let cartType = []
           let flag = true
           newVal.forEach((x, idx, arr) => {
             let one = this.cartdata.cart_list.find(y => {
@@ -269,12 +270,13 @@
               let two = one.goods.find(y => {
                 return y.goods_id === item.goodsId
               })
+              cartType.push(item.goodsId)
               sum += parseInt(two.goods_price) * parseInt(two.goods_num)
               cartCount += parseInt(two.goods_num)
             })
             let xLen = x.goodsData.length
             let oneLen = one.goods.length
-            cartType += xLen
+            // cartType += xLen
             if (xLen === oneLen) {
 
               // 如果品牌里商品列表为空，则去掉这个品牌

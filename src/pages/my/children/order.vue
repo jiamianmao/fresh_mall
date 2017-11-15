@@ -7,14 +7,14 @@
       </tab>
       <div class="order_wrapper">
         <!-- <div class="not_order"><img src="../../../assets/my/not_order.png"></div> -->
-        <div class="order">
+        <div class="order" v-for='order of orderList'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">
-              <div class="num">订单编号: <span>201709201113001</span></div>
+              <div class="num">订单编号: <span>{{order.order_sn}}</span></div>
               <div class="status">等待付款</div>
             </div>
             <div class="goods_wrapper">
-              <div class="goods vux-1px-b">
+              <div class="goods vux-1px-b" v-for='goods of order.order_good'>
                 <div class="image">
                   <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
                 </div>
@@ -52,60 +52,7 @@
           <div class="count vux-1px-t">
             <div class="text">
               <span>共 <strong>8</strong> 件</span>
-              <span class='pay'>实付: <strong>¥275.6</strong></span>
-            </div>
-            <div class="btn">
-              <button class='left'>取消订单</button>
-              <button class='right'>去支付</button>
-            </div>
-          </div>
-        </div>
-        <div class="order">
-          <div class="order_desc">
-            <div class="order_num vux-1px-b">
-              <div class="num">订单编号: <span>201709201113001</span></div>
-              <div class="status">等待付款</div>
-            </div>
-            <div class="goods_wrapper">
-              <div class="goods vux-1px-b">
-                <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
-                </div>
-                <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
-                  <div class="price">
-                    <strong>¥29.9</strong>
-                    <strong>x4</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="goods vux-1px-b">
-                <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
-                </div>
-                <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
-                  <div class="price">
-                    <strong>¥29.9</strong>
-                    <strong>x4</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="address">
-              <div class="left">配送地址:</div>
-              <div class="right">
-                <p>北京市海淀区学院XXX校区156号5131</p>
-                <p>王老师 181378552255</p>
-              </div>
-            </div>
-          </div>
-          <div class="count vux-1px-t">
-            <div class="text">
-              <span>共 <strong>8</strong> 件</span>
-              <span class='pay'>实付: <strong>¥275.6</strong></span>
+              <span class='pay'>实付: <strong>¥{{order.order_amount}}</strong></span>
             </div>
             <div class="btn">
               <button class='left'>取消订单</button>
@@ -133,7 +80,8 @@
         activeColor: '#5eb29e',
         lineWidth: 1,
         list: ['全部', '待付款', '待发货', '待收货', '待评价'],
-        index: 0
+        index: 0,
+        orderList: []
       }
     },
     created () {
@@ -149,7 +97,7 @@
       _getOrder () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
-            console.log(res.data)
+            this.orderList = res.data.data
           }
         })
       }

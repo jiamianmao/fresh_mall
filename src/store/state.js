@@ -4,7 +4,8 @@ const state = {
   storeCondition: '',
   qualification: {},
   invoice: {},
-  address: {}
+  address: {},
+  addressType: {}
 }
 
 export default state
