@@ -1,12 +1,12 @@
 <template>
-  <scroll class='outBox' ref='scrollCom' :data='arr' :probeType='3' :pulldown='true' :listenScroll='true' @scroll='scroll' @pullDown='pullEnd'>
+  <scroll class='outBox' ref='scrollCom' :data='Object.values(product_obj)' :probeType='3' :pulldown='true' :listenScroll='true' @scroll='scroll' @pullDown='pullEnd'>
 
     <div class='product_wrapper' ref='productWrapper' @touchmove.prevent>
 
       <div class="placeholder">
         <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-          <swiper-slide v-for='item of arr' :key='item.name'>
-            <img :src="item.url">
+          <swiper-slide v-for='item of product_obj.goods_image' :key='item.name'>
+            <img :src="item">
           </swiper-slide>
         </swiper>
       </div>
@@ -19,48 +19,87 @@
             <div class="sells"><span>库存: 400件</span><span>销量: 260件</span></div>
           </div>
           <div class="content">
-            <h3 class="name">中天羊业甘肃民勤羔羊肉片</h3>
-            <div class="sell_point">中天羊业甘肃民勤羔羊肉片中天羊业甘肃勤羔羊肉片中天羊业甘肃民勤羔羊肉片</div>
-            <strong>¥69</strong>
+            <h6 class="name">{{product_obj.goods_name}}</h6>
+            <div class="sell_point">{{product_obj.goods_jingle}}</div>
+            <strong>¥{{product_obj.goods_price | format}}</strong>
           </div>
         </div>
-
+        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)'>
+          <div class="left"><img src="../../assets/product/find.png"></div>
+          <div class="center">查看如何成为XXX经销商</div>
+          <span class='right'>
+            <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+          </span>
+        </div>
         <placeholder></placeholder>
 
-        <!-- 支付方式（名字，价格信息等） -->
+        <!-- 支付方式（名字，价格信息等）
         <ul class="pay_way">
           <li class='title'>两种购买方式供您选择</li>
           <li class='' @click='map'>
             <span class='left'>到店购买:</span>
             <div class='center'>
-              <p><a class='mark'>点击查看</a>附近的在售门店</p>
+              <p>请查看附近的<a class='mark'>在售门店</a></p>
               <p>线下零售店价格可能有所波动</p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-          <li class='vux-1px-t'>
+          <li class='vux-1px-t line'>
             <span class='left'>线上购买:</span>
             <div class='center'>
-              <p>配送到您附近的<a class='mark'>自提点</a>提供短时贮藏服务</p>
-              <p>选择门店</p>
+              <p>请选择收货方式</p>
             </div>
-            <span class='right'>
-              <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
-            </span>
           </li>
-          <li class='vux-1px-t'>
+          <li class="vux-1px-t strong">
             <span class='left'></span>
             <div class='center'>
-              <p>直接配送到位</p>
-              <p>北京市海淀区学苑路</p>
+              <p>1.直接配送到家</p>
+              <p>
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-cc-marker"></use>
+                </svg>填写地址</p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-        </ul>
+          <li class='vux-1px-t strong'>
+            <span class='left'></span>
+            <div class='center'>
+              <p>2.由合作门店提供代收和短时贮藏服务</p>
+              <p>
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-cc-marker"></use>
+                </svg>选择门店</p>
+            </div>
+            <span class='right'>
+              <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+            </span>
+          </li>
+        </ul> -->
+
+        <div class="recommend">
+          <p class='title'>
+            以下产品XXXX可一起配送，节省物流费
+            <svg class="icon" aria-hidden="true" ref='arrow' @click='toggleRecommend'>
+              <use xlink:href="#icon-arrowdropdown"></use>
+            </svg>
+          </p>
+          <swiper class="wrapper" :options='swiperOption2' v-show='slideDown'>
+            <swiper-slide>
+              <div class="goods">
+                <img src="http://img2.imgtn.bdimg.com/it/u=1694552282,1416252&fm=27&gp=0.jpg">
+                <div class="text">
+                  <div class="name">孙燕姿</div>
+                  <div class="jingle">遇见</div>
+                  <div class="price"><strong>￥39.8</strong></div>
+                </div>
+              </div>
+            </swiper-slide>
+          </swiper>
+        </div>
 
         <placeholder></placeholder>
 
@@ -97,7 +136,7 @@
           </swiper>
         </div>
 
-        <div class="company_card">
+        <div class="company_card" @click='company_card(product_obj.store_id)'>
           <div class="brand">
             <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
           </div>
@@ -117,7 +156,7 @@
         <div class="rate">
           <x-header class='x-header'>
             <span slot='left'>产品评价</span>
-            <span slot="right">更多评价</span>
+            <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
           </x-header>
           <rate-item></rate-item>
           <rate-item></rate-item>
@@ -184,7 +223,6 @@
         <button @click='submit'>加入购物车</button>
       </div>
     </transition>
-
     <tab @add='addCart'></tab>
   </scroll>
 </template>
@@ -199,24 +237,33 @@
   export default {
     data () {
       return {
-        arr: [],
+        member_c: true,
+        product_obj: {},
         videoArr: ['http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA1', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/MIXRT'],
-        currentData: {},
         notNextTick: true,
+        // 顶部的swiper组件
         swiperOption: {
           pagination: '.swiper-pagination',
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 18,
           initialSlide: 1
-        }, // 顶部的swiper组件
+        },
+        // 底部的swiper组件
         swiperOption1: {
           pagination: '.swiper-pagination',
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 10,
           initialSlide: 1
-        },  // 顶部的swiper组件
+        },
+        // 推荐产品的swiper组件
+        swiperOption2: {
+          pagination: '.swiper-pagination',
+          slidesPerView: 3,
+          paginationClickable: true,
+          spaceBetween: 8
+        },
         favorite: false,   // 收藏商品
         brandFlag: true,  // 收藏品牌
         returnFlag: false,  // 放回顶部
@@ -224,18 +271,23 @@
         count: 1, // 加入购物车的数量
         pullDownFlag: false,  // 是否进行下拉动作
         pullicon: true,   // 是否下拉松开手，出来加载icon
-        scrollY: 0   // 下滑的距离，放在data，只是方便在watch来操作pos.y
+        scrollY: 0,   // 下滑的距离，放在data，只是方便在watch来操作pos.y
+        slideDown: false // 用来维护推荐商品的下拉状态
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      // 这里不让用true/false  那就用隐式转换的方法实现，其实不合理
+      this.member_c = storage.get('member_class') === 1 ? '1' : ''
+      // 这里是产品id
       this.id = this.$route.params.id
       // 获得产品数据
-      this._getProductDesc()
+      this._getProductDesc(this.id)
     },
     mounted () {
       // 给减号一个初始颜色，因为是捕捉的count变化，初始时候为1，却没触发watch
-      this.$refs.minus.style.color = '#999'
+      // this.$refs.minus.style.color = '#999'
+      this.$refs.arrow.style.transform = 'rotate(.5turn)'
     },
     methods: {
       favoriteToggle () {
@@ -304,6 +356,16 @@
       scroll (pos) {
         this.scrollY = pos.y
       },
+      // 企业名片
+      company_card (id) {
+        this.$router.push({
+          path: '/desc',
+          query: {
+            id,
+            title: '企业名片'
+          }
+        })
+      },
       brand () {
         if (this.brandFlag) {
           this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}&id=79`, {
@@ -325,14 +387,48 @@
           })
         }
       },
+      moreRate (id) {
+        this.$router.push({
+          path: '/rate',
+          query: {
+            id
+          }
+        })
+      },
       map () {
         this.$router.push('/map')
       },
-      _getProductDesc () {
-        this.$http.get(`/api/goods/detail?api_token=${this.api_token}&id=${this.id}`).then(res => {
-          console.log(res)
-          if (res.status === 200) {
-            this.arr = res.data.data[0].list
+      toggleRecommend () {
+        this.slideDown = !this.slideDown
+        this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0)' : 'rotate(.5turn)'
+      },
+      joinBrand (id) {
+        this.$router.push({
+          path: '/desc',
+          query: {
+            id,
+            title: '快速加入品牌'
+          }
+        })
+      },
+      _getProductDesc (id) {
+        // 因为api_token 不一定存在，为了防止后端程序错误，要做个区分哟，要不然传的是undefined
+        let data = {}
+        if (this.api_token) {
+          data = {
+            id,
+            api_token: this.api_token
+          }
+        } else {
+          data = {
+            id
+          }
+        }
+        this.$http.get('/api/goods/detail', {
+          params: data
+        }).then(res => {
+          if (~~res.data.status === 200) {
+            this.product_obj = res.data.data
           }
         })
       }
@@ -364,6 +460,14 @@
         } else {
           this.returnFlag = false
         }
+      },
+      slideDown () {
+        this.$refs.scrollCom.refresh()
+      }
+    },
+    filters: {
+      format (num) {
+        return Number.parseFloat(num)
       }
     },
     components: {
@@ -460,19 +564,94 @@
             .name{
               font-size: 20px;
               margin-top: 0;
-              margin-bottom: 6px;
+              margin-bottom: 10px;
+              .no-wrap
             }
             .sell_point{
               font-size: @font-size-small;
               color: #666;
               line-height: 24px;
+              height: 48px;
               margin-bottom: 6px;
+            }
+          }
+        }
+        .find{
+          height: 50px;
+          width: 100%;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+          padding: 0 15px;
+          align-items: center;
+          .left{
+            width: 16px;
+            height: 16px;
+            img{
+              width: 100%;
+              height: 100%;
+            }
+          }
+          .center{
+            flex: 1;
+            padding: 0 10px;
+            font-size: @font-size-medium;
+            text-align: left;
+          }
+          .vux-x-icon{
+            fill: #9d9d9d;
+          }
+        }
+        .recommend{
+          padding-top: 15px;
+          .title{
+            padding-left: 15px;
+            margin-bottom: 15px;
+            font-size: @font-size-medium;
+            .icon {
+              width: 2em; height: 2em;
+              vertical-align: -0.65em;
+              fill: @color;
+              overflow: hidden;
+            }
+          }
+          .swiper-slide{
+            height: 200px;
+            width: 100%;
+            margin-bottom: 15px;
+          }
+          .goods{
+            width: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            overflow: hidden;
+            img{
+              width: 100%;
+              height: 120px;
+            }
+            .text{
+              width: 100%;
+              height: 80px;
+              padding-top: 15px;
+              text-align: center;
+              display: flex;
+              flex-flow: column nowrap;
+              justify-content: space-between;
+              .name{
+                color: #5c5c5c;
+                font-size: @font-size-medium;
+                .no-wrap
+              }
+              .jingle{
+                color: #adadad;
+                font-size: @font-size-small;
+              }
             }
           }
         }
         .pay_way{
           width: 100vw;
-          height: 273px;
+          // height: 273px;
           padding-left: 15px;
           font-size: @font-size-medium;
           overflow: hidden;
@@ -481,6 +660,18 @@
             width: 100%;
             display: flex;
             flex-flow: row nowrap;
+            &.line{
+              padding: 15px 0;
+              align-items: center;
+              .center{
+                display: flex;
+                align-items: center;
+                p{
+                  margin: 0!important;
+                  color: #999;
+                }
+              }
+            }
             &.title{
               position: relative;
               &:before{
@@ -500,6 +691,16 @@
                 }
               }
             }
+            &.strong{
+              .left{
+                width: 32px;
+              }
+              .center{
+                p:nth-child(2){
+                  color: #666;
+                }
+              }
+            }
             .left{
               width: 64px;
             }
@@ -508,7 +709,7 @@
               p:first-child{
                 margin-bottom: 10px;
               }
-              p:last-child{
+              p:nth-child(2){
                 font-size: @font-size-small-s;
                 color: #a7a7a7;
               }
@@ -521,6 +722,13 @@
               .vux-x-icon{
                 fill: #9d9d9d;
               }
+            }
+            .icon {
+              width: 1.5em; height: 1.5em;
+              vertical-align: -0.3em;
+              fill: @color;
+              overflow: hidden;
+              margin-right: 4px;
             }
           }
         }

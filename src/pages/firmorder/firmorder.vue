@@ -175,7 +175,26 @@
               obj2[str2] = type
             })
             this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
-              console.log(res)
+              if (res.data.status === 200) {
+                // 在付款页面 需要维护一个总价，及订单号的Array
+                let arr = []
+                let sum = 0
+                let orders = res.data.data.order
+                let value = Object.values(orders)
+                value.forEach(item => {
+                  // 这里防止浮点数计算错误
+                  sum += item.order_amount * 100
+                  arr.push(item.order_id)
+                })
+                sum = sum / 100
+                this.$router.push({
+                  path: '/pay',
+                  query: {
+                    sum,
+                    arr
+                  }
+                })
+              }
             })
           } else {
             this.alertFlag = true

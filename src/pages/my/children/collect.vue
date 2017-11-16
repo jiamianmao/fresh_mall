@@ -177,18 +177,18 @@
             this._getCollect()
           })
         } else if (this.title === this.init[1].name) {
-          this.$http.post(`/mobile/?act=member_goodsbrowse&op=del_browse&api_token=${this.api_token}`, {
-            goods_id: this.activeArr
+          this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}`, {
+            id: this.activeArr
           }).then(res => {
-            console.log(res)
             if (res.data.status === 200) {
               this._getBrand()
             }
           })
         } else if (this.title === this.init[2].name) {
-          this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}`, {
-            id: this.activeArr
+          this.$http.post(`/mobile/?act=member_goodsbrowse&op=del_browse&api_token=${this.api_token}`, {
+            goods_id: this.activeArr
           }).then(res => {
+            console.log(res)
             if (res.data.status === 200) {
               this._getFootMark()
             }

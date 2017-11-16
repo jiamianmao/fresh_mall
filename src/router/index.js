@@ -6,10 +6,13 @@ const Shopcart = () => import('@/pages/shopcart/shopcart')
 
 const Search = () => import('@/pages/search/search')
 const City = () => import('@/components/city/city')
+
+// 产品页面
 const Product = () => import('@/pages/product/product')
+const Rate = () => import('@/pages/rate/rate')
+
 const Map = () => import('@/pages/map/map')
 
-const Rate = () => import('@/pages/rate/rate')
 const GoodsList = () => import('@/pages/goods-list/goods-list')
 const Desc = () => import('@/pages/desc/desc')
 
@@ -19,6 +22,7 @@ const Invoice = () => import('@/pages/firmorder/children/invoice')
 const BrandGoodsList = () => import('@/pages/brandGoodsList/brandGoodsList')
 const Pay = () => import('@/pages/pay/pay')
 
+// 我的页面
 const My = () => import('@/pages/my/my')
 const Order = () => import('@/pages/my/children/order')
 const AfterSell = () => import('@/pages/my/children/after_sell')
@@ -93,8 +97,8 @@ export default [
     { path: '/city', component: City },
     { path: '/search', component: Search },
     { path: '/product/:id', component: Product},
-    { path: '/map', component: Map},
     { path: '/rate', component: Rate },
+    { path: '/map', component: Map},
     { path: '/goodslist', component: GoodsList },
     { path: '/desc', component: Desc },
     { path: '/brandGoodsList', component: BrandGoodsList },

@@ -85,34 +85,26 @@
         <div class="content">
           <div class="item">
             <div class="left">说明<span class='placeholder'></span></div>
-            <div class="right">移动端仅支持线下转账，如需线上转账，可在PC端进行操作</div>
+            <div class="right">公司转账仅支持线下转账</div>
           </div>
           <div class="item">
             <div class="left">户名<span class='placeholder'></span></div>
-            <div class="right">创合平台</div>
+            <div class="right">北京创合联动科技有限公司</div>
           </div>
           <div class="item">
             <div class="left">账号<span class='placeholder'></span></div>
-            <div class="right">1109 0710 0910 708</div>
+            <div class="right">1109 2800 6910 301</div>
           </div>
           <div class="item">
             <div class="left">开户行<span class='placeholder'></span></div>
-            <div class="right">招商银行股份有限公司北京青年路支行</div>
+            <div class="right">招商银行股份有限公司北京清华园支行</div>
           </div>
-          <div class="item">
-            <div class="left">联行号<span class='placeholder'></span></div>
-            <div class="right">3081 0000 5545 (非必填)</div>
-          </div>
-          <div class="item last">
-            <div class="left">汇付识别码</div>
-            <div class="right">60412345678</div>
-          </div>
-          <div class="desc">汇付识别码已发送至手机187****5553，须填写电汇凭证至【汇款用途】、【附言】、【摘要】等栏目内，因银行备注不同，最好在所有可备注的地方填写</div>
+          <div class="desc">为了方便平台尽快为您处理订单，请您在公司转账操作时备注订单号并简要填写商品名称。因各银行备注不同，请您最好在所有可备注的地方填写。货款到账后，我们会在1到2个工作日内处理，如有疑问请联系平台客服。</div>
         </div>
       </div>
     </transition>
     
-    <button @click='pay'><span>{{msg}}支付</span>¥ 275.6</button>
+    <button @click='pay'><span>{{msg}}支付</span>¥ {{sum}}</button>
   </div>
 </template>
 <script>
@@ -125,8 +117,14 @@
         select3: false,
         select4: false,
         msg: '支付宝',
-        company: false
+        company: false,
+        sum: 0,
+        orderArr: []
       }
+    },
+    created () {
+      this.sum = this.$route.query.sum
+      this.orderArr = this.$route.query.arr
     },
     methods: {
       active (n) {
@@ -136,13 +134,13 @@
         this.select4 = false
         if (n === 1) {
           this.select1 = true
-          this.msg = '支付宝支付'
+          this.msg = '支付宝'
         } else if (n === 2) {
           this.select2 = true
-          this.msg = '微信支付'
+          this.msg = '微信'
         } else if (n === 3) {
           this.select3 = true
-          this.msg = '银联支付'
+          this.msg = '银联'
         } else {
           this.select4 = true
           this.msg = '转账'
@@ -227,7 +225,7 @@
       bottom: 49px;
       left: 0;
       width: 100vw;
-      height: 340px;
+      height: 280px;
       background: #fff;
       z-index: 2;
       header{
@@ -266,27 +264,11 @@
             color: #333;
             width: 260px;
           }
-          &:first-child{
-            margin-bottom: 15px;
-            .left{
-              position: relative;
-              top: 3px;
-            }
-            .right{
-              line-height: 18px;
-            }
-          }
-          &.last{
-            .left{
-              text-align: left;
-              flex: 1;
-            }
-          }
         }
         .desc{
           width: 96.38%;
           background: #f4f4f4;
-          margin-top: 20px;
+          margin-top: 10px;
           padding: 7px 8px;
           line-height: 20px;
           color: #666;
