@@ -47,6 +47,8 @@ const Bind = () => import('@/pages/bind/bind')
 
 const Message = () => import('@/pages/message/message')
 
+const Logo = () => import('@/pages/logo')
+
 Vue.use(Router)
 
 /* eslint-disable */
@@ -115,5 +117,6 @@ export default [
         { path: 'company', component: SignupCompany }
       ]
     },
-    { path: '/message', component: Message }
+    { path: '/message', component: Message },
+    { path: '/logo', component: Logo }
   ]

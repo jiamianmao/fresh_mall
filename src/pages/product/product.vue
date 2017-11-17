@@ -16,7 +16,7 @@
         <div class="desc">
           <div class="sells_volume">
             <div class="brand" @click='brand' :class='{active_brand: brandFlag}'>{{brandText}}</div>
-            <div class="sells"><span>库存: 400件</span><span>销量: 260件</span></div>
+            <div class="sells"><span>库存: {{product_obj.goods_storage}}{{product_obj.goods_unit}}</span><span>销量: {{product_obj.goods_salenum}}{{product_obj.goods_unit}}</span></div>
           </div>
           <div class="content">
             <h6 class="name">{{product_obj.goods_name}}</h6>
@@ -24,7 +24,7 @@
             <strong>¥{{product_obj.goods_price | format}}</strong>
           </div>
         </div>
-        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)'>
+        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c'>
           <div class="left"><img src="../../assets/product/find.png"></div>
           <div class="center">查看如何成为XXX经销商</div>
           <span class='right'>
@@ -33,8 +33,8 @@
         </div>
         <placeholder></placeholder>
 
-        <!-- 支付方式（名字，价格信息等）
-        <ul class="pay_way">
+        <!-- 支付方式（名字，价格信息等）-->
+        <ul class="pay_way" v-if='member_c'>
           <li class='title'>两种购买方式供您选择</li>
           <li class='' @click='map'>
             <span class='left'>到店购买:</span>
@@ -78,13 +78,13 @@
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-        </ul> -->
+        </ul>
 
-        <div class="recommend">
+        <div class="recommend" v-if='!member_c'>
           <p class='title'>
             以下产品XXXX可一起配送，节省物流费
             <svg class="icon" aria-hidden="true" ref='arrow' @click='toggleRecommend'>
-              <use xlink:href="#icon-arrowdropdown"></use>
+              <use xlink:href="#icon-arrow-up"></use>
             </svg>
           </p>
           <swiper class="wrapper" :options='swiperOption2' v-show='slideDown'>
@@ -138,12 +138,12 @@
 
         <div class="company_card" @click='company_card(product_obj.store_id)'>
           <div class="brand">
-            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
+            <img v-lazy="product_obj.store.store_label">
           </div>
           <div class="pv">
             <h3>企业名片</h3>
             <p>浏览量:
-              <span>7834</span>
+              <span>{{product_obj.store.store_collect}}</span>
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-yuanjiantou"></use>
               </svg>
@@ -181,7 +181,6 @@
 
       <!-- 遮罩层 -->
       <div class="mask" v-show='addFlag' @click='addFlag = !addFlag'></div>
-      
     </div>
 
     <!-- 返回顶部图标 -->
@@ -223,7 +222,9 @@
         <button @click='submit'>加入购物车</button>
       </div>
     </transition>
-    <tab @add='addCart'></tab>
+    <tab @add='addCart' @tel='tel'></tab>
+
+    <confirm text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></confirm>
   </scroll>
 </template>
 <script>
@@ -234,6 +235,7 @@
   import { Spinner } from 'vux'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
+  import Confirm from '@/components/confirm/confirm'
   export default {
     data () {
       return {
@@ -278,7 +280,7 @@
     created () {
       this.api_token = storage.get('api_token')
       // 这里不让用true/false  那就用隐式转换的方法实现，其实不合理
-      this.member_c = storage.get('member_class') === 1 ? '1' : ''
+      this.member_c = ~~storage.get('member_class') === 1 ? '1' : ''
       // 这里是产品id
       this.id = this.$route.params.id
       // 获得产品数据
@@ -287,7 +289,6 @@
     mounted () {
       // 给减号一个初始颜色，因为是捕捉的count变化，初始时候为1，却没触发watch
       // this.$refs.minus.style.color = '#999'
-      this.$refs.arrow.style.transform = 'rotate(.5turn)'
     },
     methods: {
       favoriteToggle () {
@@ -400,7 +401,7 @@
       },
       toggleRecommend () {
         this.slideDown = !this.slideDown
-        this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0)' : 'rotate(.5turn)'
+        this.$refs.arrow.style.transform = this.slideDown ? 'rotate(.5turn)' : 'rotate(0)'
       },
       joinBrand (id) {
         this.$router.push({
@@ -410,6 +411,9 @@
             title: '快速加入品牌'
           }
         })
+      },
+      tel () {
+        this.$refs.confirm.show()
       },
       _getProductDesc (id) {
         // 因为api_token 不一定存在，为了防止后端程序错误，要做个区分哟，要不然传的是undefined
@@ -476,7 +480,8 @@
       xHeader,
       RateItem,
       Scroll,
-      Spinner
+      Spinner,
+      Confirm
     }
   }
 </script>
@@ -609,8 +614,8 @@
             margin-bottom: 15px;
             font-size: @font-size-medium;
             .icon {
-              width: 2em; height: 2em;
-              vertical-align: -0.65em;
+              width: 1.6em; height: 1.6em;
+              vertical-align: -0.4em;
               fill: @color;
               overflow: hidden;
             }

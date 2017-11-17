@@ -6,9 +6,17 @@
       <div class="sort-wrapper">
         <div class='sort-item' v-for='(item, index) of sortArr' :class='{active:index === idx}' @click='selectSort(index)'>
           <span>
-            {{item.name}}
-            <div class="icon-wrapper">
+            {{item.attr_name}}
+            <div class="icon-wrapper" v-if='index === 0 || index > 3'>
               <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-arrowdropdown"></use>
+              </svg>
+            </div>
+            <div class="icon-wrapper price" v-show='index === 3'>
+              <svg class="icon" aria-hidden="true" :class='{price_active: !up}'>
+                <use xlink:href="#icon-arrow-up"></use>
+              </svg>
+              <svg class="icon" aria-hidden="true" :class='{price_active: up}'>
                 <use xlink:href="#icon-arrowdropdown"></use>
               </svg>
             </div>
@@ -21,8 +29,8 @@
       <transition name='slide'>
         <scroll :data='descData' class='box vux-1px-b vux-1px-t' v-show='descFlag' ref='scroll'>
           <div class="descWrapper">
-            <div class="desc" :class='{active_desc: attrDest.indexOf(index) !== -1}' v-for='(item, index) of descData' @click='selectDesc(index)'>
-              {{item}}
+            <div class="desc" :class='{active_desc: attrDest.indexOf(item.attr_value_id) !== -1}' v-for='item of descData' @click='selectDesc(item.attr_value_id)'>
+              {{item.attr_value_name}}
             </div>
           </div>
           <div class="button vux-1px-t">
@@ -57,7 +65,10 @@
         idx: 0,
         attrDest: [],  // 用户选择用来搜索的信息
         descData: [],  // 部位/品种 下面的详情信息
-        goodsData: []
+        goodsData: [],
+        goodsData1: [], // 这里用来存储综合排序的镜像
+        up: false,  // 用来维护一个价格的降序还是升序
+        word: ''
       }
     },
     created () {
@@ -71,14 +82,42 @@
       },
       toSearch (word) {
         // 拿到搜索关键词去交互
-        console.log(word)
+        this.word = word
+        this.sure()
       },
       selectSort (index) {
+        this.idx = index
+        // 这里对 综合 销量 价格 进行拦截，不触发下拉框
+        if (index >= 1 && index <= 3) {
+          if (index === 1) {
+            this.goodsData = this.goodsData1.slice()
+          }
+          if (index === 2) {
+            this.goodsData.sort((a, b) => {
+              return b.goods_salenum - a.goods_salenum
+            })
+          }
+          if (index === 3) {
+            if (!this.up) {
+              this.goodsData.sort((a, b) => {
+                return a.goods_price - b.goods_price
+              })
+              this.up = true
+            } else {
+              this.goodsData.sort((a, b) => {
+                return b.goods_price - a.goods_price
+              })
+              this.up = false
+            }
+          }
+          this.descFlag = false
+          return
+        }
+        // 下边是对下拉框的判断
         if (index === this.idx) {
           this.descFlag = !this.descFlag
           return
         }
-        this.idx = index
         this.descFlag = true
       },
       selectDesc (index) {
@@ -89,39 +128,58 @@
           this.attrDest.splice(x, 1)
         }
       },
+      selectGoods (id) {
+        this.$router.push(`/product/${id}`)
+      },
+      // 重置操作
       reset () {
         this.attrDest = []
       },
       sure () {
         this.descFlag = false
-        console.log(this.attrDest)
-      },
-      selectGoods (id) {
-        this.$router.push(`/product/${id}`)
+        this.$http.get('/api/goods/list', {
+          params: {
+            api_token: this.api_token,
+            class_id: this.gc_id,
+            name: this.word,
+            attr_value_id: this.attrDest
+          }
+        }).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.goodsData = res.data.data
+            this.goodsData1 = this.goodsData.slice()
+          }
+        })
       },
       _getSort () {
-        this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/sortrule').then(res => {
-          this.sortArr = res.data.data
-          // 方法有点蠢，不灵活 只能两组加横线
-          this.sortArr.length > 4 && (this.placeholder = true)
-          this.descData = this.sortArr[this.idx].list
-          // 防止页面重绘
-          this.$nextTick(() => {
-            this._getGoodsData()
-          })
+        this.$http.get(`/api/good_class/attr?api_token=${this.api_token}&id=256`).then(res => {
+          if (res.data.status === 200) {
+            this.sortArr = res.data.data
+            this.sortArr.splice(1, 0, {
+              attr_name: '综合'
+            }, {
+              attr_name: '销量'
+            }, {
+              attr_name: '价格'
+            })
+            // 方法有点蠢，不灵活 只能两组加横线
+            this.sortArr.length > 4 && (this.placeholder = true)
+            this.descData = this.sortArr[this.idx].attribute_value
+            // 防止页面重绘
+            this.$nextTick(() => {
+              this._getGoodsData()
+            })
+          }
         })
       },
       _getGoodsData () {
-        let url
-        // 这里需要对api_token做个判断，后端需要维护用过户浏览行为，所以传参不同的
-        if (this.api_token) {
-          url = `/api/good_class/recommend?api_token=${this.api_token}&id=${this.gc_id}`
-        } else {
-          url = `/api/good_class/recommend?id=${this.gc_id}`
-        }
-        this.$http.get(url).then(res => {
+        this.$http.get(`/api/good_class/recommend?api_token=${this.api_token}&id=${this.gc_id}`).then(res => {
           if (parseInt(res.data.status) === 200) {
+            // 这里必须得用浅复制咯，因为这里是对象下边的属性，就是给的是指针。所以用slice，在上面
+            // goodsData1 给 goodsData的 也需要用浅复制
+            // this.goodsData = this.goodsData1 = res.data.data
             this.goodsData = res.data.data
+            this.goodsData1 = this.goodsData.slice()
           }
         })
       }
@@ -133,13 +191,19 @@
     },
     watch: {
       descFlag () {
+        // 因为下拉框做了个scroll 所以数据更新后要refresh
         this.$nextTick(() => {
           this.attrDest = []
           this.$refs.scroll.refresh()
         })
       },
+      // 选择不同的筛选条件来渲染对应的筛选值
       idx () {
-        this.descData = this.sortArr[this.idx].list
+        this.descData = this.sortArr[this.idx].attribute_value
+      },
+      // 来监控word，如果word改变的话，就把分类这个id置空
+      word () {
+        this.gc_id = ''
       }
     },
     components: {
@@ -208,10 +272,23 @@
               flex-direction: column;
               align-items: center;
               justify-content: center;
+              &.price{
+                .icon:first-child{
+                  position: relative;
+                  bottom: -3px;
+                }
+                .icon:last-child{
+                  position: relative;
+                  top: -3px;
+                }
+              }
               .icon {
                 width: 12px; height: 12px;
                 fill: currentColor;
                 overflow: hidden;
+                &.price_active{
+                  fill: #666;
+                }
               }
             }
           }

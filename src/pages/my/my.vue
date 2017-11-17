@@ -11,15 +11,15 @@
       <main>
         <div class="behavior">
           <div @click='collect'>
-            <span>100</span>
+            <span>{{nums.favorite_num}}</span>
             <p>收藏商品</p>
           </div>
           <div @click='brand'>
-            <span>100</span>
+            <span>{{nums.member_brand_num}}</span>
             <p>关注品牌</p>
           </div>
           <div @click='footmark'>
-            <span>100</span>
+            <span>{{nums.browse_num}}</span>
             <p>浏览记录</p>
           </div>
         </div>
@@ -32,34 +32,37 @@
             <div class="item" id='1'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_pay.png">
-                <div class="num">1</div>
+                <div class="num" v-if='~~nums.pay_count'>{{nums.pay_count}}</div>
               </div>待付款
             </div>
             <div class="item" id='2'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_sent.png">
-                <div class="num">2</div>
+                <div class="num" v-if='~~nums.send_count'>{{nums.send_count}}</div>
               </div>待发货</div>
             <div class="item" id='3'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_get.png">
-                <div class="num">2</div>
+                <div class="num" v-if='~~nums.send_count'>{{nums.send_count}}</div>
               </div>待收货
             </div>
             <div class="item" id='4'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_judge.png">
+                <div class="num" v-if='~~nums.eval_count'>{{nums.eval_count}}</div>
               </div>待评价</div>
             <div class="item" @click.stop='after_sell'>
               <div class="img_wrapper">
                 <img src="../../assets/my/service.png">
-              </div>售后
+                <div class="num" v-if='~~nums.refund_count'>{{nums.refund_count}}</div>
+              </div>
+              <div>售后</div>
             </div>
           </div>
           <div class='fun_wrapper'>
             <div class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item" @click='address'>收货地址管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-            <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has"></div></div>
+            <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has" v-if='~~nums.msg_num'></div></div>
             <div class="item" @click='account'>账号安全<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item">联系客服<x-icon type="ios-arrow-right" size="16"></x-icon></div>
           </div>
@@ -72,12 +75,18 @@
 <script>
   import $ from 'jquery'
   import Scroll from '@/components/scroll/scroll'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
         status: 0,
-        scrollY: 0
+        scrollY: 0,
+        nums: {}
       }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      this._getNums()
     },
     methods: {
       collect () {
@@ -123,6 +132,13 @@
       },
       scroll (pos) {
         this.scrollY = pos.y
+      },
+      _getNums () {
+        this.$http.get(`/mobile/?act=member_order&op=series_num&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            this.nums = res.data.data.num
+          }
+        })
       }
     },
     mounted () {

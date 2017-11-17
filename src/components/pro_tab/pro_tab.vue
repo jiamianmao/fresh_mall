@@ -1,11 +1,11 @@
 <template>
   <div class='tab_wrapper vux-1px-t'>
-    <a class="item" href='tel:18137855665'>
+    <div class="item" @click='goTel'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-kefucopy"></use>
       </svg>
       <span>客服</span>
-    </a>
+    </div>
     <div class="item" @click='goHome'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-shouye1"></use>
@@ -28,11 +28,15 @@
   export default {
     data () {
       return {
+        flag: false
       }
     },
     methods: {
       goHome () {
         this.$router.push('/home')
+      },
+      goTel () {
+        this.$emit('tel')
       },
       addCart () {
         this.$emit('add')

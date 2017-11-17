@@ -203,34 +203,43 @@
       <div class="status" v-show='complete'>
         <div class="box">
           <div class="item_wrapper">
-            <div class="item" :class='{active: 1 <= status}'>
+            <div class="item" :class='{active: 0 <= status}'>
               <img src="../../../assets/my/status_1.png">
-              <p>提交审核</p>
+              <p>提交成功</p>
             </div>
-            <div class="placeholder" :class='{active: 2 <= status}'></div>
-            <div class="item" :class='{active: 2 <= status}'>
+            <div class="placeholder" :class='{active: 0 <= status}'></div>
+            <div class="item" :class='{active: 0 <= status}'>
               <img src="../../../assets/my/status_2.png">
               <p>正在审核</p>
             </div>
-            <div class="placeholder" :class='{active: 3 <= status}'></div>
-            <div class="item" :class='{active: 3 <= status}'>
-              <img src="../../../assets/my/status_3.png">
-              <p>审核成功</p>
+            <div class="placeholder" :class='{active: 1 <= status && status < 3, fail: status === 3}'></div>
+            <div class="item" :class='{active: 1 <= status && status < 3, fail: status === 3}'>
+              <img v-if='status === 3' src="../../../assets/my/status_4.png">
+              <img v-else src="../../../assets/my/status_3.png">
+              <p v-if='status === 3'>审核失败</p>
+              <p v-else>审核成功</p>
             </div>
           </div>
           <div class="content">
-            <div class="text_wrapper"  v-show='status < 3'>
+            <div class="text_wrapper"  v-show='status === 0'>
               <p>您可以继续浏览商品，把心仪的商品先收藏</p>
               <a href="#">申请成为线下门店面免交保证金</a>
             </div>
-            <div class="text_wrapper"  v-show='status < 3'>
+            <div class="text_wrapper"  v-show='status === 1'>
               <p>恭喜您审核成功，缴纳保证金即可购买</p>
               <a href="#">缴纳保证金</a><br>
               <a href="#">保证金管理制度</a>
             </div>
-            <div class="text_wrapper"  v-show='status < 5'>
+            <div class="text_wrapper"  v-show='status === 2 && !deposit'>
+              <p>经审核，您属于{{stroe_name}}的经销门店，免交保证金</p>
+            </div>
+            <div class="text_wrapper"  v-show='status === 3'>
               <p>请您仔细阅读资质认证的信息填写要求</p>
-              <p>修改并重新提交申请</p>
+              <p>修改并重新提交申请，如有疑问，请联系平台客服</p>
+            </div>
+            <div class="text_wrapper"  v-show='status === 2 && deposit'>
+              <p>恭喜您审核成功!</p>
+              <a href="#">保证金管理制度</a>
             </div>
           </div>
         </div>
@@ -276,30 +285,33 @@
         licence_pic: [],
         shop_pic: '',
         store_condition: '',
-        store_condition_pic: []
+        store_condition_pic: [],
+        deposit: false,  // 是否交保证金
+        stroe_name: ''
       }
     },
     created () {
-      Object.assign(this, storage.get('upload'))
-      // this.$http.get('1').then(res => {
-      //   if (status) {
-          // this.company_name = upload.company_name
-          // this.business_licence_number = upload.business_licence_number
-          // this.bank_account_name = upload.bank_account_name
-          // this.bank_account = upload.bank_account
-          // this.bank_address = upload.bank_address
-          // this.bank_subbranch_name = upload.bank_subbranch_name
-          // this.authenticator_truename = upload.authenticator_truename
-          // this.authenticator_idnumber = upload.authenticator_idnumber
-          // this.licence_pic = upload.licence_pic
-          // this.shop_pic = upload.shop_pic
-          // this.store_condition = upload.store_condition
-          // this.store_condition_pic = upload.store_condition_pic
-      //   } else {
-      //     this.complete = true
-      //     this.title = '审核状态'
-      //   }
-      // })
+      // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
+      this.api_token = storage.get('api_token')
+      this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
+        if (res.data.status === 200) {
+          let data = res.data.data
+          if (~~data.examine_state === -1) {
+            Object.assign(this, storage.get('upload'))
+          } else {
+            if (parseInt(data.company_info.deposit) === 0) {
+              this.deposit = false
+            } else {
+              this.deposit = true
+            }
+            this.stroe_name = data.company_info.company_name
+            this.complete = true
+            this.title = '审核状态'
+            this.text = ''
+            this.status = data.examine_state | 0
+          }
+        }
+      })
     },
     methods: {
       logContent (file) {
@@ -697,12 +709,21 @@
                 color: @color;
               }
             }
+            &.fail{
+              background: #FF4467;
+              p{
+                color: #FF4467;
+              }
+            }
           }
           .placeholder{
             width: 65px;
             border-top: 1px dashed #ccc;
             &.active{
               border-top: 1px dashed @color;
+            }
+            &.fail{
+              border-top: 1px dashed #FF4467;
             }
           }
         }
