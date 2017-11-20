@@ -52,20 +52,25 @@
               <p>请选择收货方式</p>
             </div>
           </li>
-          <li class="vux-1px-t strong">
+          <li class="vux-1px-t strong" @click='goHome(product_obj.brand.brand_id)'>
             <span class='left'></span>
-            <div class='center'>
+            <div class='center' v-if='!address_1[product_obj.brand.brand_id]'>
               <p>1.直接配送到家</p>
               <p>
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-cc-marker"></use>
-                </svg>填写地址</p>
+                </svg>填写地址
+              </p>
+            </div>
+            <div class="center" v-else>
+              <p>{{address_1[product_obj.brand.brand_id].area_info | blank}}{{address_1[product_obj.brand.brand_id].address}}</p>
+              <p class='people'><span>{{address_1[product_obj.brand.brand_id].true_name}}</span> &nbsp; <span>{{address_1[product_obj.brand.brand_id].tel_phone}}</span></p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-          <li class='vux-1px-t strong'>
+          <li class='vux-1px-t strong' @click='goStore(product_obj.brand.brand_id)'>
             <span class='left'></span>
             <div class='center'>
               <p>2.由合作门店提供代收和短时贮藏服务</p>
@@ -138,7 +143,7 @@
 
         <div class="company_card" @click='company_card(product_obj.store_id)'>
           <div class="brand">
-            <img v-lazy="product_obj.store.store_label">
+            <img :src="product_obj.store.store_label">
           </div>
           <div class="pv">
             <h3>企业名片</h3>
@@ -158,14 +163,13 @@
             <span slot='left'>产品评价</span>
             <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
           </x-header>
-          <rate-item></rate-item>
-          <rate-item></rate-item>
+          <rate-item v-for='(item, index) of rateList' :rateData='item' :key='index'></rate-item>
         </div>
       </main>
 
       <!-- 收藏图标 -->
       <div class="favorite" @click='favoriteToggle'>
-        <div class='item item1' v-if='favorite'>
+        <div class='item item1' v-if='goodsFlag'>
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-wujiaoxing1"></use>
           </svg>
@@ -223,8 +227,8 @@
       </div>
     </transition>
     <tab @add='addCart' @tel='tel'></tab>
-
-    <confirm text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></confirm>
+    <confirm v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
+    <Confirms text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
   </scroll>
 </template>
 <script>
@@ -232,10 +236,11 @@
   import Placeholder from '@/components/placeholder/placeholder'
   import xHeader from '@/components/x-header/x-header'
   import RateItem from '@/components/rate_item/rate_item'
-  import { Spinner } from 'vux'
+  import { Spinner, Confirm } from 'vux'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
-  import Confirm from '@/components/confirm/confirm'
+  import Confirms from '@/components/confirm/confirm'
+  import { mapGetters } from 'vuex'
   export default {
     data () {
       return {
@@ -266,7 +271,7 @@
           paginationClickable: true,
           spaceBetween: 8
         },
-        favorite: false,   // 收藏商品
+        goodsFlag: false,   // 收藏商品
         brandFlag: true,  // 收藏品牌
         returnFlag: false,  // 放回顶部
         addFlag: false,   // 是否点加入购物车
@@ -274,7 +279,11 @@
         pullDownFlag: false,  // 是否进行下拉动作
         pullicon: true,   // 是否下拉松开手，出来加载icon
         scrollY: 0,   // 下滑的距离，放在data，只是方便在watch来操作pos.y
-        slideDown: false // 用来维护推荐商品的下拉状态
+        slideDown: false, // 用来维护推荐商品的下拉状态
+        address_1: {},
+        show: false, // comfirm的状态
+        select_type: -1, // 到店购买为0，配送到家1，门店2
+        rateList: []
       }
     },
     created () {
@@ -292,19 +301,18 @@
     },
     methods: {
       favoriteToggle () {
-        this.favorite = !this.favorite
-        if (this.favorite) {
+        this.goodsFlag = !this.goodsFlag
+        if (this.goodsFlag) {
           this.$http.post('/mobile/?act=member_favorites&op=favorites_add', {
             api_token: this.api_token,
-            goods_id: 38,
-            key: 123456
+            goods_id: this.id
           }).then(res => {
             console.log(res)
           })
         } else {
           this.$http.post('/mobile/?act=member_favorites&op=favorites_del', {
             api_token: this.api_token,
-            fav_id: 38
+            fav_id: this.id
           }).then(res => {
             console.log(res)
           })
@@ -415,6 +423,56 @@
       tel () {
         this.$refs.confirm.show()
       },
+      // 直接配送到家
+      goHome (id) {
+        if (this.select_type > -1) {
+          this.show = true
+          this.select_type = 1
+          return
+        }
+        this.$router.push({
+          path: '/my/address',
+          query: {
+            id
+          }
+        })
+      },
+      goStore (id) {
+        if (this.select_type > -1) {
+          this.show = true
+          this.select_type = 2
+          return
+        }
+        this.$router.push({
+          path: '/map',
+          query: {
+            id
+          }
+        })
+      },
+      reSelect (id) {
+        if (this.address[id]) {
+          delete this.address[id]
+        }
+        if (this.addressType[id]) {
+          delete this.addressType[id]
+        }
+        if (this.select_type === 1) {
+          this.$router.push({
+            path: '/my/address',
+            query: {
+              id
+            }
+          })
+        } else if (this.select_type === 2) {
+          this.$router.push({
+            path: '/map',
+            query: {
+              id
+            }
+          })
+        }
+      },
       _getProductDesc (id) {
         // 因为api_token 不一定存在，为了防止后端程序错误，要做个区分哟，要不然传的是undefined
         let data = {}
@@ -433,6 +491,19 @@
         }).then(res => {
           if (~~res.data.status === 200) {
             this.product_obj = res.data.data
+            this._getCollect()
+          }
+        })
+      },
+      _getCollect () {
+        this.$http.post(`/mobile/?act=goods&op=is_collect&api_token=${this.api_token}`, {
+          goods_id: this.product_obj.goods_id,
+          brand_id: this.product_obj.brand.brand_id
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.goodsFlag = res.data.data.is_collect_goods
+            this.brandFlag = res.data.data.is_collect_brand
+            this.rateList = res.data.data.goods_eval_list
           }
         })
       }
@@ -443,7 +514,11 @@
       },
       brandText () {
         return this.brandFlag ? '已关注' : '关注品牌'
-      }
+      },
+      ...mapGetters({
+        'address': 'address',
+        'addressType': 'addressType'
+      })
     },
     watch: {
       // 进行减法的颜色变化，最低为1
@@ -467,11 +542,21 @@
       },
       slideDown () {
         this.$refs.scrollCom.refresh()
+      },
+      $route () {
+        this.address_1 = Object.assign({}, this.address)
+        if (this.address_1) {
+          this.select_type = 1
+        }
       }
     },
     filters: {
+      // 对商品价格进行过滤
       format (num) {
         return Number.parseFloat(num)
+      },
+      blank (value) {
+        return value.replace(/\s/g, '')
       }
     },
     components: {
@@ -481,6 +566,7 @@
       RateItem,
       Scroll,
       Spinner,
+      Confirms,
       Confirm
     }
   }

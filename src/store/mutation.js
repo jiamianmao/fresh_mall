@@ -20,7 +20,12 @@ const mutations = {
     state.address[ids.brand_id] = ids.address
   },
   [types.SET_ADDRESS_TYPE] (state, data) {
-    state.addressType[data.id] = data.transport
+    // 以品牌id为key， 配送方式，店铺id，店铺名为value
+    state.addressType[data.id] = {
+      transport: data.transport,
+      store_id: data.store_id,
+      store_add: data.store_add
+    }
   }
 }
 

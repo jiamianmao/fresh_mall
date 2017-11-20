@@ -2,12 +2,7 @@
   <div class="container">
     <x-title>评价列表</x-title>
     <div class="wrapper">
-      <rate-item></rate-item>
-      <rate-item></rate-item>
-      <rate-item></rate-item>
-      <rate-item></rate-item>
-      <rate-item></rate-item>
-      <rate-item></rate-item>
+      <rate-item v-for='(item, index) of rateList' :key='index' :rateData='item'></rate-item>
     </div>
   </div>
 </template>
@@ -17,6 +12,7 @@
   export default {
     data () {
       return {
+        rateList: []
       }
     },
     created () {
@@ -27,7 +23,9 @@
     methods: {
       _getRateList () {
         this.$http.get(`/mobile/?act=goods&op=goods_evaluate&goods_id=${this.id}`).then(res => {
-          console.log(res)
+          if (res.data.status === 200) {
+            this.rateList = res.data.data.goods_eval_list
+          }
         })
       }
     },

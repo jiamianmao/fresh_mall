@@ -2,45 +2,53 @@
   <div class='wrapper vux-1px-t'>
     <div class="top">
       <div class="brand">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
+        <img :src="rateData.member_avatar">
       </div>
-      <p class='name'>南阳彭于晏</p>
+      <p class='name'>{{ rateData.geval_frommembername }}</p>
       <p class='icon'>
-        <span v-for='n of 4'>
+        <span v-for='n of rateData.geval_scores | 0'>
           <img src="../../assets/rate_item/yes.png">
         </span>
-        <span>
+        <span v-for='m of (5 - rateData.geval_scores | 0)'>
           <img src="../../assets/rate_item/no.png">
         </span>
       </p>
     </div>
     <div class="desc">
-      <span class="time">2017.09.27 22:58</span>
-      <span class="name">羊肉片350g</span>
+      <span class="time">{{ time }}</span>
+      <span class="name">{{ rateData.geval_goodsname }}</span>
     </div>
     <div class="content">
-      <div class='text'>羊肉片350g羊肉片350g羊肉片350g羊肉片350g羊肉片350g羊肉片350g羊肉片350g</div>
+      <div class='text'>{{ rateData.geval_content }}</div>
       <div class="image-box">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
-        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
+        <img v-for='value of rateData.geval_image' :src="value">
       </div>
     </div>
   </div>
 </template>
 <script>
+  import { dateFormat } from 'vux'
   export default {
+    props: {
+      rateData: {
+        type: Object,
+        default: {}
+      }
+    },
     data () {
       return {
+      }
+    },
+    computed: {
+      time () {
+        return dateFormat(~~this.rateData.geval_addtime * 1000, 'YYYY.MM.DD HH:mm')
       }
     }
   }
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable';
+  @import '~common/less/mixin';
   .wrapper{
     padding-top: 5px;
     width: 100%;
@@ -70,8 +78,14 @@
     .desc{
       font-size: @font-size-small-s;
       color: #a7a7a7;
+      display: flex;
+      flex-flow: row nowrap;
       .time{
-        margin-right: 16px;
+        width: 34%;
+      }
+      .name{
+        width: 66%;
+        .no-wrap
       }
     }
     .content{
