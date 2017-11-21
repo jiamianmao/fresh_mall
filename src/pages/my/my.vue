@@ -144,6 +144,13 @@
     mounted () {
       this.bgHeight = this.$refs.bg.clientHeight
     },
+    watch: {
+      $route () {
+        if (this.$route.fullPath === '/my') {
+          this._getNums()
+        }
+      }
+    },
     components: {
       Scroll
     }

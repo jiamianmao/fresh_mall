@@ -54,7 +54,7 @@
           </li>
           <li class="vux-1px-t strong" @click='goHome(product_obj.brand.brand_id)'>
             <span class='left'></span>
-            <div class='center' v-if='!address_1[product_obj.brand.brand_id]'>
+            <div class='center' v-if='!address_1'>
               <p>1.直接配送到家</p>
               <p>
                 <svg class="icon" aria-hidden="true">
@@ -63,8 +63,8 @@
               </p>
             </div>
             <div class="center" v-else>
-              <p>{{address_1[product_obj.brand.brand_id].area_info | blank}}{{address_1[product_obj.brand.brand_id].address}}</p>
-              <p class='people'><span>{{address_1[product_obj.brand.brand_id].true_name}}</span> &nbsp; <span>{{address_1[product_obj.brand.brand_id].tel_phone}}</span></p>
+              <p>{{address_1.area_info | blank}}{{address_1.address}}</p>
+              <p class='people'><span>{{address_1.true_name}}</span> &nbsp; <span>{{address_1.tel_phone}}</span></p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
@@ -72,12 +72,20 @@
           </li>
           <li class='vux-1px-t strong' @click='goStore(product_obj.brand.brand_id)'>
             <span class='left'></span>
-            <div class='center'>
+            <div class='center' v-if='!address_2 && !address_3'>
               <p>2.由合作门店提供代收和短时贮藏服务</p>
               <p>
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-cc-marker"></use>
                 </svg>选择门店</p>
+            </div>
+            <div class="center" v-if='address_2'>
+              <p>{{address_2.area_info | blank}}{{address_2.address}}</p>
+              <p class='people'><span>{{address_2.true_name}}</span> &nbsp; <span>{{address_2.tel_phone}}</span></p>
+            </div>
+            <div class="center" v-if='address_3'>
+              <p>{{address_3.store_add }}</p>
+              <p class='people'>到店自提</p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
@@ -283,8 +291,9 @@
         pullicon: true,   // 是否下拉松开手，出来加载icon
         scrollY: 0,   // 下滑的距离，放在data，只是方便在watch来操作pos.y
         slideDown: false, // 用来维护推荐商品的下拉状态
-        address_1: {},
-        address_2: [],
+        address_1: '',
+        address_2: '',
+        address_3: '',
         show: false, // comfirm的状态
         select_type: -1, // 到店购买为0，配送到家1，门店2
         rateList: []
@@ -293,13 +302,16 @@
     created () {
       this.api_token = storage.get('api_token')
       // 这里不让用true/false  那就用隐式转换的方法实现，其实不合理
-      this.member_c = ~~storage.get('member_class') === 1 ? '1' : ''
+      this.member_c = storage.get('member_class') === '2' ? '' : '1'
       this.id = this.$route.params.id
       // 获得产品数据
       this._getProductDesc(this.id)
+      // 清除type这个storage
+      storage.remove('type')
     },
     mounted () {
       // 给减号一个初始颜色，因为是捕捉的count变化，初始时候为1，却没触发watch
+      // 因为是v-if哦，所以报错咯
       // this.$refs.minus.style.color = '#999'
     },
     methods: {
@@ -327,6 +339,7 @@
       },
       addCart () {
         this.addFlag = true
+        this.$refs.minus.style.color = '#999'
       },
       submit () {
         this.addFlag = false
@@ -410,14 +423,6 @@
           }
         })
       },
-      goZiti () {
-        this.$router.push({
-          path: '/mapziti',
-          query: {
-            id: this.id
-          }
-        })
-      },
       toggleRecommend () {
         this.slideDown = !this.slideDown
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(.5turn)' : 'rotate(0)'
@@ -434,24 +439,33 @@
       tel () {
         this.$refs.confirm.show()
       },
+      goZiti () {
+        this.$router.push({
+          path: '/mapziti',
+          query: {
+            id: this.id
+          }
+        })
+      },
       // 直接配送到家
       goHome (id) {
-        if (this.select_type > -1) {
+        // 因为两个选择只能有一个，所以要进行次拦截
+        if (this.select_type === 2) {
           this.show = true
           this.select_type = 1
           return
         }
-        storage.set('type', 0)
+        storage.set('type', 1)
         this.$router.push({
           path: '/my/address',
           query: {
-            id
+            id // 传的是品牌id
           }
         })
       },
       // 这里改来改去 也不给我说 一会品牌id,一会商品id，让我被动改一大堆。艹
       goStore (id) {
-        if (this.select_type > -1) {
+        if (this.select_type === 1) {
           this.show = true
           this.select_type = 2
           return
@@ -560,14 +574,22 @@
       },
       $route () {
         let type = storage.get('type')
-        if (!type) {
-          this.address_1 = Object.assign({}, this.address)
+        if (type === 1) {
+          this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+          this.address_2 = ''
+          this.address_3 = ''
           if (this.address_1) {
             this.select_type = 1
           }
-        } else {
+        } else if (type === 2) {
+          this.address_1 = ''
+          this.address_3 = ''
           this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
           this.select_type = this.addressType
+        } else if (type === 3) {
+          this.address_1 = ''
+          this.address_2 = ''
+          this.address_3 = this.addressType[this.product_obj.brand.brand_id]
         }
       }
     },

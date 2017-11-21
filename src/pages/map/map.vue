@@ -41,7 +41,7 @@
         </div>
         <div class="item rule address" @click='selectAdd' v-show='transport === 2'>
           <div class="left"><p>配送地址:</p></div>
-          <div class="right" v-if='!address_1.area_info'>
+          <div class="right" v-if='!address_1'>
             <p>请选择配送地址</p>
           </div>
           <div class="right" v-else>
@@ -63,6 +63,7 @@
           <use xlink:href="#icon-close47"></use>
         </svg>
       </div>
+      <alert v-model="show" title="请完整输入信息">{{ msg }}</alert>
       <button @click='sure'>确定</button>
     </div>
   </div>
@@ -71,6 +72,7 @@
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
   import { mapGetters, mapMutations } from 'vuex'
+  import { Alert } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -82,7 +84,9 @@
         activePoint: '',
         activeAddData: {},
         distance: 0,  // 这里应该是后端来获取的数据，是个跨域接口，用easy-mock做了层代理（服务器代理增加后端难度）
-        address_1: {}
+        address_1: '',
+        show: false,
+        msg: ''
       }
     },
     created () {
@@ -139,15 +143,24 @@
       },
       sure () {
         if (!this.transport) {
-          return
+          this.show = true
+          this.msg = '请选择配送方式'
+          return 
+        }
+        if (this.transport === 2 && !this.address_1) {
+          this.show = true
+          this.msg = '请选择配送地址'
+          return 
         }
         let data = {
           id: this.id,
-          transport: this.transport
+          transport: this.transport,
+          store_id: this.addList[0].member_id,
+          store_add: this.addList[0].location
         }
         this.addressType(data)
         this.active = false
-        storage.set('type', 1)
+        storage.set('type', this.transport)
         this.$router.go(-1)
       },
       _getData () {
@@ -200,12 +213,13 @@
     },
     watch: {
       $route () {
-        console.log(this.address_1)
+        if (this.$route.path === '/map') {
+          this._getData()
+        }
         this.address_1 = Object.assign({}, this.address)[this.id]
         if (this.address_1) {
           this.select_type = 1
         }
-        console.log(this.address_1)
       },
       activePoint (newVal) {
         let x = this.addList.find(item => {
@@ -226,7 +240,8 @@
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Alert
     }
   }
 </script>

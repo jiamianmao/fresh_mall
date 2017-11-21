@@ -153,10 +153,7 @@
       orderSubmit () {
         // 来判断地址是否选择够，因为C端是多地址的
         if (this.member_c) {
-          // ES5语法，不需要配置babel-polyfill(babel-polyfill无法按需引入)
-          // babel-preset-es2015 只能对es6语法转码，不能对api转码  babel-preset-env 还没正式好
           if (Object.keys(this.address).length === this.list.length) {
-            // todo
             let obj1 = {
               'cart_id': this.cartArr
             }
@@ -184,7 +181,7 @@
                 value.forEach(item => {
                   // 这里防止浮点数计算错误
                   sum += item.order_amount * 100
-                  arr.push(item.order_id)
+                  arr.push(item.order_sn)
                 })
                 sum = sum / 100
                 this.$router.push({

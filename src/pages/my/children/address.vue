@@ -121,14 +121,12 @@
                 address: this.address
               }
               this.SET_ADDRESS(ids)
-              this.SET_ADDRESS_TYPE(null)
             }
           }
         })
       },
       ...mapMutations([
-        'SET_ADDRESS',
-        'SET_ADDRESS_TYPE'
+        'SET_ADDRESS'
       ])
     },
     components: {
