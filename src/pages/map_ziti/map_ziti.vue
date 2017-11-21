@@ -2,7 +2,7 @@
   <div class="container">
     <x-title>附近门店</x-title>
     <div id="container" class='map'></div>
-    <div class="modal" v-if='active && activeAddData.shop_pic'>
+    <div class="modal" v-if='active && activeAddData.member_id'>
       <div class="top vux-1px-b">
         <div class="left"><img :src="activeAddData.shop_pic"></div>
         <div class="right">
@@ -15,91 +15,43 @@
         <div class="item tel vux-1px-b">
           门店联系电话：<img src="./tel.png">{{ activeAddData.contact_phone }}
         </div>
-        <div class="item transport vux-1px-b">
-          您可以选择门店配送到家/到店自提: 
-          <div class="radio_wrapper">
-            <p @click='peisong'>
-              <img src="../../assets/selectAdd/selected.png" v-if='transport === 2'>
-              <img src="../../assets/selectAdd/select.png" v-else>配送
-            </p>
-            <p @click='ziti'>
-              <img src="../../assets/selectAdd/selected.png" v-if='transport === 3'>
-            <img src="../../assets/selectAdd/select.png" v-else>自提
-            </p>
-          </div>
-        </div>
-        <div class="item rule vux-1px-b">
-          <div class="left">
-            <p v-if='transport === 2'>配送规则:</p>
-            <p v-else>自提规则</p>
-          </div>
-          <div class="right">
-            <p>{{ activeAddData.distribution_rule }}</p>
-            <!--<p>1.配送时间：9:00-18:00</p>
-            <p>2.满51元免配送费，不满51元收取10元配送费</p>-->
-          </div>
-        </div>
-        <div class="item rule address" @click='selectAdd' v-show='transport === 2'>
-          <div class="left"><p>配送地址:</p></div>
-          <div class="right" v-if='!address_1.area_info'>
-            <p>请选择配送地址</p>
-          </div>
-          <div class="right" v-else>
-            <p>{{address_1.area_info | blank}}{{address.address}}</p>
-            <p class='people'><span>{{address_1.true_name}}</span> &nbsp; <span>{{address_1.tel_phone}}</span></p>
-          </div>
-          <!-- <div class="right" v-if='address[id]'>
-            <p>{{address[id].area_info | blank}}{{address[id].address}}</p>
-            <p class='people'><span>{{address[id].true_name}}</span> &nbsp; <span>{{address[id].tel_phone}}</span></p>
-          </div>
-          <div class="right" v-else>
-            <p>请选择配送地址</p>
-          </div> -->
-          <x-icon type="ios-arrow-right" size="30"></x-icon>
-        </div>
       </div>
       <div class="close" @click='close'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-close47"></use>
         </svg>
       </div>
-      <button @click='sure'>确定</button>
     </div>
   </div>
 </template>
 <script>
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
-  import { mapGetters, mapMutations } from 'vuex'
   import storage from 'good-storage'
   export default {
     data () {
       return {
         active: false, // 上浮出来店铺信息的Flag
-        transport: 0, // 配送方式
-        id: 0,  // url传参传过来的Brand_id
         addList: [],
-        activePoint: '',
+        activePoint: '', // 点击的位置的坐标点，用来拿distance
         activeAddData: {},
-        distance: 0,  // 这里应该是后端来获取的数据，是个跨域接口，用easy-mock做了层代理（服务器代理增加后端难度）
-        address_1: {}
+        distance: 0  // 这里应该是后端来获取的数据，是个跨域接口，用easy-mock做了层代理（服务器代理增加后端难度）
       }
     },
     created () {
       this.id = ~~this.$route.query.id
-      this.goodsId = this.$route.query.goodsId
       this.api_token = storage.get('api_token')
-      this._getData()
       this.geolocation = new qq.maps.Geolocation()
       this.geolocation.getIpLocation((position) => {
         this.lat = position.lat
         this.lng = position.lng
       })
+      this._getData()
     },
     mounted () {
       let center = new qq.maps.LatLng(this.lat, this.lng)
       this.map = new qq.maps.Map(document.getElementById('container'), {
-        // 地图的中心地理坐标
+        // 地图的中心地理坐标。
         center,
         zoom: 15
       })
@@ -120,38 +72,11 @@
       marker1.setIcon(icon)
     },
     methods: {
-      peisong () {
-        this.transport = 2
-      },
-      ziti () {
-        this.transport = 3
-      },
       close () {
         this.active = false
       },
-      selectAdd () {
-        this.$router.push({
-          path: '/my/address',
-          query: {
-            id: this.id
-          }
-        })
-      },
-      sure () {
-        if (!this.transport) {
-          return
-        }
-        let data = {
-          id: this.id,
-          transport: this.transport
-        }
-        this.addressType(data)
-        this.active = false
-        storage.set('type', 1)
-        this.$router.go(-1)
-      },
       _getData () {
-        this.$http.get(`/api/goods/pickup?api_token=${this.api_token}&goods_id=${this.goodsId}`).then(res => {
+        this.$http.get(`/api/goods/offline?api_token=${this.api_token}&goods_id=${this.id}`).then(res => {
           if (~~res.data.status === 200) {
             this.addList = res.data.data
             this.addList.forEach(item => {
@@ -178,35 +103,13 @@
                 // 取其坐标值移动到该marker
                 // map.panTo(new qq.maps.LatLng(39.916527,116.397128))
                 this.activePoint = `${e.latLng.lat},${e.latLng.lng}`
-                this.active = true
               })
             })
           }
         })
-      },
-      ...mapMutations({
-        'addressType': 'SET_ADDRESS_TYPE'
-      })
-    },
-    computed: {
-      ...mapGetters({
-        'address': 'address'
-      })
-    },
-    filters: {
-      blank (value) {
-        return value.replace(/\s/g, '')
       }
     },
     watch: {
-      $route () {
-        console.log(this.address_1)
-        this.address_1 = Object.assign({}, this.address)[this.id]
-        if (this.address_1) {
-          this.select_type = 1
-        }
-        console.log(this.address_1)
-      },
       activePoint (newVal) {
         let x = this.addList.find(item => {
           return item.location_lat === newVal.split(',')[0]
@@ -221,6 +124,7 @@
         }).then(res => {
           if (res.data.status === 0) {
             this.distance = res.data.result.elements[0].distance
+            this.active = true
           }
         })
       }

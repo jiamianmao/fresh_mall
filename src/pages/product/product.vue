@@ -24,7 +24,7 @@
             <strong>¥{{product_obj.goods_price | format}}</strong>
           </div>
         </div>
-        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c'>
+        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c && product_obj.brand'>
           <div class="left"><img src="../../assets/product/find.png"></div>
           <div class="center">查看如何成为XXX经销商</div>
           <span class='right'>
@@ -34,9 +34,9 @@
         <placeholder></placeholder>
 
         <!-- 支付方式（名字，价格信息等）-->
-        <ul class="pay_way" v-if='member_c'>
+        <ul class="pay_way" v-if='member_c && product_obj.brand'>
           <li class='title'>两种购买方式供您选择</li>
-          <li class='' @click='map'>
+          <li @click='goZiti(product_obj.brand.brand_id)'>
             <span class='left'>到店购买:</span>
             <div class='center'>
               <p>请查看附近的<a class='mark'>在售门店</a></p>
@@ -108,6 +108,8 @@
 
         <placeholder></placeholder>
 
+        <div v-html='product_obj.goods_body'></div>
+
         <div class="goods_info">
           <div class="item">
             <div class="title">二十四年坚守，只为每一片真正好羊肉</div>
@@ -141,7 +143,7 @@
           </swiper>
         </div>
 
-        <div class="company_card" @click='company_card(product_obj.store_id)'>
+        <div class="company_card" v-if='product_obj.store' @click='company_card(product_obj.store_id)'>
           <div class="brand">
             <img :src="product_obj.store.store_label">
           </div>
@@ -200,19 +202,19 @@
     </transition>
 
     <!-- 购物车 -->
-    <transition name='slide'>
+    <transition name='slide' v-if='product_obj.goods_image'>
       <div class="shopcart" v-show='addFlag'>
         <div class="close_icon" @click='addFlag = !addFlag'>
           <x-icon type="ios-close-empty" size="30"></x-icon>
         </div>
         <div class="main">
           <div class="left">
-            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg">
+            <img :src="product_obj.goods_image[0]">
           </div>
           <div class="right">
-            <h3>中天羊中天羊中天羊中天羊天羊中天羊天羊中天羊天羊中天羊天羊中天羊</h3>
-            <p class='middle'>300g/盒</p>
-            <p class='last'><strong>¥29.9</strong><span>库存: 29件</span></p>
+            <h3>{{ product_obj.goods_name }}</h3>
+            <p class='middle'>{{ product_obj.goods_jingle }}</p>
+            <p class='last'><strong>¥{{ product_obj.goods_price }}</strong><span>库存: {{ product_obj.goods_storage }}件</span></p>
           </div>
         </div>
         <div class="num">
@@ -221,13 +223,14 @@
             <div class='box minus' @click='minus' ref='minus'>-</div>
             <div class='count'>{{count}}</div>
             <div class='box add' @click='add'>+</div>
+            <div class="cue" v-show='count > product_obj.goods_storage'>库存不足</div>
           </div>
         </div>
         <button @click='submit'>加入购物车</button>
       </div>
     </transition>
     <tab @add='addCart' @tel='tel'></tab>
-    <confirm v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
+    <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
     <Confirms text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
   </scroll>
 </template>
@@ -281,6 +284,7 @@
         scrollY: 0,   // 下滑的距离，放在data，只是方便在watch来操作pos.y
         slideDown: false, // 用来维护推荐商品的下拉状态
         address_1: {},
+        address_2: [],
         show: false, // comfirm的状态
         select_type: -1, // 到店购买为0，配送到家1，门店2
         rateList: []
@@ -290,7 +294,6 @@
       this.api_token = storage.get('api_token')
       // 这里不让用true/false  那就用隐式转换的方法实现，其实不合理
       this.member_c = ~~storage.get('member_class') === 1 ? '1' : ''
-      // 这里是产品id
       this.id = this.$route.params.id
       // 获得产品数据
       this._getProductDesc(this.id)
@@ -300,6 +303,7 @@
       // this.$refs.minus.style.color = '#999'
     },
     methods: {
+      // 商品收藏
       favoriteToggle () {
         this.goodsFlag = !this.goodsFlag
         if (this.goodsFlag) {
@@ -375,6 +379,7 @@
           }
         })
       },
+      // 品牌收藏
       brand () {
         if (this.brandFlag) {
           this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}&id=79`, {
@@ -396,6 +401,7 @@
           })
         }
       },
+      // 去评价页面
       moreRate (id) {
         this.$router.push({
           path: '/rate',
@@ -404,8 +410,13 @@
           }
         })
       },
-      map () {
-        this.$router.push('/map')
+      goZiti () {
+        this.$router.push({
+          path: '/mapziti',
+          query: {
+            id: this.id
+          }
+        })
       },
       toggleRecommend () {
         this.slideDown = !this.slideDown
@@ -430,6 +441,7 @@
           this.select_type = 1
           return
         }
+        storage.set('type', 0)
         this.$router.push({
           path: '/my/address',
           query: {
@@ -437,6 +449,7 @@
           }
         })
       },
+      // 这里改来改去 也不给我说 一会品牌id,一会商品id，让我被动改一大堆。艹
       goStore (id) {
         if (this.select_type > -1) {
           this.show = true
@@ -446,7 +459,8 @@
         this.$router.push({
           path: '/map',
           query: {
-            id
+            id,
+            goodsId: this.id
           }
         })
       },
@@ -468,7 +482,8 @@
           this.$router.push({
             path: '/map',
             query: {
-              id
+              id,
+              goodsId: this.id
             }
           })
         }
@@ -544,9 +559,15 @@
         this.$refs.scrollCom.refresh()
       },
       $route () {
-        this.address_1 = Object.assign({}, this.address)
-        if (this.address_1) {
-          this.select_type = 1
+        let type = storage.get('type')
+        if (!type) {
+          this.address_1 = Object.assign({}, this.address)
+          if (this.address_1) {
+            this.select_type = 1
+          }
+        } else {
+          this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+          this.select_type = this.addressType
         }
       }
     },
@@ -1111,6 +1132,12 @@
             height: 30px;
             line-height: 30px;
             margin: 0 35px;
+          }
+          .cue{
+            color: @color;
+            line-height: 30px;
+            margin-left: 20px;
+            letter-spacing: 1px;
           }
         }
       }

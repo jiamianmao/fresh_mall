@@ -79,14 +79,6 @@
       }
     },
     created () {
-      // 定位拿到当前的城市
-      var geolocation = new qq.maps.Geolocation()
-      geolocation.getIpLocation((position) => {
-        // console.log(position)
-        let x = position.city
-        this.city = x.slice(0, x.length - 1)
-        storage.set('city', this.city)
-      })
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
       this._getBanner()
@@ -98,6 +90,8 @@
       this.navHeight = this.$refs.nav.clientHeight
       // 用canvas来画出启动页的箭头
       this._downArrow()
+      // 定位拿到当前的城市
+      this._getPosition()
     },
     methods: {
       // 记录启动页轮播的页码
@@ -199,6 +193,15 @@
               })
             })
           }
+        })
+      },
+      _getPosition () {
+        let geolocation = new qq.maps.Geolocation()
+        geolocation.getIpLocation((position) => {
+          console.log(position)
+          // let x = position.city
+          // this.city = x.slice(0, x.length - 1)
+          storage.set('city', this.city || 1)
         })
       },
       _getCategory () {

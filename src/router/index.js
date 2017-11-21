@@ -46,8 +46,7 @@ const SignupCompany = () => import('@/pages/signup_company/signup_company')
 const Bind = () => import('@/pages/bind/bind')
 
 const Message = () => import('@/pages/message/message')
-
-const Logo = () => import('@/pages/logo')
+const MapZiti = () => import('@/pages/map_ziti/map_ziti')
 
 Vue.use(Router)
 
@@ -118,5 +117,5 @@ export default [
       ]
     },
     { path: '/message', component: Message },
-    { path: '/logo', component: Logo }
+    { path: '/mapziti', component: MapZiti }
   ]

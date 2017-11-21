@@ -43,6 +43,11 @@ Vue.config.productionTip = false
 const router = new VueRouter({
   routes,
   mode: 'history'
+  // 这里先暂时不加滚动行为，因为会导致better-scroll的bug
+  // scrollBehavior (to, from, savedPosition) {
+  //   console.log(savedPosition)
+  //   return { x: 0, y: 500 }
+  // }
 })
 
 router.beforeEach((to, from, next) => {
