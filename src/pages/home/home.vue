@@ -63,7 +63,6 @@
   import { mapGetters, mapMutations } from 'vuex'
   import storage from 'good-storage'
   import TypeList from '@/components/typeList/typeList'
-  // import $ from 'jquery'
 
   export default {
     data () {
@@ -72,7 +71,6 @@
         swiperHeight: '0px',
         curIndx: 0,
         city: '北京',
-        // nav 的上下标识符
         slideDown: false,
         activeIdx: 0,
         cate_list: []
@@ -92,6 +90,9 @@
       this._downArrow()
       // 定位拿到当前的城市
       this._getPosition()
+      if (!this.startPage) {
+        this._changeStyle()
+      }
     },
     methods: {
       // 记录启动页轮播的页码
@@ -213,7 +214,14 @@
       },
       ...mapMutations({
         'set_start_page': 'SET_START_PAGE'
-      })
+      }),
+      _changeStyle () {
+        let search = this.$refs.search
+        let container = this.$refs.container
+        search.classList.add('startOut')
+        search.classList.add('vux-1px-b')
+        container.style.paddingTop = `${this.navHeight + 45}px`
+      }
     },
     components: {
       Swiper,
@@ -227,13 +235,17 @@
     watch: {
       startPage () {
         this.$nextTick(() => {
-          let search = this.$refs.search
-          let container = this.$refs.container
-          search.classList.add('startOut')
-          search.classList.add('vux-1px-b')
-          container.style.paddingTop = `${this.navHeight + 45}px`
+          this._changeStyle()
         })
       }
+      // $route () {
+      //   console.log(1)
+      //   let search = this.$refs.search
+      //   let container = this.$refs.container
+      //   search.classList.add('startOut')
+      //   search.classList.add('vux-1px-b')
+      //   container.style.paddingTop = `${this.navHeight + 45}px`
+      // }
     }
   }
 </script>

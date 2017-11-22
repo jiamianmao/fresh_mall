@@ -7,7 +7,7 @@
         <div class="order" v-for='(goodsItem, index) of cartdata.cart_list'>
           <div class="top">
             <div class='icon' @click='selectBrand(goodsItem.brand_id, goodsItem.goods)'>
-              <img src="../../assets/selectAdd/selected.png" v-if='activeArr[index] && activeArr[index].brandId === goodsItem.brand_id'>
+              <img src="../../assets/selectAdd/selected.png" v-if='activeArr[index] && activeArr[index].goodsData.length === goodsItem.goods.length'>
               <img src="../../assets/selectAdd/select.png" v-else>
             </div>
 
@@ -125,7 +125,12 @@
             cartId: item.cart_id
           })
         })
-        if (idx === -1) {
+        // 拿到原数据里的对应的品牌数据 来判断当前选中的是否该品牌下的所有商品
+        let items = this.cartdata.cart_list.find(item => {
+          return item.brand_id === brandId
+        })
+        if (idx === -1 || this.activeArr[idx].goodsData.length !== items.goods.length) {
+          this.activeArr.splice(idx, 1)
           this.activeArr.push({
             brandId,
             goodsData: data
@@ -170,6 +175,7 @@
           }
         }
       },
+      // 点击全选
       whole () {
         if (this.all) {
           this.activeArr = []
@@ -191,7 +197,10 @@
           }
         })
       },
+      // 全选
       _all () {
+        // 先把当前选中的置空，然后遍历所有的都加进去
+        this.activeArr = []
         this.cartdata.cart_list.forEach(item => {
           let arr = []
           item.goods.forEach(x => {

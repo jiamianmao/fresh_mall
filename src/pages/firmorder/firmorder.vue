@@ -19,7 +19,7 @@
     <div class="order_desc" v-for='brand of list'>
       <div class="name vux-1px-b">
         <span>{{brand.brand_name}}</span>
-        <span class='tel' v-show='!member_c'>企业联系电话：{{brand.store_phone}}</span>
+        <span class='tel' v-show='!member_c'>联系卖家：{{brand.store_phone}}</span>
       </div>
       <div class="goods_box vux-1px-b" v-for='goods of brand.goods'>
         <div class="left">

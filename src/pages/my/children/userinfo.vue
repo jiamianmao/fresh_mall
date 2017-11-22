@@ -63,11 +63,12 @@
         sex: null,
         msg: 'SpawN',
         email: '308634583@qq.com',
-        url: 'https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1722988955,2520640048&fm=58'
+        url: require('../../../assets/my/avatar.png')
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      this._getInfo()
     },
     methods: {
       store (file) {
@@ -83,6 +84,19 @@
         }).then(res => {
           if (res.data.status === 200) {
             this.$router.go(-1)
+          }
+        })
+      },
+      _getInfo () {
+        this.$http.get(`/mobile/?act=member_account&op=get_member_info&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            let x = res.data.data
+            this.msg = x.member_name
+            this.sex = x.member_sex | 0
+            this.email = x.member_email
+            if (x.member_avatar) {
+              this.url = x.member_avatar
+            }
           }
         })
       }

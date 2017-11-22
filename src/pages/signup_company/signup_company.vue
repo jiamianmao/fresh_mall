@@ -8,8 +8,8 @@
           <input type="text" id='name' v-model='name' placeholder='企业名称'>
         </div>
         <div class=" vux-1px-t">
-          <label for="tax">纳税识别号</label>
-          <input type="text" id='tax' v-model='tax' placeholder='输入纳税识别号'>
+          <label for="tax">统一社会信用代码</label>
+          <input type="text" id='tax' v-model='tax' placeholder='输入统一社会信用代码'>
         </div>
         <div class="vux-1px-t">
           <label for="pwd1">密码</label>
@@ -89,7 +89,14 @@
           this.msg = '请正确输入您的手机号'
           return
         }
-        this.start = true
+        this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=1`).then(res => {
+          if (res.data.status !== 200) {
+            this.show = true
+            this.msg = res.data.data.error
+          } else {
+            this.start = true
+          }
+        })
       },
       finish () {
         this.start = false
@@ -140,10 +147,12 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #fff;
+    background: #F4F4F4;
     main{
       width: 100%;
       padding-left: 15px;
+      background: #fff;
+      font-size: @font-size-medium;
       >div{
         height: 10vh;
         width: 100%;
@@ -158,7 +167,7 @@
           margin-right: 10px;
         }
         label{
-          width: 6em;
+          width: 8em;
         }
         input{
           flex: 1;

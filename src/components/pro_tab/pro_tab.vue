@@ -17,7 +17,7 @@
         <use xlink:href="#icon-shopcart"></use>
       </svg>
       <span>购物车</span>
-      <div class='num'>9</div>
+      <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
     </div>
     <div class="item item_add" @click='addCart'>
       加入购物车
@@ -26,6 +26,12 @@
 </template>
 <script>
   export default {
+    props: {
+      num: {
+        type: Number,
+        default: 0
+      }
+    },
     data () {
       return {
         flag: false
@@ -43,6 +49,14 @@
       },
       shopCart () {
         this.$router.push('/shopcart')
+      }
+    },
+    watch: {
+      num () {
+        this.$refs.num.classList.add('change')
+        setTimeout(() => {
+          this.$refs.num.classList.remove('change')
+        }, 1000)
       }
     }
   }
@@ -92,6 +106,44 @@
         fill: currentColor;
         overflow: hidden;
       }
+    }
+  }
+  .change{
+    animation: changes 1s;
+  }
+  @keyframes changes {
+    0{
+      transform: scale(1);
+    }
+    10%{
+      transform: scale(1.1);
+    }
+    20%{
+      transform: scale(1.2);
+    }
+    30%{
+      transform: scale(1.3);
+    }
+    40%{
+      transform: scale(1.2);
+    }
+    50%{
+      transform: scale(1.1);
+    }
+    60%{
+      transform: scale(1);
+    }
+    70%{
+      transform: scale(1.1);
+    }
+    80%{
+      transform: scale(1.2);
+    }
+    90%{
+      transform: scale(1.1);
+    }
+    100%{
+      transform: scale(1);
     }
   }
 </style>

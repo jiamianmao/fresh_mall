@@ -117,8 +117,15 @@
           this.show = true
           return
         } else {
-          // 获取验证码
-          this.start = true
+          this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=3`).then(res => {
+            console.log(res)
+            if (res.data.status !== 200) {
+              this.msg = res.data.data.error
+              this.show = true
+            } else {
+              this.start = true
+            }
+          })
         }
       },
       // 倒计时结束

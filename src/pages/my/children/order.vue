@@ -16,42 +16,29 @@
             <div class="goods_wrapper">
               <div class="goods vux-1px-b" v-for='goods of order.order_good'>
                 <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
+                  <img :src="goods.goods_image">
                 </div>
                 <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
+                  <p>{{ goods.goods_name }}</p>
+                  <span>{{ goods.goods_unit }}</span>
                   <div class="price">
-                    <strong>¥29.9</strong>
-                    <strong>x4</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="goods vux-1px-b">
-                <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
-                </div>
-                <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
-                  <div class="price">
-                    <strong>¥29.9</strong>
-                    <strong>x4</strong>
+                    <strong>¥{{goods.goods_price}}</strong>
+                    <strong>x{{goods.goods_num}}</strong>
                   </div>
                 </div>
               </div>
             </div>
             <div class="address">
               <div class="left">配送地址:</div>
-              <div class="right">
-                <p>北京市海淀区学院XXX校区156号5131</p>
+              <div class="right" v-if='order.order_common.reciver_info'>
+                <p v-html='order.order_common.reciver_info.address'></p>
                 <p>王老师 181378552255</p>
               </div>
             </div>
           </div>
           <div class="count vux-1px-t">
             <div class="text">
-              <span>共 <strong>8</strong> 件</span>
+              <span>共 <strong>{{ order.sum }}</strong> 件</span>
               <span class='pay'>实付: <strong>¥{{order.order_amount}}</strong></span>
             </div>
             <div class="btn">
@@ -97,7 +84,15 @@
       _getOrder () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
-            this.orderList = res.data.data
+            let data = res.data.data
+            data.forEach(item => {
+              let num = 0
+              item.order_good.forEach(x => {
+                num += x.goods_num
+              })
+              item.sum = num
+            })
+            this.orderList = data
           }
         })
       }

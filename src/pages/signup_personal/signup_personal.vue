@@ -76,7 +76,14 @@
           this.msg = '请正确输入您的手机号'
           return
         }
-        this.start = true
+        this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=1`).then(res => {
+          if (res.data.status !== 200) {
+            this.show = true
+            this.msg = res.data.data.error
+          } else {
+            this.start = true
+          }
+        })
       },
       finish () {
         this.start = false

@@ -21,7 +21,8 @@
           <div class="content">
             <h6 class="name">{{product_obj.goods_name}}</h6>
             <div class="sell_point">{{product_obj.goods_jingle}}</div>
-            <strong>¥{{product_obj.goods_price | format}}</strong>
+            <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}</strong>
+            <strong v-else>¥ 0</strong>
           </div>
         </div>
         <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c && product_obj.brand'>
@@ -237,7 +238,7 @@
         <button @click='submit'>加入购物车</button>
       </div>
     </transition>
-    <tab @add='addCart' @tel='tel'></tab>
+    <tab @add='addCart' @tel='tel' :num='num'></tab>
     <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
     <Confirms text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
   </scroll>
@@ -296,7 +297,8 @@
         address_3: '',
         show: false, // comfirm的状态
         select_type: -1, // 到店购买为0，配送到家1，门店2
-        rateList: []
+        rateList: [],
+        num: 0 // 购物车的数量
       }
     },
     created () {
@@ -308,6 +310,8 @@
       this._getProductDesc(this.id)
       // 清除type这个storage
       storage.remove('type')
+      // 获取购物车商品数量
+      this._getShopCart()
     },
     mounted () {
       // 给减号一个初始颜色，因为是捕捉的count变化，初始时候为1，却没触发watch
@@ -349,6 +353,7 @@
         }).then(res => {
           if (res.data.status === 200) {
             // 获取购物车最新的数量
+            this._getShopCart()
           }
         })
       },
@@ -535,6 +540,19 @@
             this.rateList = res.data.data.goods_eval_list
           }
         })
+      },
+      _getShopCart () {
+        this.$http.get(`/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            let num = 0
+            res.data.data.cart_list.forEach(item => {
+              item.goods.forEach(x => {
+                num += ~~x.goods_num
+              })
+            })
+            this.num = num
+          }
+        })
       }
     },
     computed: {
@@ -574,6 +592,7 @@
       },
       $route () {
         let type = storage.get('type')
+        // 这里写的有点粗糙，对应的是三种购买方式
         if (type === 1) {
           this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
           this.address_2 = ''
