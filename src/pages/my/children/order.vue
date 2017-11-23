@@ -129,7 +129,12 @@
         })
       },
       rate (id) {
-        console.log(id)
+        this.$router.push({
+          path: '/my/rate',
+          query: {
+            id
+          }
+        })
       },
       sure () {
         if (this.type === PAY_NO) {

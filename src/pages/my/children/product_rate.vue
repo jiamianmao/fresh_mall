@@ -2,98 +2,113 @@
   <div class="container">
     <x-title>评价</x-title>
     <div class="main">
-      <div class="goodsWrapper vux-1px-b">
+      <div class="goodsWrapper" :class='{"vux-1px-t": index > 0}' v-for='(goods, index) of goodsBox'>
         <div class="goods">
           <div class="left">
-            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3326244098,183580375&fm=27&gp=0.jpg">
+            <img :src="goods.goods_image">
           </div>
           <div class="right">
-            <p class='name'>XX</p>
+            <p class='name'>{{ goods.goods_name }}</p>
             <div class="score">星级</div>
-            <rater v-model='value' :font-size='20'></rater>
+            <rater v-model='values[goods.rec_id]' :font-size='20'></rater>
           </div>
         </div>
         <div class="content">
-          <textarea v-model='content' placeholder='评价商品' maxlength='200'></textarea>
+          <textarea v-model='contents[goods.rec_id]' placeholder='评价商品' maxlength='200'></textarea>
         </div>
-        <div class="uploader-container">
-          <div class="box">
-            <div class="img" v-if='img1'>
-              <img ref='img1'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(1)'>
+        <div class="uploader-container" @click='active(goods.rec_id)' :id='goods.rec_id'>
+          <div class="box" v-for='(n, index) of 3' @click='nums(index)'>
+            <div class="img" v-if='imgs[goods.rec_id] && imgs[goods.rec_id][index]'>
+              <img class='pic' :src='imgs[goods.rec_id][index]'>
+              <img src="../../../assets/my/close.png" class='close' @click='close(index, goods.rec_id)'>
             </div>
             <van-uploader class='upload_item' :after-read="logContent" v-else>
               <img :src="url">
             </van-uploader>
           </div>
-          <div class="box two">
-            <div class="img" v-if='img2'>
-              <img ref='img2' v-show='img2'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(2)'>
-            </div>
-            <van-uploader class='upload_item' :after-read="logContent" v-else>
-              <img :src="url">
-            </van-uploader>
-          </div>
-          <div class="box two">
-            <div class="img" v-if='img2'>
-              <img ref='img2' v-show='img2'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(2)'>
-            </div>
-            <van-uploader class='upload_item' :after-read="logContent" v-else>
-              <img :src="url">
-            </van-uploader>
-          </div>
-        </div>
         </div>
       </div>
+    </div>
+    <div class="btn">
+      <button @click='submit'>确认</button>
     </div>
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Rater } from 'vux'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
-        value: 0,
-        content: '',
         url: require('../../../assets/my/uploadicon.png'),
-        img1: false,
-        img2: false,
-        licence_pic: []
+        goodsBox: [],
+        values: {},
+        contents: {},
+        imgs: {},
+        activeId: 0,  // 维护点击的是哪一个商品
+        num: 0   // 维护点击的是哪一个图片
       }
+    },
+    created () {
+      this.id = this.$route.query.id | 0
+      this.api_token = storage.get('api_token')
+      this._getOrder()
     },
     methods: {
       logContent (file) {
-        if (!this.$refs.img1) {
-          this.img1 = true
-          this.licence_pic.unshift(file)
-          this.$nextTick(() => {
-            this.$refs.img1.setAttribute('src', file.content)
-          })
+        if (!this.imgs[this.activeId]) {
+          this.$set(this.imgs, this.activeId, [file.content])
         } else {
-          this.img2 = true
-          this.licence_pic.push(file)
-          this.$nextTick(() => {
-            this.$refs.img2.setAttribute('src', file.content)
-          })
+          if (this.imgs[this.activeId][this.num]) {
+            this.imgs[this.activeId].splice(this.num, 1, file.content)
+          } else {
+            this.imgs[this.activeId].splice(this.num, 0, file.content)
+          }
         }
       },
-      close (n) {
-        if (n === 1) {
-          this.licence_pic.shift()
-          this.$refs.img1.setAttribute('src', '')
-          this.img1 = false
-        } else if (n === 2) {
-          this.licence_pic.pop()
-          this.$refs.img2.setAttribute('src', '')
-          this.img2 = false
-        } else {
-          this.shop_pic = ''
-          this.$refs.img3.setAttribute('src', '')
-          this.img3 = false
+      close (idx, id) {
+        if (!this.imgs[id] || !this.imgs[id][idx]) {
+          return
         }
+        this.imgs[id].splice(idx, 1)
+      },
+      active (id) {
+        this.activeId = id
+      },
+      nums (id) {
+        this.num = id
+      },
+      submit () {
+        let params = {}
+        this.goodsBox.forEach(item => {
+          if (this.values[item.rec_id]) {
+            params[`goods[${item.rec_id}][score]`] = this.values[item.rec_id]
+          }
+          if (this.contents[item.rec_id]) {
+            params[`goods[${item.rec_id}][comment]`] = this.contents[item.rec_id]
+          }
+          if (this.imgs[item.rec_id]) {
+            params[`goods[${item.rec_id}][eval_pic]`] = this.imgs[item.rec_id]
+          }
+        })
+        const x = Object.assign(params, {
+          order_id: this.order_id
+        })
+        this.$http.post(`/mobile/?act=member_evaluate&op=add_evaluate&api_token=${this.api_token}`, x).then(res => {
+          console.log(res)
+        })
+      },
+      _getOrder () {
+        this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            let x = res.data.data.filter(item => {
+              return item.order_id === this.id
+            })[0]
+            this.goodsBox = x.order_good
+            this.order_id = x.order_id
+          }
+        })
       }
     },
     components: {
@@ -112,11 +127,13 @@
     min-height: 100vh;
     background: #fff;
     z-index: 1;
+    padding-bottom: 100px;
     .main{
       padding: 0 15px;
       .goodsWrapper{
         width: 100%;
         padding-top: 10px;
+        padding-bottom: 15px;
         .goods{
           display: flex;
           flex-flow: row nowrap;
@@ -168,15 +185,33 @@
               width: 20px;
               height: 20px;
             }
+            &~.box{
+              margin-left: 10px;
+            }
           }
           img{
             width: 82px;
             height: 82px;
           }
-          .two{
-            margin-left: 10px;
-          }
         }
+      }
+    }
+    .btn{
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 0 10px;
+      text-align: center;
+      button{
+        width: 95%;
+        height: 49px;
+        color: #fff;
+        background: @color;
+        letter-spacing: 4px;
+        text-align: center;
+        line-height: 49px;
+        border: 0;
       }
     }
   }
