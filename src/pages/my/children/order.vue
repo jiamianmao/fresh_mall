@@ -6,12 +6,16 @@
         <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
       </tab>
       <div class="order_wrapper">
-        <!-- <div class="not_order"><img src="../../../assets/my/not_order.png"></div> -->
-        <div class="order" v-for='order of orderList'>
+        <div class="not_order" v-if='orderList.length === 0'><img src="../../../assets/my/not_order.png"></div>
+        <div class="order" v-else v-for='order of orderList'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">
               <div class="num">订单编号: <span>{{order.order_sn}}</span></div>
-              <div class="status">等待付款</div>
+              <div class="status" v-if='order.order_state === 0'>交易关闭</div>
+              <div class="status" v-if='order.order_state === 10'>等待付款</div>
+              <div class="status" v-if='order.order_state === 20'>等待发货</div>
+              <div class="status" v-if='order.order_state === 30'>等待收货</div>
+              <div class="status" v-if='order.order_state === 40'>交易成功</div>
             </div>
             <div class="goods_wrapper">
               <div class="goods vux-1px-b" v-for='goods of order.order_good'>
@@ -31,8 +35,8 @@
             <div class="address">
               <div class="left">配送地址:</div>
               <div class="right" v-if='order.order_common.reciver_info'>
-                <p v-html='order.order_common.reciver_info.address'></p>
-                <p>王老师 181378552255</p>
+                <p>{{order.order_common.reciver_info.address | blank}}{{order.order_common.reciver_info.area_info}}</p>
+                <p>{{order.order_common.reciver_info.true_name}} {{order.order_common.reciver_info.tel_phone}}</p>
               </div>
             </div>
           </div>
@@ -42,12 +46,17 @@
               <span class='pay'>实付: <strong>¥{{order.order_amount}}</strong></span>
             </div>
             <div class="btn">
-              <button class='left'>取消订单</button>
-              <button class='right'>去支付</button>
+              <button class='left' v-if='order.order_state === 10' @click='cancle_nopay(order.order_id)'>取消订单</button>
+              <button class='left' v-if='order.order_state === 20' @click='cancle_pay(order.order_id)'>取消订单</button>
+              <button class='left' v-if='order.order_state === 40 || order.order_state === 0' @click='del(order.order_id)'>删除订单</button>
+              <button class='right' v-if='order.order_state === 10' @click='pay(order.order_sn, order.order_amount)'>去支付</button>
+              <button class='right' v-if='order.order_state === 30' @click='confirmGoods(order.order_id)'>确认收货</button>
+              <button class='right' v-if='order.order_state === 40' @click='rate(order.order_id)'>评价</button>
             </div>
           </div>
         </div>
       </div>
+      <confirm :text='text' ref='confirm' @confirm='sure' :title='title'></confirm>
     </div>
   </transition>
 </template>
@@ -55,6 +64,10 @@
   import XTitle from '@/components/x-title/x-title'
   import { Tab, TabItem } from 'vux'
   import storage from 'good-storage'
+  import Confirm from '@/components/confirm/confirm'
+  const PAY_NO = 1
+  const PAY_YES = 2
+  const DEL = 3
   export default {
     props: {
       status: {
@@ -68,7 +81,11 @@
         lineWidth: 1,
         list: ['全部', '待付款', '待发货', '待收货', '待评价'],
         index: 0,
-        orderList: []
+        orderList: [],  // 拿去渲染用的
+        init: [], // 用来存储原始信息的
+        flag: false, // 仅仅是增加一个判断是不是重新请求数据的
+        text: '',
+        title: ''
       }
     },
     created () {
@@ -81,6 +98,73 @@
       })
     },
     methods: {
+      // 未付款取消订单
+      cancle_nopay (id) {
+        this.order_id = id
+        this.type = PAY_NO
+        this.text = '你要取消订单吗？'
+        this.$refs.confirm.show()
+      },
+      // 已付款取消订单
+      cancle_pay (id) {
+        this.order_id = id
+        this.type = PAY_YES
+        this.text = '你要取消订单吗？'
+        this.$refs.confirm.show()
+      },
+      del (id) {
+        this.order_id = id
+        this.type = DEL
+        this.text = '你要删除订单吗？'
+        this.$refs.confirm.show()
+      },
+      pay (sn, sum) {
+        let sums = sum | 0
+        this.$router.push({
+          path: '/pay',
+          query: {
+            sum: sums,
+            arr: sn
+          }
+        })
+      },
+      rate (id) {
+        console.log(id)
+      },
+      sure () {
+        if (this.type === PAY_NO) {
+          this.$http.post(`/mobile/?act=member_order&op=order_cancel&api_token=${this.api_token}`, {
+            order_id: this.order_id
+          }).then(res => {
+            this._getOrder()
+          })
+        } else if (this.type === PAY_YES) {
+          this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
+            order_id: this.order_id
+          }).then(res => {
+            if (res.data.status === 200) {
+              this._getOrder()
+            }
+          })
+        } else if (this.type === DEL) {
+          this.$http.post(`/api/order/delete_order?api_token=${this.api_token}`, {
+            order_id: this.order_id
+          }).then(res => {
+            if (res.data.status === 200) {
+              this._getOrder()
+            }
+          })
+        }
+      },
+      confirmGoods (id) {
+        this.$http.post(`/mobile/?act=member_order&op=order_receive&api_token=${this.api_token}`, {
+          order_id: id
+        }).then(res => {
+          if (res.data.status === 200) {
+            this._getOrder()
+          }
+        })
+      },
       _getOrder () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
@@ -93,14 +177,74 @@
               item.sum = num
             })
             this.orderList = data
+            this.init = data
+            this.flag = !this.flag // 当操作完成后 重洗获取最新数据后无法触发index的改变 所以增加了一个flag状态来维护数据的改变
           }
         })
+      }
+    },
+    filters: {
+      blank (value) {
+        return value.replace(/\s/g, '')
       }
     },
     components: {
       XTitle,
       Tab,
-      TabItem
+      TabItem,
+      Confirm
+    },
+    watch: {
+      index (newVal) {
+        if (newVal === 0) {
+          this.orderList = this.init
+        } else if (newVal === 1) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 10
+          })
+        } else if (newVal === 2) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 20
+          })
+        } else if (newVal === 3) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 30
+          })
+        } else if (newVal === 4) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 40
+          })
+        }
+      },
+      flag () {
+        if (this.index === 0) {
+          this.orderList = this.init
+        } else if (this.index === 1) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 10
+          })
+        } else if (this.index === 2) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 20
+          })
+        } else if (this.index === 3) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 30
+          })
+        } else if (this.index === 4) {
+          this.orderList = this.init
+          this.orderList = this.orderList.filter(item => {
+            return item.order_state === 40
+          })
+        }
+      }
     }
   }
 </script>
@@ -116,10 +260,11 @@
     background: #f4f4f4;
     .order_wrapper{
       width: 100vw;
-      height: calc(~"100vh - 94px");
+      // height: calc(~"100vh - 94px");
       position: relative;
+      background: #F4F4F4;
       .not_order{
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         transform: translate3d(-50%, -50%, 0);

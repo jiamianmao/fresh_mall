@@ -95,13 +95,14 @@
         border-radius: 13px;
         background: #fff;
         .text{
-          padding: 10px 15px;
+          padding: 10px 15px 10px 15px;
           line-height: 22px;
           text-align: center;
           font-size: @font-size-large;
           color: #000;
           &:first-child{
             font-weight: bold;
+            padding-bottom: 0;
           }
         }
         .operate{

@@ -38,14 +38,14 @@
         <div class="item vux-1px-b">
           <div class="left">昵称</div>
           <div class="right">
-            <input type='text' :value='msg'></input>
+            <input type='text' v-model='nickname'></input>
           </div>
         </div>
         <div class="item">
           <div class="left">邮箱</div>
           <div class="right">
             <div class="right">
-              <input type='text' :value='email'></input>
+              <input type='text' v-model='email'></input>
             </div>
           </div>
         </div>
@@ -61,9 +61,9 @@
     data () {
       return {
         sex: null,
-        msg: 'SpawN',
-        email: '308634583@qq.com',
-        url: require('../../../assets/my/avatar.png')
+        nickname: '',
+        email: '',
+        url: ''
       }
     },
     created () {
@@ -72,15 +72,15 @@
     },
     methods: {
       store (file) {
-        this.file = file.file
+        this.file = file
         this.url = file.content
       },
       submit () {
         this.$http.post(`/mobile/?act=member_index&op=save_memberinfo&api_token=${this.api_token}`, {
-          member_name: this.msg,
+          member_name: this.nickname,
           member_sex: this.sex,
           member_email: this.email,
-          member_avatar: this.file
+          member_avatar: this.url
         }).then(res => {
           if (res.data.status === 200) {
             this.$router.go(-1)
@@ -91,12 +91,10 @@
         this.$http.get(`/mobile/?act=member_account&op=get_member_info&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
             let x = res.data.data
-            this.msg = x.member_name
+            this.nickname = x.member_name
             this.sex = x.member_sex | 0
             this.email = x.member_email
-            if (x.member_avatar) {
-              this.url = x.member_avatar
-            }
+            this.url = x.avatar_url
           }
         })
       }

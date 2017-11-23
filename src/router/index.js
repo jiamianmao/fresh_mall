@@ -38,6 +38,7 @@ const Msg = () => import('@/pages/my/children/msg')
 const Collect = () => import('@/pages/my/children/collect')
 const UserInfo = () => import('@/pages/my/children/userinfo')
 const Refund = () => import('@/pages/my/children/refund')
+const ProductRate = () => import('@/pages/my/children/product_rate')
 
 const Signin = () => import('@/pages/signin/signin')
 const Signup = () => import('@/pages/signup/signup')
@@ -87,7 +88,8 @@ export default [
         { path: 'footmark', component: Collect },
         { path: 'brand', component: Collect },
         { path: 'userinfo', component: UserInfo },
-        { path: 'refund', component: Refund }
+        { path: 'refund', component: Refund },
+        { path: 'rate', component: ProductRate }
       ]
     },
     { path: '/firmorder', component: FirmOrder,

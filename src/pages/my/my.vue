@@ -35,13 +35,13 @@
             <div class="item" id='1'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_pay.png">
-                <div class="num" v-if='~~nums.pay_count'>{{nums.pay_count}}</div>
+                <div class="num" v-if='~~nums.new_count'>{{nums.new_count}}</div>
               </div>待付款
             </div>
             <div class="item" id='2'>
               <div class="img_wrapper">
                 <img src="../../assets/my/wait_sent.png">
-                <div class="num" v-if='~~nums.send_count'>{{nums.send_count}}</div>
+                <div class="num" v-if='~~nums.pay_count'>{{nums.pay_count}}</div>
               </div>待发货</div>
             <div class="item" id='3'>
               <div class="img_wrapper">
