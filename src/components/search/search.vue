@@ -30,8 +30,8 @@
     },
     methods: {
       clear () {
-        this.$emit('toSearch', this.msg)
-        // this.msg = ''
+        // this.$emit('toSearch', this.msg)
+        this.msg = ''
       },
       toSearch () {
         this.$emit('toSearch', this.msg)

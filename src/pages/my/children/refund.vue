@@ -1,36 +1,36 @@
 <template>
   <div class="container">
     <x-title>申请退款</x-title>
-    <div class="wrapper">
+    <div class="wrapper" v-if='obj'>
       <div class="item vux-1px-b">
-        <p class="left">订单编号: 2017554512451</p>
-        <p class="right">交易成功</p>
+        <p class="left">订单编号: {{obj.order_sn}}</p>
+        <p class="right">已发货</p>
       </div>
-      <div class="goods vux-1px-b">
+      <div class="goods" v-for='goods of obj.goods_list'>
         <div class="image">
-          <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
+          <img :src="goods.goods_image">
         </div>
         <div class="content">
-          <p>中天特羔羊肉片</p>
-          <span>300g装</span>
+          <p>{{goods.goods_name}}</p>
+          <span>{{goods.goods.unit}}</span>
           <div class="price">
-            <strong>¥29.9</strong>
-            <strong>x4</strong>
+            <strong>¥{{goods.goods_price}}</strong>
+            <strong>x{{goods.goods_num}}</strong>
           </div>
         </div>
       </div>
-      <div class="item vux-1px-b">
+      <div class="item vux-1px-b vux-1px-t">
         <p class="left">退款金额</p>
-        <p class="right">￥59.8</p>
+        <p class="right">￥{{obj.order_amount}}</p>
       </div>
       <div class="text">
         <p class="left">问题描述</p>
-        <textarea cols="30" rows="10" maxlength='200' placeholder='请您在此描述问题' v-model='reson'></textarea>
+        <textarea cols="30" rows="10" maxlength='200' placeholder='请您在此描述问题' v-model='reason'></textarea>
         <div class="uploader-container">
           <div class="box">
             <div class="img" v-if='img1'>
               <img ref='img1'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(1)'>
+              <img src="../../../assets/my/close.png" class='close' @click='close(0)'>
             </div>
             <van-uploader class='upload_item' :after-read="logContent1" v-else>
               <img :src="url">
@@ -39,7 +39,7 @@
           <div class="box">
             <div class="img" v-if='img2'>
               <img ref='img2'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(2)'>
+              <img src="../../../assets/my/close.png" class='close' @click='close(1)'>
             </div>
             <van-uploader class='upload_item' :after-read="logContent2" v-else>
               <img :src="url">
@@ -49,43 +49,71 @@
       </div>
     </div>
     <div class="btn">
-      <button>提交</button>
+      <button @click='submit'>提交</button>
     </div>
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { XTextarea, Group } from 'vux'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
-        reson: '',
+        reason: '',
         url: require('../../../assets/my/uploadicon.png'),
         img1: false,
-        img2: false
+        img2: false,
+        obj: '',
+        imgs: []
       }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      this.id = this.$route.query.id
+      this._getData()
     },
     methods: {
       logContent1 (file) {
         this.img1 = true
+        this.imgs[0] = file.content
         this.$nextTick(() => {
           this.$refs.img1.setAttribute('src', file.content)
         })
       },
       logContent2 (file) {
         this.img2 = true
+        this.imgs[1] = file.content
         this.$nextTick(() => {
           this.$refs.img2.setAttribute('src', file.content)
         })
       },
       close (n) {
-        if (n === 1) {
+        this.imgs.splice(n, 1)
+        if (n === 0) {
           this.$refs.img1.setAttribute('src', '')
           this.img1 = false
         } else {
           this.$refs.img2.setAttribute('src', '')
           this.img2 = false
         }
+      },
+      submit () {
+        this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
+          order_id: this.id,
+          refund_pic: this.imgs,
+          buyer_message: this.reason,
+          refund_amount: this.obj.order_amount
+        }).then(res => {
+          console.log(res)
+        })
+      },
+      _getData () {
+        this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
+          if (res.data.status === 200) {
+            this.obj = res.data.data.order_info
+          }
+        })
       }
     },
     components: {

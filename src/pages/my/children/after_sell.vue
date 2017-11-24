@@ -3,34 +3,21 @@
     <div class="container">
       <x-title>售后服务</x-title>
       <div class="order_wrapper">
-        <div class="order">
+        <div class="order" v-if='obj'>
           <div class="order_desc">
             <div class="order_num">
-              <div class="num">订单编号: <span>201709201113001</span></div>
-              <div class="status">等待付款</div>
+              <div class="num">订单编号: <span>{{obj.order_sn}}</span></div>
             </div>
             <div class="goods_wrapper">
-              <div class="goods vux-1px-t">
+              <div class="goods vux-1px-t" v-for='goods of obj.order_good'>
                 <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
+                  <img :src="goods.goods_image">
                 </div>
                 <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
+                  <p>{{goods.goods_name}}</p>
+                  <span>{{goods.goods_unit}}</span>
                   <div class="price">
-                    <strong>¥29.9</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="goods vux-1px-t">
-                <div class="image">
-                  <img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4284663826,1657440413&fm=27&gp=0.jpg">
-                </div>
-                <div class="content">
-                  <p>中天特羔羊肉片</p>
-                  <span>300g装</span>
-                  <div class="price">
-                    <strong>¥29.9</strong>
+                    <strong>¥{{goods.goods_price}}</strong>
                   </div>
                 </div>
               </div>
@@ -38,8 +25,8 @@
           </div>
           <div class="count vux-1px-t">
             <div class="text">
-              <span>共 <strong>8</strong> 件</span>
-              <span class='pay'>实付: <strong>¥275.6</strong></span>
+              <span>共 <strong>{{ sum }}</strong> 件</span>
+              <span class='pay'>实付: <strong>¥{{ obj.order_amount }}</strong></span>
             </div>
             <div class="btn">
               <button class='right' @click='refund'>申请退款</button>
@@ -52,16 +39,37 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
+        obj: '',
+        sum: 0
       }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      this._getDetail()
     },
     mounted () {
     },
     methods: {
       refund () {
-        this.$router.push('/my/refund')
+        this.$router.push(`/my/refund?id=${this.obj.order_id}`)
+      },
+      _getDetail () {
+        this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
+          if (parseInt(res.data.status) === 200) {
+            this.obj = res.data.data.filter(item => {
+              return item.order_state === 30
+            })[0]
+            let sum = 0
+            this.obj.order_good.forEach(item => {
+              sum += Number.parseInt(item.goods_num)
+            })
+            this.sum = sum
+          }
+        })
       }
     },
     components: {

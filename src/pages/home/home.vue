@@ -34,7 +34,7 @@
       <transition name='slide_nav'>
         <nav ref='nav'>
           <div class="left" ref='navLeft'>
-            <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index)' ref='navItem'>{{item.gc_name}}</span>
+            <span v-for='(item, index) of arr' :class='{active: activeIdx === index}' @click='selectCate(index)' ref='navItem'>{{item.gc_name}}</span>
           </div>
           <div class='arrow_box' @click='arrowToggle'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
@@ -50,7 +50,7 @@
 
       <!-- 主内容区 -->
       <div class='main'>
-        <type-list></type-list>
+        <type-list v-for='(goods, index) of arr' :goods='goods' :key='index'></type-list>
       </div>
       
     </div>
@@ -70,17 +70,19 @@
         swiperUrlList: [],
         swiperHeight: '0px',
         curIndx: 0,
-        city: '北京',
+        city: '北京市',
         slideDown: false,
         activeIdx: 0,
-        cate_list: []
+        cate_list: [],
+        arr: []
       }
     },
     created () {
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
       this._getBanner()
-      this._getCategory()
+      this._getCategory() // 这里其实不用调该接口，但已经写了很多逻辑，懒得重构了。
+      this._getGoodsData()
     },
     mounted () {
       this.swiperHeight = `${this.$refs.swiperWrapper.clientHeight}px`
@@ -88,11 +90,9 @@
       this.navHeight = this.$refs.nav.clientHeight
       // 用canvas来画出启动页的箭头
       this._downArrow()
-      // 定位拿到当前的城市
-      this._getPosition()
-      if (!this.startPage) {
-        this._changeStyle()
-      }
+      // 定位拿到当前的城市 这里的处理是如果已经存过city的storage了，就直接拿storage的，如果没有就IP定位
+      storage.has('city') ? this.city = storage.get('city') : this._getPosition()
+      this.startPage || this._changeStyle()
     },
     methods: {
       // 记录启动页轮播的页码
@@ -199,10 +199,15 @@
       _getPosition () {
         let geolocation = new qq.maps.Geolocation()
         geolocation.getIpLocation((position) => {
-          console.log(position)
-          // let x = position.city
-          // this.city = x.slice(0, x.length - 1)
+          this.city = position.city
           storage.set('city', this.city || 1)
+        })
+      },
+      _getGoodsData () {
+        this.$http.get('/mobile/?act=goods&op=get_recommend_goods').then(res => {
+          if (res.data.status === 200) {
+            this.arr = res.data.data
+          }
         })
       },
       _getCategory () {
@@ -212,16 +217,16 @@
           }
         })
       },
-      ...mapMutations({
-        'set_start_page': 'SET_START_PAGE'
-      }),
       _changeStyle () {
         let search = this.$refs.search
         let container = this.$refs.container
         search.classList.add('startOut')
         search.classList.add('vux-1px-b')
         container.style.paddingTop = `${this.navHeight + 45}px`
-      }
+      },
+      ...mapMutations({
+        'set_start_page': 'SET_START_PAGE'
+      })
     },
     components: {
       Swiper,
@@ -238,14 +243,6 @@
           this._changeStyle()
         })
       }
-      // $route () {
-      //   console.log(1)
-      //   let search = this.$refs.search
-      //   let container = this.$refs.container
-      //   search.classList.add('startOut')
-      //   search.classList.add('vux-1px-b')
-      //   container.style.paddingTop = `${this.navHeight + 45}px`
-      // }
     }
   }
 </script>
@@ -287,7 +284,7 @@
         overflow: hidden;
       }
       &.startOut{
-        z-index: auto;
+        z-index: 2;
         background-color: #fff;
         color: #000;
       }
@@ -391,6 +388,9 @@
       bottom: 50px;
       z-index: 6;
       background: rgba(0, 0, 0, .1);
+    }
+    .main{
+      padding-bottom: 100px;
     }
     // swiper过渡
     .slide-enter-active, .slide-leave-active{

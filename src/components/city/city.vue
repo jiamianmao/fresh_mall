@@ -11,56 +11,49 @@
         <li class="list-group">
           <h2>定位城市</h2>
           <ul class="list-hot">
-            <li class="list-group-hot list-active">郑州</li>
+            <li class="list-group-hot list-active">{{city}}</li>
           </ul>
         </li>
-        <li class="list-group">
+        <li class="list-group" v-if='lately.length'>
           <h2>最近访问城市</h2>
           <ul class="list-hot">
-            <li class="list-group-hot">郑州</li>
-            <li class="list-group-hot">三门峡</li>
-            <li class="list-group-hot">郑州</li>
-            <li class="list-group-hot">三门峡</li>
+            <li class="list-group-hot" v-for='city of lately' @click='latelyCity(city)'>{{city}}</li>
           </ul>
         </li>
         <li class="list-group">
           <h2>热门城市</h2>
-          <ul class="list-hot">
-            <li class="list-group-hot">
-              上海
-            </li>
+          <ul class="list-hot" @click='selectHot'>
             <li class="list-group-hot">
               北京
-            </li>
-            <li class="list-group-hot">
-              广州
             </li>
             <li class="list-group-hot">
               上海
             </li>
             <li class="list-group-hot">
-              北京
+              广州
             </li>
             <li class="list-group-hot">
-              广州
+              深圳
+            </li>
+            <li class="list-group-hot">
+              杭州
+            </li>
+            <li class="list-group-hot">
+              武汉
             </li>
           </ul>
         </li>
         <li class="list-group" v-for="item in cityData" :key="item.title" ref="listgroup">
           <h2>{{item.title}}</h2>
           <ul>
-            <li class="list-group-item" v-for="area in item.items" :key="area.id">{{area.name}}</li>
+            <li class="list-group-item" v-for="area in item.items" :key="area.id" @click='selectCity(area.name)'>{{area.name}}</li>
           </ul>
         </li>
       </ul>
       <!-- 字母列表 -->
       <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
         <ul>
-          <li 
-          class="item" 
-          v-for="(item, index) in shortcut" :key="item.title"
-          :data-index="index"
-          >
+          <li class="item" v-for="(item, index) in shortcut" :key="index" :data-index="index">
             {{item.title}}
           </li>
         </ul>
@@ -71,14 +64,25 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
+  import storage from 'good-storage'
 
   const SHORTCUT_HEIGHT = 18
   export default {
+    data () {
+      return {
+        cityData: [],
+        city: '',
+        lately: [],
+        num: 0 // 做了个判断 阻止了第一次city的改变触发watch逻辑
+      }
+    },
     created () {
       this.touch = {}   // 存多个函数共有数据
       this.listenScroll = true
       this.probeType = 3  // 滑动的时候不节流
       this._getCityList()
+      this.city = storage.get('city')
+      this.lately = storage.has('lately') ? storage.get('lately') : []
     },
     computed: {
       // 固定字母列表
@@ -87,11 +91,6 @@
           title: '#'
         }]
         return arr.concat(this.cityData)
-      }
-    },
-    data () {
-      return {
-        cityData: []
       }
     },
     methods: {
@@ -124,6 +123,15 @@
         }
         // console.log(shortcutIndex)
         this._scrollTo(shortcutIndex)
+      },
+      selectCity (name) {
+        this.city = name
+      },
+      latelyCity (city) {
+        this.city = city
+      },
+      selectHot (e) {
+        this.city = e.target.innerText
       },
       // 滚动到当前元素
       _scrollTo (index) {
@@ -184,6 +192,29 @@
         return ret
       }
     },
+    watch: {
+      city () {
+        if (!this.num) {
+          this.num++
+          return
+        }
+        storage.set('city', this.city)
+        if (!storage.has('lately')) {
+          storage.set('lately', [this.city])
+        } else {
+          let arr = storage.get('lately')
+          if (!arr.includes(this.city)) {
+            arr.push(this.city)
+            // 控制长度
+            if (arr.length > 6) {
+              arr.unshift()
+            }
+          }
+          storage.set('lately', arr)
+        }
+        this.$router.push('/home')
+      }
+    },
     components: {
       XTitle,
       Scroll
@@ -230,6 +261,7 @@
             text-align: center;
             font-size: 12px;
             color: #333;
+            overflow: hidden;
           }
           .list-active{
             color:@color;

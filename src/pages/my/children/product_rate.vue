@@ -10,17 +10,17 @@
           <div class="right">
             <p class='name'>{{ goods.goods_name }}</p>
             <div class="score">星级</div>
-            <rater v-model='values[goods.rec_id]' :font-size='20'></rater>
+            <rater v-model='values[goods.goods_id]' :font-size='20'></rater>
           </div>
         </div>
         <div class="content">
-          <textarea v-model='contents[goods.rec_id]' placeholder='评价商品' maxlength='200'></textarea>
+          <textarea v-model='contents[goods.goods_id]' placeholder='评价商品' maxlength='200'></textarea>
         </div>
-        <div class="uploader-container" @click='active(goods.rec_id)' :id='goods.rec_id'>
+        <div class="uploader-container" @click='active(goods.goods_id)' :id='goods.goods_id'>
           <div class="box" v-for='(n, index) of 3' @click='nums(index)'>
-            <div class="img" v-if='imgs[goods.rec_id] && imgs[goods.rec_id][index]'>
-              <img class='pic' :src='imgs[goods.rec_id][index]'>
-              <img src="../../../assets/my/close.png" class='close' @click='close(index, goods.rec_id)'>
+            <div class="img" v-if='imgs[goods.goods_id] && imgs[goods.goods_id][index]'>
+              <img class='pic' :src='imgs[goods.goods_id][index]'>
+              <img src="../../../assets/my/close.png" class='close' @click='close(index, goods.goods_id)'>
             </div>
             <van-uploader class='upload_item' :after-read="logContent" v-else>
               <img :src="url">
@@ -82,31 +82,33 @@
       submit () {
         let params = {}
         this.goodsBox.forEach(item => {
-          if (this.values[item.rec_id]) {
-            params[`goods[${item.rec_id}][score]`] = this.values[item.rec_id]
+          if (this.values[item.goods_id]) {
+            params[`goods[${item.goods_id}][score]`] = this.values[item.goods_id]
           }
-          if (this.contents[item.rec_id]) {
-            params[`goods[${item.rec_id}][comment]`] = this.contents[item.rec_id]
+          if (this.contents[item.goods_id]) {
+            params[`goods[${item.goods_id}][comment]`] = this.contents[item.goods_id]
           }
-          if (this.imgs[item.rec_id]) {
-            params[`goods[${item.rec_id}][eval_pic]`] = this.imgs[item.rec_id]
+          if (this.imgs[item.goods_id]) {
+            params[`goods[${item.goods_id}][eval_pic]`] = this.imgs[item.goods_id]
           }
         })
         const x = Object.assign(params, {
           order_id: this.order_id
         })
         this.$http.post(`/mobile/?act=member_evaluate&op=add_evaluate&api_token=${this.api_token}`, x).then(res => {
-          console.log(res)
+          if (res.data.status === 200) {
+            this.$router.push('/my/order')
+          }
         })
       },
       _getOrder () {
-        this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
-          if (parseInt(res.data.status) === 200) {
-            let x = res.data.data.filter(item => {
-              return item.order_id === this.id
-            })[0]
-            this.goodsBox = x.order_good
-            this.order_id = x.order_id
+        this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
+          if (res.data.status === 200) {
+            // let x = res.data.data.filter(item => {
+            //   return item.order_id === this.id
+            // })[0]
+            this.goodsBox = res.data.data.order_info.goods_list
+            this.order_id = res.data.data.order_info.order_id
           }
         })
       }

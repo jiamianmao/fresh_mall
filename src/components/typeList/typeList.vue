@@ -1,16 +1,16 @@
 <template>
-  <div class='item'>
+  <div class='item' v-if='goods.goods_list.length'>
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-      <swiper-slide v-for='item of arr' :key='item.name'>
-        <img :src="item.url">
+      <swiper-slide v-for='(item, index) of goods.goods_list' :key='index'>
+        <img :src="item.img_url">
       </swiper-slide>
     </swiper>
     <div class="text">
-      <h3>{{text.name}}</h3>
-      <p>{{text.adWord}}</p>
-      <strong>{{text.price}}</strong>
+      <h3>{{text.goods_name}}</h3>
+      <p>{{text.goods_jingle}}</p>
+      <strong>{{text.goods_price}}</strong>
       <button>
-        <span>更多海鲜水产</span>
+        <span>更多{{goods.gc_name}}</span>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-yuanjiantou"></use>
         </svg>
@@ -19,11 +19,16 @@
   </div>
 </template>
 <script>
-  const index = 1
+  let index = 1
   export default {
+    props: {
+      goods: {
+        type: Object,
+        default: {}
+      }
+    },
     data () {
       return {
-        arr: [],
         text: {},
         notNextTick: true,
         swiperOption: {
@@ -40,25 +45,24 @@
       }
     },
     created () {
-      this._getCategoryData()
+      if (this.goods.goods_list.length === 0) {
+        this.text = {}
+      } else if (this.goods.goods_list.length === 1) {
+        this.text = this.goods.goods_list[0]
+      } else {
+        this.text = this.goods.goods_list[index]
+      }
     },
     computed: {
       swiper () {
         return this.$refs.mySwiper.swiper
       }
     },
-    methods: {
-      _getCategoryData () {
-        this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/getCategoryData').then(res => {
-          this.arr = res.data.data[0].list
-          this.text = this.arr[index]
-        })
-      }
-    },
     watch: {
       swiperOption: {
         handler () {
-          this.text = this.arr[this.swiperOption.idx]
+          console.log(1)
+          this.text = this.goods.goods_list[this.swiperOption.idx]
         },
         deep: true
       }
@@ -67,6 +71,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .item{
     height: 480px;
     width: 100vw;
@@ -89,11 +94,17 @@
       align-items: center;
       h3{
         margin-top: 20px;
+        width: 90%;
+        text-align: center;
+        .no-wrap
       }
       p{
+        width: 90%;
         margin-top: 10px;
         color: #666;
+        text-align: center;
         font-size: @font-size-small;
+        .no-wrap
       }
       strong{
         margin: 12px 0;

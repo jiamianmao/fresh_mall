@@ -138,7 +138,15 @@
           <div class="image">
             <div class="company"></div>
             <img src="../../assets/product/icon.png">
-            <img src="../../assets/product/quality.png">
+            <div class="quality">
+              <h3>品控保证</h3>
+              <div class="desc">
+                <a href='https://www.baidu.com'>SGS</a>
+                <a href='http://www.qq.com'>检测<br>报告</a>
+                <a href='https://www.taobao.com'>品质<br>承诺</a>
+              </div>
+            </div>
+            <!-- <img src="../../assets/product/quality.png"> -->
           </div>
         </div>
 
@@ -954,6 +962,30 @@
               background-position: 0 0;
               background-size: 100% 100%;
               margin-bottom: 20px;
+            }
+            .quality{
+              width: 100%;
+              text-align: center;
+              padding-top: 40px;
+              .desc{
+                width: 100%;
+                height: 95px;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                a{
+                  height: 54px;
+                  width: 54px;
+                  border: 1px solid @color;
+                  border-radius: 50%;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  color: @color;
+                  font-size: @font-size-medium;
+                  line-height: 16px;
+                }
+              }
             }
           }
         }

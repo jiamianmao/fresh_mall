@@ -51,7 +51,7 @@
               <button class='left' v-if='order.order_state === 40 || order.order_state === 0' @click='del(order.order_id)'>删除订单</button>
               <button class='right' v-if='order.order_state === 10' @click='pay(order.order_sn, order.order_amount)'>去支付</button>
               <button class='right' v-if='order.order_state === 30' @click='confirmGoods(order.order_id)'>确认收货</button>
-              <button class='right' v-if='order.order_state === 40' @click='rate(order.order_id)'>评价</button>
+              <button class='right' v-if='order.order_state === 40 && order.evaluation_state === 0' @click='rate(order.order_id)'>评价</button>
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@
         } else if (newVal === 4) {
           this.orderList = this.init
           this.orderList = this.orderList.filter(item => {
-            return item.order_state === 40
+            return item.order_state === 40 && item.evaluation_state === 0
           })
         }
       },
@@ -246,7 +246,7 @@
         } else if (this.index === 4) {
           this.orderList = this.init
           this.orderList = this.orderList.filter(item => {
-            return item.order_state === 40
+            return item.order_state === 40 && item.evaluation_state === 0
           })
         }
       }
