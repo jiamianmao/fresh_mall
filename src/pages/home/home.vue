@@ -52,7 +52,7 @@
       <div class='main'>
         <type-list v-for='(goods, index) of arr' :goods='goods' :key='index'></type-list>
       </div>
-      
+
     </div>
 </template>
 
@@ -291,7 +291,7 @@
     }
     .swiper-wrapper{
       width: 100%;
-      height: calc(~"100vh - 50px");
+      height: calc(~"100vh - 49px");
       position: absolute;
       top: 0;
       left: 0;

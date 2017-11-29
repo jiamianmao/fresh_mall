@@ -19,7 +19,7 @@
             </div>
           </div> -->
           <!-- 商品收藏列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goProduct(item.goods_id)'>
             <van-cell-group>
               <div class="goods">
                 <div class='icon' ref='icon' @click='active(index, item.fav_id)' v-show='del'></div>
@@ -41,7 +41,7 @@
 
         <div v-else-if='flag === "brand"'>
           <!-- 品牌收藏列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goBrand(item.brand_id)'>
             <van-cell-group>
               <div class="brand">
                 <div class='icon' ref='icon' @click='active(index, item.id)' v-show='del'></div>
@@ -57,7 +57,7 @@
 
         <div v-else>
           <!-- 浏览记录列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goProduct(item.goods_id)'>
             <van-cell-group>
               <div class="goods">
                 <div class='icon' ref='icon' @click='active(index, item.goods_id)' v-show='del'></div>
@@ -167,6 +167,12 @@
         } else {
           this._getFootMark()
         }
+      },
+      goProduct (id) {
+        this.$router.push(`/product/${id}`)
+      },
+      goBrand (id) {
+        this.$router.push(`/brandGoodsList?id=${id}`)
       },
       _del () {
         if (this.title === this.init[0].name) {

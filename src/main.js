@@ -29,7 +29,6 @@ axios.interceptors.request.use(
     return config
   }
 )
-
 Vue.prototype.$http = axios
 
 Vue.use(Vuelazyload, {

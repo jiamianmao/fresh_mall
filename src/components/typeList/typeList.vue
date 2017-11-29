@@ -1,7 +1,7 @@
 <template>
   <div class='item' v-if='goods.goods_list.length'>
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-      <swiper-slide v-for='(item, index) of goods.goods_list' :key='index'>
+      <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
         <img :src="item.img_url">
       </swiper-slide>
     </swiper>
@@ -9,7 +9,7 @@
       <h3>{{text.goods_name}}</h3>
       <p>{{text.goods_jingle}}</p>
       <strong>{{text.goods_price}}</strong>
-      <button>
+      <button @click='goods.gc_id'>
         <span>更多{{goods.gc_name}}</span>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-yuanjiantou"></use>
@@ -51,6 +51,11 @@
         this.text = this.goods.goods_list[0]
       } else {
         this.text = this.goods.goods_list[index]
+      }
+    },
+    methods: {
+      goProduct (id) {
+        this.$router.push(`/product/${id}`)
       }
     },
     computed: {
