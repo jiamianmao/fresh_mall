@@ -110,7 +110,8 @@
         invoiceInfo: {},
         show: false,  // modal的信号
         alertFlag: false, // alert的信号
-        msg: '' // alert的提示语
+        msg: '', // alert的提示语
+        cartArr: []
       }
     },
     created () {
@@ -121,7 +122,11 @@
       }
 
       // 通过购物车那里传来的cart_id取对应数据
-      this.cartArr = this.$route.query.cartId
+      if (Array.isArray(this.$route.query.cartId)) {
+        this.cartArr = this.$route.query.cartId
+      } else {
+        this.cartArr.push(this.$route.query.cartId)
+      }
       this.api_token = storage.get('api_token')
       this._getOrderData()
     },
@@ -208,12 +213,7 @@
         }
       },
       _getOrderData () {
-        // 这里有点奇葩，后端用 cart_id[]=1&cart_id[]=2 的形式传参
-        // let str = ''
-        // for (let i = 0; i < this.cartArr.length; i++) {
-        //   str += 'cart_id[]=' + this.cartArr[i] + '&'
-        // }
-        // str = str.slice(0, -1)
+        // 这里的cartArr从子页面回退过来是个String，不是Array，后台不支持了。MMP
         this.$http.get(`/api/order/confirm`, {
           params: {
             api_token: this.api_token,

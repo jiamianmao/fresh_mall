@@ -91,7 +91,8 @@
     },
     created () {
       this.id = ~~this.$route.query.id
-      this.goodsId = this.$route.query.goodsId
+      console.log(this.$route.query.goodsId)
+      this.goodsId = [this.$route.query.goodsId]
       this.api_token = storage.get('api_token')
       this._getData()
       this.geolocation = new qq.maps.Geolocation()
@@ -164,7 +165,12 @@
         this.$router.go(-1)
       },
       _getData () {
-        this.$http.get(`/api/goods/pickup?api_token=${this.api_token}&goods_id=${this.goodsId}`).then(res => {
+        this.$http.get('/api/goods/pickup', {
+          params: {
+            api_token: this.api_token,
+            goods_id: this.goodsId
+          }
+        }).then(res => {
           if (~~res.data.status === 200) {
             this.addList = res.data.data
             this.addList.forEach(item => {

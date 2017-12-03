@@ -2,17 +2,17 @@
   <div>
     <x-title :bottom='false' class='title'>购物车</x-title>
 
-    <scroll :data='cartdata.cart_list' class='scroll'>
+    <scroll :data='cartdata' class='scroll'>
       <div class="order-wrapper">
-        <div class="order" v-for='(goodsItem, index) of cartdata.cart_list'>
+        <div class="order" v-for='(goodsItem, index) of cartdata'>
           <div class="top">
             <div class='icon' @click='selectBrand(goodsItem.brand_id, goodsItem.goods)'>
-              <img src="../../assets/selectAdd/selected.png" v-if='activeArr[index] && activeArr[index].goodsData.length === goodsItem.goods.length'>
+              <img src="../../assets/selectAdd/selected.png" v-if='ok[index]'>
               <img src="../../assets/selectAdd/select.png" v-else>
             </div>
 
-            <div class="name" @click='toBrand(goodsItem.brand_id)'>
-              <span>{{goodsItem.brand_name.brand_name}}</span><x-icon type="ios-arrow-right" size="18"></x-icon>
+            <div class="name" @click='toBrand(goodsItem.brand_id, goodsItem.brand_name)'>
+              <span>{{goodsItem.brand_name}}</span><x-icon type="ios-arrow-right" size="18"></x-icon>
             </div>
           </div>
           <div class="bottom" v-for='(item, keyIndex) of goodsItem.goods'>
@@ -22,11 +22,11 @@
             </div>
             <div class="right">
               <div class="brand">
-                <img v-lazy='item.goods_image_url'>
+                <img v-lazy='item.goods_image'>
               </div>
               <div class="desc">
                 <div class="name">{{item.goods_name}}</div>
-                <div class="spec">{{item.goods_spec}}</div>
+                <div class="spec">{{item.goods_unit}}</div>
                 <h3 class="price">{{item.goods_price}}</h3>
                 <div class='wrapper'>
                   <div class='box minus' @click='minus(item.goods_num, item.cart_id)' ref='minus'>-</div>
@@ -55,27 +55,32 @@
       <p>合计:<strong>¥{{sum}}</strong></p>
       <button @click='submit'>结算</button>
     </div>
+    <alert v-model="alertFlag">{{msg}}</alert>
     <confirm v-model="show" title='确认删除吗？' content='再考虑考虑吧' @on-confirm='onConfirm'></confirm>
   </div>
 </template>
 <script>
+  /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
   import Storage from 'good-storage'
-  import { Confirm } from 'vux'
+  import { Confirm, Alert } from 'vux'
   export default {
     data () {
       return {
         init: true, // 是否是初次进来，维护初次进来全选
         active: false,  // 控制选中状态
         show: false,  // modal框
-        cartdata: {},
+        cartdata: [],
         activeArr: [],
         currentClick: 0, // 维护当前点击要删除的，保存cart_id
         sum: 0,       // 维护总价
         cartCount: 0, // 维护多少件
         cartType: [], // 维护多少种,其实是维护一个选中的goods_id,既能维护多少种，又能维护产品的active
-        all: false
+        all: false,
+        alertFlag: false,
+        msg: '您还没有添加商品呢',
+        ok: []
       }
     },
     created () {
@@ -96,12 +101,13 @@
         this.show = true
         this.currentClick = currentClick
       },
-      toBrand (id) {
+      toBrand (id, name) {
         // 去品牌店铺
         this.$router.push({
           path: 'brandGoodsList',
           query: {
-            id
+            id,
+            name
           }
         })
       },
@@ -115,9 +121,11 @@
         })
       },
       selectBrand (brandId, goods) {
+        // 判断选中的有没有该品牌
         let idx = this.activeArr.findIndex(item => {
           return item.brandId === brandId
         })
+        // 把goods数据做了层改造 貌似没多大意义
         let data = []
         goods.forEach(item => {
           data.push({
@@ -126,11 +134,12 @@
           })
         })
         // 拿到原数据里的对应的品牌数据 来判断当前选中的是否该品牌下的所有商品
-        let items = this.cartdata.cart_list.find(item => {
+        let items = this.cartdata.find(item => {
           return item.brand_id === brandId
         })
+        // 不是该品牌下的所有商品（没有该品牌或品牌下商品数量没选够）
         if (idx === -1 || this.activeArr[idx].goodsData.length !== items.goods.length) {
-          this.activeArr.splice(idx, 1)
+          if (idx > -1) this.activeArr.splice(idx, 1)
           this.activeArr.push({
             brandId,
             goodsData: data
@@ -184,6 +193,10 @@
         }
       },
       submit () {
+        if (!this.activeArr.length) {
+          this.alertFlag = true
+          return
+        }
         let cartId = []
         this.activeArr.forEach(item => {
           item.goodsData.forEach(x => {
@@ -199,9 +212,13 @@
       },
       // 全选
       _all () {
+        if (!this.cartdata) {
+          return
+        }
+        this.ok.length = this.cartdata.length
         // 先把当前选中的置空，然后遍历所有的都加进去
         this.activeArr = []
-        this.cartdata.cart_list.forEach(item => {
+        this.cartdata.forEach(item => {
           let arr = []
           item.goods.forEach(x => {
             arr.push({
@@ -216,11 +233,20 @@
         })
       },
       _getShopCart () {
-        this.$http.get(`/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/cart/list?api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
-            this.cartdata = res.data.data
+            this.cartdata = res.data.data.list
             this.sum = res.data.data.sum
-            this.cartCount = res.data.cart_count
+            let count = 0
+            if (!res.data.data) {
+              return
+            }
+            res.data.data.list.forEach(item => {
+              item.goods.forEach(x => {
+                count += x.goods_num
+              })
+            })
+            this.cartCount = count
             if (this.init) {
               this.init = false
               this._all()
@@ -242,7 +268,7 @@
         let sum = 0
         let cartCount = 0
         this.activeArr.forEach((x, idx, arr) => {
-          let one = this.cartdata.cart_list.find(y => {
+          let one = this.cartdata.find(y => {
             return y.brand_id === x.brandId
           })
           // 通过商品的id来拿到商品的数量和单价来维护总价
@@ -266,43 +292,50 @@
       },
       activeArr: {
         handler (newVal) {
-          let sum = 0
-          let cartCount = 0
-          let cartType = []
-          let flag = true
-          newVal.forEach((x, idx, arr) => {
-            let one = this.cartdata.cart_list.find(y => {
-              return y.brand_id === x.brandId
-            })
-            // 通过商品的id来拿到商品的数量和单价来维护总价
-            x.goodsData.forEach(item => {
-              let two = one.goods.find(y => {
-                return y.goods_id === item.goodsId
+          this.$nextTick(() => {
+            let sum = 0
+            let cartCount = 0
+            let cartType = []
+            let flag = true
+            newVal.forEach((x, idx, arr) => {
+              let one = this.cartdata.find(y => {
+                return y.brand_id === x.brandId
               })
-              cartType.push(item.goodsId)
-              sum += parseInt(two.goods_price) * parseInt(two.goods_num)
-              cartCount += parseInt(two.goods_num)
+              // 用来维护ok数组
+              let index = this.cartdata.findIndex(z => {
+                return z.brand_id === x.brandId
+              })
+              // 通过商品的id来拿到商品的数量和单价来维护总价
+              x.goodsData.forEach(item => {
+                let two = one.goods.find(y => {
+                  return y.goods_id === item.goodsId
+                })
+                cartType.push(item.goodsId)
+                sum += parseInt(two.goods_price) * parseInt(two.goods_num)
+                cartCount += parseInt(two.goods_num)
+              })
+              let xLen = x.goodsData.length
+              let oneLen = one.goods.length
+              if (xLen === oneLen) {
+                this.ok.splice(index, 1, true)
+                // 如果品牌里商品列表为空，则去掉这个品牌
+              } else if (xLen === 0) {
+                this.ok.splice(index, 1, false)
+                arr.splice(idx, 1)
+                flag = false
+              } else {
+                this.ok.splice(index, 1, false)
+                flag = false
+              }
             })
-            let xLen = x.goodsData.length
-            let oneLen = one.goods.length
-            // cartType += xLen
-            if (xLen === oneLen) {
-
-              // 如果品牌里商品列表为空，则去掉这个品牌
-            } else if (xLen === 0) {
-              arr.splice(idx, 1)
-              flag = false
-            } else {
+            if (newVal.length !== this.cartdata.length) {
               flag = false
             }
+            this.sum = sum
+            this.cartCount = cartCount
+            this.cartType = cartType
+            this.all = flag
           })
-          if (newVal.length !== this.cartdata.cart_list.length) {
-            flag = false
-          }
-          this.sum = sum
-          this.cartCount = cartCount
-          this.cartType = cartType
-          this.all = flag
         },
         deep: true
       }
@@ -310,7 +343,8 @@
     components: {
       XTitle,
       Confirm,
-      Scroll
+      Scroll,
+      Alert
     }
   }
 </script>

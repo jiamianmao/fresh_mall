@@ -52,7 +52,7 @@
     },
     methods: {
       _getDesc (id) {
-        this.$http.get(`/mobile/?act=goods&op=store_card&store_id=3`).then(res => {
+        this.$http.get(`/mobile/?act=goods&op=store_card&store_id=${id}`).then(res => {
           if (res.data.status === 200) {
             this.desc = res.data.data
           }

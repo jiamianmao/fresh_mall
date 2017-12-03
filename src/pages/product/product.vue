@@ -408,9 +408,9 @@
       // 品牌收藏
       brand () {
         if (this.brandFlag) {
-          this.$http.post(`/api/brand/cancel_follow?api_token=${this.api_token}&id=79`, {
+          this.$http.post('/api/brand/cancel_follow', {
             api_token: this.api_token,
-            id: 79
+            id: this.product_obj.brand.brand_id
           }).then(res => {
             if (res.data.status === 200) {
               this.brandFlag = false
@@ -419,7 +419,7 @@
         } else {
           this.$http.post('/api/brand/follow', {
             api_token: this.api_token,
-            id: 79
+            id: this.product_obj.brand.brand_id
           }).then(res => {
             if (res.data.status === 200) {
               this.brandFlag = true

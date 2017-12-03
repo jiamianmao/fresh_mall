@@ -3,16 +3,17 @@
     <div class="container">
       <x-title>消息中心</x-title>
       <div class="content">
-        <div class="item" v-for='(item, index) of arr' :class='{"vux-1px-t": index > 0}' :key='index'>
+        <div class="item" v-for='(item, index) of arr' :class='{"vux-1px-t": index > 0}' :key='index' @click='selectOne(item.message_id)'>
           <div class="left">
-            <img src="../../../assets/my/unread.png">
+            <img v-if='~~item.message_open === 0' src="../../../assets/my/unread.png">
+            <img v-else src="../../../assets//my/readed.png">
           </div>
           <div class="right">
             <p>
-              <span>系统消息</span>
-              <span>2017.04.20 19:20</span>
+              <span>{{ item.message_type | type }}</span>
+              <span>{{ item.message_time | time }}</span>
             </p>
-            <p>我是大空翼啊</p>
+            <p v-html='item.message_body'></p>
           </div>
         </div>
       </div>
@@ -21,10 +22,46 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import { dateFormat } from 'vux'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
-        arr: [1, 2]
+        arr: []
+      }
+    },
+    created () {
+      this.api_token = storage.get('api_token')
+      this._getMsgList()
+    },
+    filters: {
+      type (val) {
+        // 做个字典
+        let dict = {
+          0: '私信',
+          1: '系统消息',
+          2: '留言'
+        }
+        return dict[val]
+      },
+      time (val) {
+        return dateFormat(~~val * 1000, 'YYYY.MM.DD HH:mm')
+      }
+    },
+    methods: {
+      selectOne (id) {
+        this.arr.filter(item => {
+          if (item.message_id === id) {
+            item.message_open = '1'
+          }
+        })
+      },
+      _getMsgList () {
+        this.$http.get(`/mobile/?act=member_message&op=index&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            this.arr = res.data.data.message_list
+          }
+        })
       }
     },
     components: {

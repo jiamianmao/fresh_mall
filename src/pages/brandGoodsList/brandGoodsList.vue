@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <x-title :bottom='false'>中天羊业</x-title>
+    <x-title :bottom='false'>{{ name }}</x-title>
     <div class="goods_wrapper">
       <div class="goods" v-for='item of goodsList' @click='selectGoods(item.goods_id)'>
         <div class="brand">
@@ -21,12 +21,14 @@
   export default {
     data () {
       return {
-        goodsList: []
+        goodsList: [],
+        name: ''
       }
     },
     created () {
       this.api_token = storage.get('api_token')
       this.id = this.$route.query.id
+      this.name = this.$route.query.name
       this._getGoodsList()
     },
     methods: {

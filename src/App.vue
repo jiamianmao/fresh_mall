@@ -20,10 +20,10 @@ export default {
   },
   methods: {
     _getShopCart () {
-      this.$http.get(`/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+      this.$http.get(`/api/cart/list?api_token=${this.api_token}`).then(res => {
         if (res.data.status === 200) {
           let num = 0
-          res.data.data.cart_list.forEach(item => {
+          res.data.data.list.forEach(item => {
             item.goods.forEach(x => {
               num += ~~x.goods_num
             })

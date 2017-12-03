@@ -19,10 +19,10 @@
             </div>
           </div> -->
           <!-- 商品收藏列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goProduct(item.goods_id)'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
             <van-cell-group>
-              <div class="goods">
-                <div class='icon' ref='icon' @click='active(index, item.fav_id)' v-show='del'></div>
+              <div class="goods" @click='goProduct(item.goods_id)'>
+                <div class='icon' ref='icon' @click.stop='active(index, item.fav_id)' v-show='del'></div>
                 <div class="image">
                   <img v-lazy='item.goods_image_url'>
                 </div>
@@ -41,10 +41,10 @@
 
         <div v-else-if='flag === "brand"'>
           <!-- 品牌收藏列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goBrand(item.brand_id)'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
             <van-cell-group>
-              <div class="brand">
-                <div class='icon' ref='icon' @click='active(index, item.id)' v-show='del'></div>
+              <div class="brand"  @click='goBrand(item.brand_id, item.brand.brand_name)'>
+                <div class='icon' ref='icon' @click.stop='active(index, item.id)' v-show='del'></div>
                 <div class="image">
                   <img v-lazy='item.brand.brand_pic'>
                 </div>
@@ -57,10 +57,10 @@
 
         <div v-else>
           <!-- 浏览记录列表 -->
-          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index' @click.native='goProduct(item.goods_id)'>
+          <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
             <van-cell-group>
-              <div class="goods">
-                <div class='icon' ref='icon' @click='active(index, item.goods_id)' v-show='del'></div>
+              <div class="goods"  @click='goProduct(item.goods_id)'>
+                <div class='icon' ref='icon' @click.stop='active(index, item.goods_id)' v-show='del'></div>
                 <div class="image">
                   <img v-lazy='item.goods_image_url'>
                 </div>
@@ -171,8 +171,8 @@
       goProduct (id) {
         this.$router.push(`/product/${id}`)
       },
-      goBrand (id) {
-        this.$router.push(`/brandGoodsList?id=${id}`)
+      goBrand (id, name) {
+        this.$router.push(`/brandGoodsList?id=${id}&name=${name}`)
       },
       _del () {
         if (this.title === this.init[0].name) {

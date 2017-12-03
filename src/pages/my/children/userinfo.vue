@@ -76,11 +76,13 @@
         this.url = file.content
       },
       submit () {
+        let url = ''
+        if (this.url.indexOf('http') === -1) url = this.url
         this.$http.post(`/mobile/?act=member_index&op=save_memberinfo&api_token=${this.api_token}`, {
           member_name: this.nickname,
           member_sex: this.sex,
           member_email: this.email,
-          member_avatar: this.url
+          member_avatar: url
         }).then(res => {
           if (res.data.status === 200) {
             this.$router.go(-1)
