@@ -53,10 +53,13 @@
     },
     watch: {
       num () {
-        this.$refs.num.classList.add('change')
-        setTimeout(() => {
-          this.$refs.num.classList.remove('change')
-        }, 1000)
+        this.$nextTick(() => {
+          console.log(this.$refs.num)
+          this.$refs.num.classList.add('change')
+          setTimeout(() => {
+            this.$refs.num.classList.remove('change')
+          }, 1000)
+        })
       }
     }
   }

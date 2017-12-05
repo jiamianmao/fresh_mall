@@ -100,6 +100,7 @@
   import { Divider, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
   import { mapGetters } from 'vuex'
+  import { Delivery } from '../../common/config/config.js'
   export default {
     data () {
       return {
@@ -120,7 +121,6 @@
       if (parseInt(this.member_class) === 2) {
         this.member_c = false
       }
-
       // 通过购物车那里传来的cart_id取对应数据
       if (Array.isArray(this.$route.query.cartId)) {
         this.cartArr = this.$route.query.cartId
@@ -148,56 +148,72 @@
         })
       },
       selectStore (id) {
+        // 拿过去一个goods数组
+        let goodsId = []
+        this.list.forEach(item => {
+          item.goods.forEach(x => {
+            goodsId.push(x.goods_id)
+          })
+        })
         this.$router.push({
           path: '/map',
           query: {
-            id
+            id,
+            goodsId
           }
         })
       },
       orderSubmit () {
         // 来判断地址是否选择够，因为C端是多地址的
         if (this.member_c) {
-          if (Object.keys(this.address).length === this.list.length) {
+          // 因为是多订单，所以用多种取货方式之和来判断
+          if ((Object.keys(this.address).length + Object.keys(this.addressType).length) >= this.list.length) {
             let obj1 = {
               'cart_id': this.cartArr
             }
-            let addData = Object.entries(this.address)
+            // 这里把所有的收货方式都处理成键值对形式
+            let addData = [...Object.entries(this.address), ...Object.entries(this.addressType)]
             let obj2 = {}
             addData.forEach(item => {
               let type
               if (item[0] in this.addressType) {
-                type = this.addressType[item[0]]
+                type = this.addressType[item[0]].transport
+                // 如果是自提的话，那就需要传入store_id
+                if (type === Delivery.self) {
+                  obj2[`address[${item[0]}][delivery_id]`] = this.addressType[item[0]].store_id
+                }
               } else {
-                type = 1
+                type = Delivery.ptSend
               }
               let str1 = `address[${item[0]}][id]`
               let str2 = `address[${item[0]}][type]`
               obj2[str1] = item[1].address_id
               obj2[str2] = type
             })
-            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
-              if (res.data.status === 200) {
-                // 在付款页面 需要维护一个总价，及订单号的Array
-                let arr = []
-                let sum = 0
-                let orders = res.data.data.order
-                let value = Object.values(orders)
-                value.forEach(item => {
-                  // 这里防止浮点数计算错误
-                  sum += item.order_amount * 100
-                  arr.push(item.order_sn)
-                })
-                sum = sum / 100
-                this.$router.push({
-                  path: '/pay',
-                  query: {
-                    sum,
-                    arr
-                  }
-                })
-              }
-            })
+            console.log(obj1)
+            console.log(obj2)
+            // this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
+            //   if (res.data.status === 200) {
+            //     // 在付款页面 需要维护一个总价，及订单号的Array
+            //     let arr = []
+            //     let sum = 0
+            //     let orders = res.data.data.order
+            //     let value = Object.values(orders)
+            //     value.forEach(item => {
+            //       // 这里防止浮点数计算错误
+            //       sum += item.order_amount * 100
+            //       arr.push(item.order_sn)
+            //     })
+            //     sum = sum / 100
+            //     this.$router.push({
+            //       path: '/pay',
+            //       query: {
+            //         sum,
+            //         arr
+            //       }
+            //     })
+            //   }
+            // })
           } else {
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
@@ -221,6 +237,9 @@
           }
         }).then(res => {
           let data = res.data.data
+          if (data.length === 0) {
+            this.$router.replace('/my/order')
+          }
           for (let i in data) {
             if (data.hasOwnProperty(i)) {
               if (i === 'price') {

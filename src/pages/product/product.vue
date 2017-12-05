@@ -476,7 +476,7 @@
           }
         })
       },
-      // 这里改来改去 也不给我说 一会品牌id,一会商品id，让我被动改一大堆。艹
+      // 这里改来改去 也不给我说 一会品牌id,一会商品id，让我被动改一大堆。
       goStore (id) {
         if (this.select_type === 1) {
           this.show = true
@@ -550,15 +550,19 @@
         })
       },
       _getShopCart () {
-        this.$http.get(`/mobile/?act=member_cart&op=cart_list&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/cart/list?api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
             let num = 0
-            res.data.data.cart_list.forEach(item => {
-              item.goods.forEach(x => {
-                num += ~~x.goods_num
+            if (res.data.data) {
+              res.data.data.list.forEach(item => {
+                item.goods.forEach(x => {
+                  num += ~~x.goods_num
+                })
               })
-            })
-            this.num = num
+              this.num = num
+            } else {
+              this.num = 0
+            }
           }
         })
       }

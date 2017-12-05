@@ -57,6 +57,8 @@
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.fullPath = this.$route.fullPath
+      console.log(this.fullPath)
       this.brand_id = this.$route.query.id
       this._getAddList()
     },
@@ -148,10 +150,13 @@
       },
       setUp (newVal) {
         if (newVal === true) {
-          // 这里不需要做清除处理
           setTimeout(() => {
-            this.setUp = false
-          }, 3000)
+            this.$router.go(-1)
+          }, 200)
+          // 这里不需要做清除处理
+          // setTimeout(() => {
+          //   this.setUp = false
+          // }, 3000)
         }
       }
     }

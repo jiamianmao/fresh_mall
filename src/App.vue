@@ -23,12 +23,16 @@ export default {
       this.$http.get(`/api/cart/list?api_token=${this.api_token}`).then(res => {
         if (res.data.status === 200) {
           let num = 0
-          res.data.data.list.forEach(item => {
-            item.goods.forEach(x => {
-              num += ~~x.goods_num
+          if (res.data.data) {
+            res.data.data.list.forEach(item => {
+              item.goods.forEach(x => {
+                num += ~~x.goods_num
+              })
             })
-          })
-          this.num = num
+            this.num = num
+          } else {
+            this.num = 0
+          }
         }
       })
     }

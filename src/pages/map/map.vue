@@ -74,6 +74,7 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { Alert } from 'vux'
   import storage from 'good-storage'
+  import { Delivery } from '../../common/config/config.js'
   export default {
     data () {
       return {
@@ -91,10 +92,16 @@
     },
     created () {
       this.id = ~~this.$route.query.id
-      console.log(this.$route.query.goodsId)
-      this.goodsId = [this.$route.query.goodsId]
+      this.goodsId = this.$route.query.goodsId
+      // 因为后端需要从传递一个Arr,当goodsId只有一个时，利用history路由取到的值是一个String,所以做个hack
+      if (typeof this.goodsId === 'string') {
+        let arr = []
+        arr.push(this.goodsId)
+        this.goodsId = arr
+      }
       this.api_token = storage.get('api_token')
       this._getData()
+      // 腾讯地图定位
       this.geolocation = new qq.maps.Geolocation()
       this.geolocation.getIpLocation((position) => {
         this.lat = position.lat
@@ -126,10 +133,10 @@
     },
     methods: {
       peisong () {
-        this.transport = 2
+        this.transport = Delivery.stSend
       },
       ziti () {
-        this.transport = 3
+        this.transport = Delivery.self
       },
       close () {
         this.active = false
@@ -148,7 +155,7 @@
           this.msg = '请选择配送方式'
           return 
         }
-        if (this.transport === 2 && !this.address_1) {
+        if (this.transport === Delivery.stSend && !this.address_1) {
           this.show = true
           this.msg = '请选择配送地址'
           return 

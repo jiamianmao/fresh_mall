@@ -116,6 +116,18 @@
           cart_id: this.currentClick
         }).then(res => {
           if (res.data.status === 200) {
+            // 删除商品后需要在activeArr里删除对应的商品
+            this.activeArr.forEach((item, idx) => {
+              item.goodsData.forEach((x, index) => {
+                if (x.cartId === this.currentClick) {
+                  item.goodsData.splice(index, 1)
+                  // 判断当前品牌下的商品是不是让删完了
+                  if (item.goodsData.length === 0) {
+                    this.activeArr.splice(idx, 1)
+                  }
+                }
+              })
+            })
             this._getShopCart()
           }
         })
@@ -124,6 +136,9 @@
         // 判断选中的有没有该品牌
         let idx = this.activeArr.findIndex(item => {
           return item.brandId === brandId
+        })
+        let index = this.cartdata.findIndex(item => {
+          return item.brand_id === brandId
         })
         // 把goods数据做了层改造 貌似没多大意义
         let data = []
@@ -144,8 +159,13 @@
             brandId,
             goodsData: data
           })
+          console.log(index)
+          this.ok[index] = true
         } else {
+          console.log(1)
+          console.log(index)
           this.activeArr.splice(idx, 1)
+          this.ok[index] = false
         }
       },
       selectGoods (brandId, item) {
@@ -267,26 +287,29 @@
       cartdata () {
         let sum = 0
         let cartCount = 0
-        this.activeArr.forEach((x, idx, arr) => {
-          let one = this.cartdata.find(y => {
-            return y.brand_id === x.brandId
-          })
-          // 通过商品的id来拿到商品的数量和单价来维护总价
-          x.goodsData.forEach(item => {
-            let two = one.goods.find(y => {
-              return y.goods_id === item.goodsId
+        if (this.activeArr.length > 0) {
+          this.activeArr.forEach((x, idx, arr) => {
+            let one = this.cartdata.find(y => {
+              return y.brand_id === x.brandId
             })
-            sum += parseInt(two.goods_price) * parseInt(two.goods_num)
-            cartCount += parseInt(two.goods_num)
+            // 通过商品的id来拿到商品的数量和单价来维护总价
+            x.goodsData.forEach(item => {
+              let two = one.goods.find(y => {
+                return y.goods_id === item.goodsId
+              })
+              sum += parseInt(two.goods_price) * parseInt(two.goods_num)
+              cartCount += parseInt(two.goods_num)
+            })
+            let xLen = x.goodsData.length
+            let oneLen = one.goods.length
+            if (xLen === oneLen) {
+              //
+            } else if (xLen === 0) {
+              arr.splice(idx, 1)
+            }
           })
-          let xLen = x.goodsData.length
-          let oneLen = one.goods.length
-          if (xLen === oneLen) {
-            //
-          } else if (xLen === 0) {
-            arr.splice(idx, 1)
-          }
-        })
+        }
+        
         this.sum = sum
         this.cartCount = cartCount
       },

@@ -1,18 +1,18 @@
 <template>
   <div>
     <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab'>
-      <tab-item @on-item-click='go(0)' :class="{'vux-tab-selected': active_0}">
-        <img src="../../assets/tab/home.png">
-        <img src="../../assets/tab/home_active.png">
+      <tab-item @on-item-click='go(0)'>
+        <img src="../../assets/tab/home.png" v-if='!active_0'>
+        <img src="../../assets/tab/home_active.png" v-else>
       </tab-item>
-      <tab-item class='shopcart' @on-item-click='go(1)' :class="{'vux-tab-selected': active_1}">
-        <img src="../../assets/tab/shopcart.png">
-        <img src="../../assets/tab/shopcart_active.png">
+      <tab-item class='shopcart' @on-item-click='go(1)'>
+        <img src="../../assets/tab/shopcart.png" v-if='!active_1'>
+        <img src="../../assets/tab/shopcart_active.png" v-else>
         <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
       </tab-item>
-      <tab-item @on-item-click='go(2)' :class="{'vux-tab-selected': active_2}">
-        <img src="../../assets/tab/my.png">
-        <img src="../../assets/tab/my_active.png">
+      <tab-item @on-item-click='go(2)'>
+        <img src="../../assets/tab/my.png" v-if='!active_2'>
+        <img src="../../assets/tab/my_active.png" v-else>
       </tab-item>
     </tab>
   </div>
@@ -62,10 +62,12 @@
         }
       },
       num () {
-        this.$refs.num.classList.add('change')
-        setTimeout(() => {
-          this.$refs.num.classList.remove('change')
-        }, 1000)
+        this.$nextTick(() => {
+          this.$refs.num.classList.add('change')
+          setTimeout(() => {
+            this.$refs.num.classList.remove('change')
+          }, 1000)
+        })
       }
     },
     components: {
@@ -100,14 +102,6 @@
         text-align: center;
         line-height: 16px;
         color: #fff;
-      }
-    }
-    .vux-tab-selected{
-      img:nth-of-type(1){
-        display: none;
-      }
-      img:nth-of-type(2){
-        display: inline-block;
       }
     }
     img{
