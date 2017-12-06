@@ -66,6 +66,7 @@
       <alert v-model="show" title="请完整输入信息">{{ msg }}</alert>
       <button @click='sure'>确定</button>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -91,13 +92,18 @@
       }
     },
     created () {
-      this.id = ~~this.$route.query.id
+      this.id = this.$route.query.id
       this.goodsId = this.$route.query.goodsId
       // 因为后端需要从传递一个Arr,当goodsId只有一个时，利用history路由取到的值是一个String,所以做个hack
+      // 包括在当前页面刷新，防止报错
       if (typeof this.goodsId === 'string') {
         let arr = []
         arr.push(this.goodsId)
         this.goodsId = arr
+      }
+      // 不是父子路由，用go(-1)还是要重新加载路由的，通过判断this.address的值来判断是否已经选好了地址
+      if (Object.keys(this.address).includes(this.id)) {
+        this.active = true
       }
       this.api_token = storage.get('api_token')
       this._getData()
@@ -143,7 +149,7 @@
       },
       selectAdd () {
         this.$router.push({
-          path: '/my/address',
+          path: '/map/address',
           query: {
             id: this.id
           }
@@ -158,7 +164,7 @@
         if (this.transport === Delivery.stSend && !this.address_1) {
           this.show = true
           this.msg = '请选择配送地址'
-          return 
+          return
         }
         let data = {
           id: this.id,
@@ -166,6 +172,7 @@
           store_id: this.addList[0].member_id,
           store_add: this.addList[0].location
         }
+        // 不管是商家配送和还是自提都是关联 addressType 
         this.addressType(data)
         this.active = false
         storage.set('type', this.transport)
@@ -230,11 +237,12 @@
           this._getData()
         }
         this.address_1 = Object.assign({}, this.address)[this.id]
-        if (this.address_1) {
-          this.select_type = 1
-        }
+        // if (this.address_1) {
+        //   this.select_type = 1
+        // }
       },
       activePoint (newVal) {
+        console.log(newVal)
         let x = this.addList.find(item => {
           return item.location_lat === newVal.split(',')[0]
         })

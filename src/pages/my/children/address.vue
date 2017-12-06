@@ -57,8 +57,8 @@
     },
     created () {
       this.api_token = storage.get('api_token')
-      this.fullPath = this.$route.fullPath
-      console.log(this.fullPath)
+      // 因为是一个组件在多个路由使用，所以需要灵活写路由
+      this.initPath = this.$route.path
       this.brand_id = this.$route.query.id
       this._getAddList()
     },
@@ -82,7 +82,7 @@
       },
       addAddress () {
         this.$router.push({
-          path: '/my/address/add'
+          path: `${this.initPath}/add`
         })
       },
       // 删除用了一个modal做了层拦截，sure方法是Handler函数
@@ -153,10 +153,6 @@
           setTimeout(() => {
             this.$router.go(-1)
           }, 200)
-          // 这里不需要做清除处理
-          // setTimeout(() => {
-          //   this.setUp = false
-          // }, 3000)
         }
       }
     }

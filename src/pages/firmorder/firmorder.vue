@@ -99,7 +99,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { Divider, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapMutations } from 'vuex'
   import { Delivery } from '../../common/config/config.js'
   export default {
     data () {
@@ -166,13 +166,30 @@
       orderSubmit () {
         // 来判断地址是否选择够，因为C端是多地址的
         if (this.member_c) {
-          // 因为是多订单，所以用多种取货方式之和来判断
+          // 因为是多订单，且多种收货方式，当前的收货地址的设计方案是
+          // 平台配送关联 address， 商家配送关联 address + addressType ，自提关联 addressType
+          // 现在需要把 平台配送 增加一个 addressType的关联
+          Object.keys(this.address).forEach(item => {
+            if (!Object.keys(this.addressType).includes(item)) {
+              let data = {
+                id: item,
+                transport: Delivery.ptSend,
+                store_id: -1,
+                store_add: 'null'
+              }
+              this.SET_ADDRESS_TYPE(data)
+            }
+          })
+          debugger
           if ((Object.keys(this.address).length + Object.keys(this.addressType).length) >= this.list.length) {
             let obj1 = {
               'cart_id': this.cartArr
             }
             // 这里把所有的收货方式都处理成键值对形式
             let addData = [...Object.entries(this.address), ...Object.entries(this.addressType)]
+            // addData..filter((item, index) => {
+            //   if (item[1].)
+            // })
             let obj2 = {}
             addData.forEach(item => {
               let type
@@ -190,30 +207,28 @@
               obj2[str1] = item[1].address_id
               obj2[str2] = type
             })
-            console.log(obj1)
-            console.log(obj2)
-            // this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
-            //   if (res.data.status === 200) {
-            //     // 在付款页面 需要维护一个总价，及订单号的Array
-            //     let arr = []
-            //     let sum = 0
-            //     let orders = res.data.data.order
-            //     let value = Object.values(orders)
-            //     value.forEach(item => {
-            //       // 这里防止浮点数计算错误
-            //       sum += item.order_amount * 100
-            //       arr.push(item.order_sn)
-            //     })
-            //     sum = sum / 100
-            //     this.$router.push({
-            //       path: '/pay',
-            //       query: {
-            //         sum,
-            //         arr
-            //       }
-            //     })
-            //   }
-            // })
+            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
+              if (res.data.status === 200) {
+                // 在付款页面 需要维护一个总价，及订单号的Array
+                let arr = []
+                let sum = 0
+                let orders = res.data.data.order
+                let value = Object.values(orders)
+                value.forEach(item => {
+                  // 这里防止浮点数计算错误
+                  sum += item.order_amount * 100
+                  arr.push(item.order_sn)
+                })
+                sum = sum / 100
+                this.$router.push({
+                  path: '/pay',
+                  query: {
+                    sum,
+                    arr
+                  }
+                })
+              }
+            })
           } else {
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
@@ -250,7 +265,10 @@
             }
           }
         })
-      }
+      },
+      ...mapMutations([
+        'SET_ADDRESS_TYPE'
+      ])
     },
     computed: {
       types () {
