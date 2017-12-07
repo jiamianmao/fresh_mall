@@ -151,6 +151,9 @@
       },
       pay () {
         if (this.select1) {
+          this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=AliPay&api_token=${this.api_token}`).then(res => {
+            window.location.href = res.data.data.pay_sign.url
+          })
         } else if (this.select2) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {

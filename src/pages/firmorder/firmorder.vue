@@ -38,11 +38,11 @@
       <div class="leave_word vux-1px-b">
         <div class="left">买家留言:</div>
         <div class="right">
-          <textarea placeholder='选填（45字以内）' maxlength='45'></textarea>
+          <textarea v-model='message[`message${brand.brand_id}`]' placeholder='选填（45字以内）' maxlength='45'></textarea>
         </div>
       </div>
 
-      <div class="address memberc vux-1px-b" v-if='member_c' @click='delivery'>
+      <div class="address memberc vux-1px-b" v-if='member_c' @click='delivery(brand.brand_id)'>
 
         <div class='add1' v-if='!address[brand.brand_id]'>
           <svg class="icon" aria-hidden="true">
@@ -70,9 +70,8 @@
         <span>小计<strong>:{{brand.price}}</strong></span>
       </div>
 
-      <confirm v-model='show' title='请选择收货方式' confirm-text='门店代收暂存' cancel-text='直接配送到家' @on-cancel='selectAddress(brand.brand_id)' @on-confirm='selectStore(brand.brand_id)'></confirm>
     </div>
-
+    <confirm v-model='show' title='请选择收货方式' confirm-text='门店代收暂存' cancel-text='直接配送到家' @on-cancel='selectAddress()' @on-confirm='selectStore()'></confirm>
     <divider class='divider' v-show='types >= 3'>我是有底线的</divider>
 
     <div class="invoice vux-1px-t" @click='invoice'>
@@ -102,6 +101,7 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { Delivery } from '../../common/config/config.js'
   export default {
+    name: 'firmorder',
     data () {
       return {
         member_c: true,
@@ -112,7 +112,8 @@
         show: false,  // modal的信号
         alertFlag: false, // alert的信号
         msg: '', // alert的提示语
-        cartArr: []
+        cartArr: [],
+        message: {} // 留言
       }
     },
     created () {
@@ -136,14 +137,17 @@
         this.$router.push('/firmorder/invoice')
       },
       // 配送方式的选择框
-      delivery () {
+      delivery (id) {
         this.show = true
+        // 之前采用的方案是 弹出框 是多个的   好处是直接可以拿到对应的 brand_id，但是会导致 弹出框弹出时候背景黑色（应该是vux问题） 另外brand_id不准确
+        // 现在把弹出框拿到外边 使用this.brand_id 来当储存变量的媒介
+        this.brand_id = id
       },
       selectAddress (id) {
         this.$router.push({
           path: '/my/address',
           query: {
-            id
+            id: this.brand_id
           }
         })
       },
@@ -158,7 +162,7 @@
         this.$router.push({
           path: '/map',
           query: {
-            id,
+            id: this.brand_id,
             goodsId
           }
         })
@@ -180,34 +184,38 @@
               this.SET_ADDRESS_TYPE(data)
             }
           })
-          debugger
-          if ((Object.keys(this.address).length + Object.keys(this.addressType).length) >= this.list.length) {
+          if (Object.keys(this.addressType).length === this.list.length) {
             let obj1 = {
               'cart_id': this.cartArr
             }
             // 这里把所有的收货方式都处理成键值对形式
-            let addData = [...Object.entries(this.address), ...Object.entries(this.addressType)]
-            // addData..filter((item, index) => {
-            //   if (item[1].)
-            // })
+            let addData = Object.entries(this.addressType)
             let obj2 = {}
             addData.forEach(item => {
-              let type
-              if (item[0] in this.addressType) {
-                type = this.addressType[item[0]].transport
-                // 如果是自提的话，那就需要传入store_id
-                if (type === Delivery.self) {
-                  obj2[`address[${item[0]}][delivery_id]`] = this.addressType[item[0]].store_id
-                }
-              } else {
-                type = Delivery.ptSend
-              }
+              // if (item[0] in this.addressType) {
+              //   type = this.addressType[item[0]].transport
+              //   // 如果是自提的话，那就需要传入store_id
+              //   if (type === Delivery.self) {
+              //     obj2[`address[${item[0]}][delivery_id]`] = this.addressType[item[0]].store_id
+              //   }
+              // } else {
+              //   type = Delivery.ptSend
+              // }
               let str1 = `address[${item[0]}][id]`
               let str2 = `address[${item[0]}][type]`
-              obj2[str1] = item[1].address_id
-              obj2[str2] = type
+              let str3 = `address[${item[0]}][delivery_id]`
+              obj2[str2] = item[1].transport
+              // 当是自提的时候，不拿address_id，只拿store_id
+              if (item[1].transport === Delivery.self) {
+                obj2[str3] = item[1].store_id
+              } else if (item[1].transport === Delivery.ptSend) {
+                obj2[str1] = this.address[item[0]].address_id
+              } else if (item[1].transport === Delivery.stSend) {
+                obj2[str3] = item[1].store_id
+                obj2[str1] = this.address[item[0]].address_id
+              }
             })
-            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType)).then(res => {
+            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType, this.message)).then(res => {
               if (res.data.status === 200) {
                 // 在付款页面 需要维护一个总价，及订单号的Array
                 let arr = []
@@ -241,6 +249,26 @@
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
           }
+        }
+      },
+      _getInvoice () {
+        // 通过vuex拿到发票信息
+        let data = {
+          invoice: {
+            1: '纸质发票',
+            2: '电子发票'
+          },
+          person: {
+            1: '个人',
+            2: '单位'
+          }
+        }
+        if (this.invoiceType.invoice) {
+          this.invoiceFlag = true
+          this.invoiceInfo.invoice = data.invoice[this.invoiceType.invoice]
+          this.invoiceInfo.person = data.person[this.invoiceType.person]
+        } else {
+          this.invoiceFlag = false
         }
       },
       _getOrderData () {
@@ -307,24 +335,7 @@
     watch: {
       $route () {
         if (this.$route.path === '/firmorder') {
-          // 通过vuex拿到发票信息
-          let data = {
-            invoice: {
-              1: '纸质发票',
-              2: '电子发票'
-            },
-            person: {
-              1: '个人',
-              2: '单位'
-            }
-          }
-          if (this.invoiceType.invoice) {
-            this.invoiceFlag = true
-            this.invoiceInfo.invoice = data.invoice[this.invoiceType.invoice]
-            this.invoiceInfo.person = data.person[this.invoiceType.person]
-          } else {
-            this.invoiceFlag = false
-          }
+          this._getInvoice()
         }
       }
     }

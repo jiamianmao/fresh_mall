@@ -12,7 +12,7 @@
         </div>
         <div class="content">
           <p>{{goods.goods_name}}</p>
-          <span>{{goods.goods.unit}}</span>
+          <span>{{goods.goods_unit}}</span>
           <div class="price">
             <strong>¥{{goods.goods_price}}</strong>
             <strong>x{{goods.goods_num}}</strong>

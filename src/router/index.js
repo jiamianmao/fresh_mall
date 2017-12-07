@@ -49,6 +49,8 @@ const Bind = () => import('@/pages/bind/bind')
 const Message = () => import('@/pages/message/message')
 const MapZiti = () => import('@/pages/map_ziti/map_ziti')
 
+const NotFound = () => import('@/pages/NotFound/404')
+
 Vue.use(Router)
 
 /* eslint-disable */
@@ -103,15 +105,7 @@ export default [
     { path: '/rate', component: Rate },
     // 这里存疑，之前不知道如何设计的，从/my/address回退到/map页面的时候，上拉框还在
     // 现在在/map里增加了子路由，来实现效果。
-    { path: '/map', component: Map, 
-      children: [
-        { path: 'address', component: Address, 
-          children: [
-            { path: 'add', component: AddressAdd }
-          ]
-        }
-      ]
-    },
+    { path: '/map', component: Map },
     { path: '/goodslist', component: GoodsList },
     { path: '/desc', component: Desc },
     { path: '/brandGoodsList', component: BrandGoodsList },
@@ -129,5 +123,6 @@ export default [
       ]
     },
     { path: '/message', component: Message },
-    { path: '/mapziti', component: MapZiti }
+    { path: '/mapziti', component: MapZiti },
+    { path: '*', component: NotFound }
   ]

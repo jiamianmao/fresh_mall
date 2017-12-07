@@ -58,6 +58,7 @@
     methods: {
       logContent (file) {
         if (!this.imgs[this.activeId]) {
+          // 添加setter
           this.$set(this.imgs, this.activeId, [file.content])
         } else {
           if (this.imgs[this.activeId][this.num]) {

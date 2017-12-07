@@ -6,8 +6,8 @@
         <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
       </tab>
       <div class="order_wrapper">
-        <div class="not_order" v-if='orderList.length === 0'><img src="../../../assets/my/not_order.png"></div>
-        <div class="order" v-else v-for='order of orderList'>
+        <!--<div class="not_order" v-show='!orderList.length'><img src="../../../assets/my/not_order.png"></div>-->
+        <div class="order" v-for='order of orderList'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">
               <div class="num">订单编号: <span>{{order.order_sn}}</span></div>
@@ -24,7 +24,10 @@
                 </div>
                 <div class="content">
                   <p>{{ goods.goods_name }}</p>
-                  <span>{{ goods.goods_unit }}</span>
+                  <div class='center'>
+                    <span>{{ goods.goods_unit || ' ' }}</span>
+                    <span v-show='order.delivery && order.delivery.dlyo_state === 20'>货物已到达门店</span>
+                  </div>
                   <div class="price">
                     <strong>¥{{goods.goods_price}}</strong>
                     <strong>x{{goods.goods_num}}</strong>
@@ -32,11 +35,24 @@
                 </div>
               </div>
             </div>
-            <div class="address">
+            <div class="address" v-if='order.delivery_type < 3'>
               <div class="left">配送地址:</div>
-              <div class="right" v-if='order.order_common.reciver_info'>
-                <p>{{order.order_common.reciver_info.address | blank}}{{order.order_common.reciver_info.area_info}}</p>
+              <div class="right">
+                <p>{{order.order_common.reciver_info.area_info | blank}}{{order.order_common.reciver_info.address}}</p>
                 <p>{{order.order_common.reciver_info.true_name}} {{order.order_common.reciver_info.tel_phone}}</p>
+                <div class='add_bottom vux-1px-t' v-if='order.delivery_type === 2'>
+                  <p>由<b>{{ order.delivery.company_name }}</b>为您配送</p>
+                  <p>地址: {{ order.delivery.location }}</p>
+                  <p>联系电话: {{ order.delivery.contact_phone }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="address" v-else>
+              <div class="left">门店自提:</div>
+              <div class="right" v-if='order.delivery'>
+                <p><strong>{{ order.delivery.company_name }}</strong>营业时间: {{ order.delivery.saletime }}</p>
+                <p>{{ order.delivery.location }}</p>
+                <p>联系电话: {{ order.delivery.contact_phone }}</p>
               </div>
             </div>
           </div>
@@ -255,6 +271,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .container{
     position: absolute;
     top: 0;
@@ -330,14 +347,22 @@
                 justify-content: space-around;
                 font-size: @font-size-medium;
                 padding-right: 15px;
-                >span{
-                  color: #999;
-                }
                 .price{
                   display: flex;
                   flex-flow: row nowrap;
                   justify-content: space-between;
                   font-size: @font-size-small;
+                }
+                .center{
+                  display: flex;
+                  // flex-flow: row nowrap;
+                  justify-content: space-between;
+                  span:first-child{
+                    color: #999;
+                  }
+                  span:last-child{
+                    color: @color;
+                  }
                 }
               }
             }
@@ -354,6 +379,17 @@
             }
             .right{
               flex: 1;
+              min-width: 0;
+              // 这里是因为现在的接口里传回来的是一组单词，不会换行显示,生产环境中不需要
+              word-break: break-all;
+              word-wrap: break-word;
+              strong{
+                margin-right: 12px;
+              }
+            }
+            .add_bottom{
+              padding-top: 11px;
+              margin-top: 11px;
             }
           }
         }

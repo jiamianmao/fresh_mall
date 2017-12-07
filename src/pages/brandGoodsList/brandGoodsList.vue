@@ -74,6 +74,7 @@
           flex-direction: column;
           justify-content: center;
           align-items: center;
+          text-align: center;
           font-size: @font-size-small-s;
           h3{
             width: 100%;

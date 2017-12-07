@@ -77,6 +77,7 @@
   import storage from 'good-storage'
   import { Delivery } from '../../common/config/config.js'
   export default {
+    name: 'map',
     data () {
       return {
         active: false, // 上浮出来店铺信息的Flag
@@ -149,7 +150,7 @@
       },
       selectAdd () {
         this.$router.push({
-          path: '/map/address',
+          path: '/my/address',
           query: {
             id: this.id
           }
@@ -237,9 +238,6 @@
           this._getData()
         }
         this.address_1 = Object.assign({}, this.address)[this.id]
-        // if (this.address_1) {
-        //   this.select_type = 1
-        // }
       },
       activePoint (newVal) {
         console.log(newVal)

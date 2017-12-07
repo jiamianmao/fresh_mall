@@ -309,7 +309,6 @@
             }
           })
         }
-        
         this.sum = sum
         this.cartCount = cartCount
       },
@@ -353,6 +352,12 @@
             })
             if (newVal.length !== this.cartdata.length) {
               flag = false
+            }
+            // 全否选的时候
+            if (!newVal.length) {
+              this.ok.forEach((item, index) => {
+                this.ok.splice(index, 1, false)
+              })
             }
             this.sum = sum
             this.cartCount = cartCount

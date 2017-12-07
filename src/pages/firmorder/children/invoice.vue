@@ -6,11 +6,11 @@
         <div class="type vux-1px-b">
           <p class='top'>发票类型</p>
           <p @click='selectInvoice' class='allType'>
-            <span class='active' data-id='1'>纸质发票</span>
-            <span data-id='2'>电子发票</span>
+            <span :class='{"active": invoice === 1}' data-id='1'>纸质发票</span>
+            <span :class='{"active": invoice === 2}' data-id='2'>电子发票</span>
           </p>
         </div>
-        <div class="email vux-1px-b" v-show='!person'>
+        <div class="email vux-1px-b" v-show='person === 2'>
           <div class="left">
             请输入您的邮箱
           </div>
@@ -22,18 +22,18 @@
           <p class='top'>发票抬头</p>
           <p>
             <span class='s1' @click='selectTitle'>
-              <img src="../../../assets/selectAdd/select.png" v-if='!person'>
+              <img src="../../../assets/selectAdd/select.png" v-if='person === 2'>
               <img src="../../../assets/selectAdd/selected.png" v-else>
               个人
             </span>
             <span class='s2' @click='selectTitle'>
-              <img src="../../../assets/selectAdd/select.png" v-if='person'>
+              <img src="../../../assets/selectAdd/select.png" v-if='person === 1'>
               <img src="../../../assets/selectAdd/selected.png" v-else>
               单位
             </span>
           </p>
         </div>
-        <div class="info_box" v-show='!person'>
+        <div class="info_box" v-show='person === 2'>
           <div class="company_name">
             <input type="text" v-model='company_name' placeholder='请输入单位名称'>
           </div>
@@ -56,43 +56,44 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import { Invoice } from '../../../common/config/config.js'
   import { Alert } from 'vux'
-  import { mapMutations } from 'vuex'
-  import $ from 'jquery'
+  import { mapMutations, mapGetters } from 'vuex'
   export default {
     data () {
       return {
         email: '',
-        person: true,  // 选择个人
+        person: Invoice.person,  // 1个人 2企业
         company_name: '',
         tax_num: '',
         show: false,
         msg: '',
-        invoice: 1  // 1代表纸质，2代表电子
+        invoice: Invoice.paper  // 1代表纸质，2代表电子
       }
+    },
+    created () {
+      Object.assign(this, this.invoiceVuex)
     },
     methods: {
       selectInvoice (e) {
-        $('.allType span').removeClass('active')
-        $(e.target).addClass('active')
         this.invoice = ~~e.target.dataset.id
       },
       selectTitle (e) {
         if (e.currentTarget.getAttribute('class') === 's1') {
-          this.person = true
+          this.person = Invoice.person
         } else {
-          this.person = false
+          this.person = Invoice.company
         }
       },
       submit () {
         let data
-        if (!this.person) {
+        if (this.person === Invoice.company) {
           let re = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
           if (re.test(this.email) && this.company_name && this.tax_num) {
             data = {
               invoice: this.invoice,
               email: this.email,
-              person: 2,
+              person: Invoice.company,
               company_name: this.company_name,
               tax_num: this.tax_num
             }
@@ -104,7 +105,7 @@
         } else {
           data = {
             invoice: this.invoice,
-            person: 1
+            person: Invoice.person
           }
         }
         this.set_invoice(data)
@@ -114,6 +115,11 @@
       },
       ...mapMutations({
         'set_invoice': 'SET_INVOICE'
+      })
+    },
+    computed: {
+      ...mapGetters({
+        'invoiceVuex': 'invoice'
       })
     },
     components: {
