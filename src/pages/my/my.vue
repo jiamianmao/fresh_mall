@@ -93,8 +93,10 @@
     },
     created () {
       this.api_token = storage.get('api_token')
-      this._getNums()
-      this._getInfo()
+      if (this.api_token) {
+        this._getNums()
+        this._getInfo()
+      }
     },
     methods: {
       collect () {

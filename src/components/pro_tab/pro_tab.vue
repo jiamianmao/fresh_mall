@@ -55,11 +55,15 @@
       num () {
         this.$nextTick(() => {
           this.$refs.num.classList.add('change')
-          setTimeout(() => {
+          this.timer = setTimeout(() => {
             this.$refs.num.classList.remove('change')
           }, 1000)
         })
       }
+    },
+    beforeDestroy () {
+      // 这里销毁前需要清除定时器，要不然容易造成Bug
+      this.timer && clearTimeout(this.timer)
     }
   }
 </script>

@@ -4,7 +4,9 @@
     <main>
       <h3 class="name">{{name}}</h3>
       <div class="text">
+        <video v-if='src' :src="src" controls></video>
         <p v-html='desc'></p>
+        <p style='display: none;' ref='descText'></p>
         <!-- 终于碰到了sticky-footer的使用场景 wrapper设置min-height top设置flex:1 bottom设置flex: 0 -->
         <img src="../../assets/product/icon.png">
       </div>
@@ -29,7 +31,8 @@
       return {
         title: '',
         name: '',
-        desc: ''
+        desc: '',
+        src: ''
       }
     },
     created () {
@@ -43,21 +46,50 @@
         }
       ]
       this.title = this.$route.query.title
+      this.id = this.$route.query.id
+      let flag
       init.forEach(item => {
         if (item.title === this.title) {
+          flag = true
           this.name = item.name
+          this._getDesc(this.id)
         }
       })
-      this._getDesc(this.$route.query.id)
+      if (!flag) {
+        this._getEnsure(this.id)
+      }
     },
     methods: {
       _getDesc (id) {
         this.$http.get(`/mobile/?act=goods&op=store_card&store_id=${id}`).then(res => {
           if (res.data.status === 200) {
-            this.desc = res.data.data
+            // 因为是 转义后的带标签的 所以要双解析 只用v-html只会把标签转义 不会解析
+            this.$refs.descText.innerHTML = res.data.data
+            this.desc = this.$refs.descText.innerText
+          }
+        })
+      },
+      _getEnsure (id) {
+        this.$http.get(`/api/goods_video/detail?id=${id}`).then(res => {
+          if (res.data.status === 200) {
+            let data = res.data.data
+            this.$refs.descText.innerHTML = data.content
+            this.desc = this.$refs.descText.innerText
+            this.name = data.title
+            this.src = data.src
           }
         })
       }
+    },
+    filters: {
+      // unescape:function (html) {
+      //   return html
+      //     .replace(html ? /&(?!#?\w+;)/g : /&/g, '&amp;')
+      //     .replace(/&lt;/g, '<')
+      //     .replace(/&gt;/g, '>')
+      //     .replace(/&quot;/g, '\')
+      //     .replace(/&#39;/g, '\')
+      // }
     },
     components: {
       XTitle
@@ -70,6 +102,12 @@
     width: 100vw;
     min-height: calc(~"100vh - 50px");
     padding: 15px 12px 0 12px;
+    video{
+      margin-top: 20px;
+      width: 100%;
+      height: 0;
+      padding-top: 56.25%;
+    }
     .name{
       position: relative;
       padding-left: 18px;

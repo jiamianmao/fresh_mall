@@ -5,7 +5,7 @@
     </div>
     <div class="content">
       <h3>{{goods.goods_name}}</h3>
-      <p class='desc'>{{goods.goods_jingle}}</p>
+      <p class='desc' v-html='goods.goods_jingle'></p>
       <div class='wrapper'>
         <div class="typeWrapper">
           <span class='type' v-for='n of goods.goods_attr'>{{n.attr_name}}</span>

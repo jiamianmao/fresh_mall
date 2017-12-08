@@ -18,7 +18,8 @@ export default {
   },
   created () {
     this.api_token = storage.get('api_token')
-    this._getShopCart()
+    // 初始化的时候请求
+    this.api_token && this._getShopCart()
   },
   methods: {
     _getShopCart () {
@@ -35,6 +36,10 @@ export default {
           } else {
             this.num = 0
           }
+        } else if (res.data.status === 400) {
+          storage.remove('api_token')
+          storage.remove('member_class')
+          storage.remove('currentUrl')
         }
       })
     }

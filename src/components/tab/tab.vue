@@ -1,18 +1,27 @@
 <template>
   <div>
-    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab'>
-      <tab-item @on-item-click='go(0)'>
-        <img src="../../assets/tab/home.png" v-if='!active_0'>
-        <img src="../../assets/tab/home_active.png" v-else>
+    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab' @touchstart.native.prevent @touchmove.native.prevent active-color='#5eb29e'>
+      <tab-item selected  @on-item-click='go(0)'>
+        <!-- <img src="../../assets/tab/home.png" v-if='!active_0'>
+        <img src="../../assets/tab/home_active.png" v-else> -->
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-shouye1"></use>
+        </svg>
       </tab-item>
       <tab-item class='shopcart' @on-item-click='go(1)'>
-        <img src="../../assets/tab/shopcart.png" v-if='!active_1'>
-        <img src="../../assets/tab/shopcart_active.png" v-else>
+        <!-- <img src="../../assets/tab/shopcart.png" v-if='!active_1'>
+        <img src="../../assets/tab/shopcart_active.png" v-else> -->
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-shopping-cart"></use>
+        </svg>
         <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
       </tab-item>
       <tab-item @on-item-click='go(2)'>
-        <img src="../../assets/tab/my.png" v-if='!active_2'>
-        <img src="../../assets/tab/my_active.png" v-else>
+        <!-- <img src="../../assets/tab/my.png" v-if='!active_2'>
+        <img src="../../assets/tab/my_active.png" v-else>  -->
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-wode"></use>
+        </svg>
       </tab-item>
     </tab>
   </div>
@@ -28,9 +37,7 @@
     },
     data () {
       return {
-        active_0: false,
-        active_1: false,
-        active_2: false
+        index: 0
       }
     },
     created () {
@@ -47,16 +54,7 @@
         let idx = this.arr.indexOf(this.$route.path)
         if (idx > -1) {
           this.$refs.tab.$el.style.display = 'flex'
-          this.active_0 = false
-          this.active_1 = false
-          this.active_2 = false
-          if (idx === 0) {
-            this.active_0 = true
-          } else if (idx === 1) {
-            this.active_1 = true
-          } else {
-            this.active_2 = true
-          }
+          this.index = idx
         } else {
           this.$refs.tab.$el.style.display = 'none'
         }
@@ -77,6 +75,7 @@
   }
 </script>
 <style lang="less" scoped>
+  @import '~common/less/variable.less';
   .tab {
     position: fixed;
     bottom: 0;
@@ -104,10 +103,14 @@
         color: #fff;
       }
     }
-    img{
-      height: 26px;
-      width: 26px;
+    .icon {
+      width: 30px; height: 30px;
       vertical-align: middle;
+      fill: currentColor;
+      overflow: hidden;
+    }
+    .active{
+      color: @color;
     }
     .change{
       animation: changes 1s;

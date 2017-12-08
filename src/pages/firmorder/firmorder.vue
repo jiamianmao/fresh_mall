@@ -27,7 +27,7 @@
         </div>
         <div class="right">
           <div class="title">{{goods.goods_name}}</div>
-          <div class="spec">{{goods.goods_jingle}}</div>
+          <div class="spec" v-html='goods.goods_jingle'></div>
           <div class="price">
             <strong>¥{{goods.goods_price}}</strong>
             <span class="count">x <span>{{goods.goods_num}}</span></span>

@@ -7,9 +7,9 @@
     </swiper>
     <div class="text">
       <h3>{{text.goods_name}}</h3>
-      <p>{{text.goods_jingle}}</p>
+      <p v-html='text.goods_jingle'></p>
       <strong>{{text.goods_price}}</strong>
-      <button @click='goods.gc_id'>
+      <button @click='goCate(goods.gc_id)'>
         <span>更多{{goods.gc_name}}</span>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-yuanjiantou"></use>
@@ -19,7 +19,7 @@
   </div>
 </template>
 <script>
-  let index = 1
+  let index = 0
   export default {
     props: {
       goods: {
@@ -56,6 +56,9 @@
     methods: {
       goProduct (id) {
         this.$router.push(`/product/${id}`)
+      },
+      goCate (id) {
+        this.$router.push(`/goodsList/?gc_id=${id}`)
       }
     },
     computed: {
@@ -66,7 +69,6 @@
     watch: {
       swiperOption: {
         handler () {
-          console.log(1)
           this.text = this.goods.goods_list[this.swiperOption.idx]
         },
         deep: true

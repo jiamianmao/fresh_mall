@@ -20,7 +20,11 @@ import Storage from 'good-storage'
 Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
 
+// axios 默认配置
 axios.defaults.baseURL = '/apis'
+axios.defaults.timeout = 5000
+
+// request 拦截器 （json -> 表单）
 axios.interceptors.request.use(
   config => {
     if (config.method === 'post') {
@@ -29,6 +33,20 @@ axios.interceptors.request.use(
     return config
   }
 )
+
+// response 拦截器 (接口登录的拦截)
+axios.interceptors.response.use(
+  res => {
+    if (res.data.login === '0') {
+      Storage.set('currentUrl', router.currentRoute.fullPath)
+      router.replace({
+        path: '/signin'
+      })
+    }
+    return res
+  }
+)
+
 Vue.prototype.$http = axios
 
 Vue.use(Vuelazyload, {
@@ -49,6 +67,7 @@ const router = new VueRouter({
   // }
 })
 
+// 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {

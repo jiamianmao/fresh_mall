@@ -8,7 +8,7 @@
         </div>
         <div class="desc">
           <h3>{{item.goods_name}}</h3>
-          <span>{{item.goods_jingle}}</span>
+          <span v-html='item.goods_jingle'></span>
           <strong>¥{{item.goods_price}}</strong>
         </div>
       </div>

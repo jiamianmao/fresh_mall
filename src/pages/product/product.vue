@@ -16,18 +16,18 @@
         <div class="desc">
           <div class="sells_volume">
             <div class="brand" @click='brand' :class='{active_brand: brandFlag}'>{{brandText}}</div>
-            <div class="sells"><span>库存: {{product_obj.goods_storage}}{{product_obj.goods_unit}}</span><span>销量: {{product_obj.goods_salenum}}{{product_obj.goods_unit}}</span></div>
+            <div class="sells"><span>库存: {{product_obj.goods_storage}}件</span><span>销量: {{product_obj.goods_salenum}}件</span></div>
           </div>
           <div class="content">
             <h6 class="name">{{product_obj.goods_name}}</h6>
-            <div class="sell_point">{{product_obj.goods_jingle}}</div>
+            <div class="sell_point" v-html='product_obj.goods_jingle'></div>
             <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}</strong>
             <strong v-else>¥ 0</strong>
           </div>
         </div>
         <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c && product_obj.brand'>
           <div class="left"><img src="../../assets/product/find.png"></div>
-          <div class="center">查看如何成为XXX经销商</div>
+          <div class="center">查看如何成为{{product_obj.brand.brand_name}}经销商</div>
           <span class='right'>
             <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
           </span>
@@ -94,21 +94,21 @@
           </li>
         </ul>
 
-        <div class="recommend" v-if='!member_c'>
+        <div class="recommend" v-if='!member_c && product_obj.brand'>
           <p class='title'>
-            以下产品XXXX可一起配送，节省物流费
+            以下产品{{ product_obj.brand.brand_name }}可一起配送，节省物流费
             <svg class="icon" aria-hidden="true" ref='arrow' @click='toggleRecommend'>
               <use xlink:href="#icon-arrow-up"></use>
             </svg>
           </p>
           <swiper class="wrapper" :options='swiperOption2' v-show='slideDown'>
-            <swiper-slide>
+            <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
               <div class="goods">
-                <img src="http://img2.imgtn.bdimg.com/it/u=1694552282,1416252&fm=27&gp=0.jpg">
+                <img :src="item.combo_goods.goods_image">
                 <div class="text">
-                  <div class="name">孙燕姿</div>
-                  <div class="jingle">遇见</div>
-                  <div class="price"><strong>￥39.8</strong></div>
+                  <div class="name">{{ item.combo_goods.goods_name }}</div>
+                  <div class="jingle">{{ item.combo_goods.goods_unit }}</div>
+                  <div class="price"><strong>￥{{ item.combo_goods.goods_price }}</strong></div>
                 </div>
               </div>
             </swiper-slide>
@@ -117,14 +117,13 @@
 
         <placeholder></placeholder>
 
-        <div v-html='product_obj.goods_body'></div>
-
-        <div class="goods_info">
-          <div class="item">
-            <div class="title">二十四年坚守，只为每一片真正好羊肉</div>
-            <div class="video">
-              <video ref='video1' src="http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA3" controls poster='https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg'></video>
+        <div class="goods_info" v-if='!Array.isArray(product_obj.goods_video) && product_obj.goods_video'>
+          <div class="item" v-if='product_obj.goods_video.video' v-for='item of product_obj.goods_video.video'>
+            <div class="title" v-if='item.Video'>{{ item.Video.title }}</div>
+            <div class="video" v-if='item.Video'>
+              <video ref='video1' :src="item.Video.src" controls :poster='item.Video.image'></video>
             </div>
+            <p class='see_text'>如果您不方便观看视频，请<a class='mark' @click='toImgText(item.Detail.id)'>点击此处</a>查看图文详情</p>
           </div>
           <div class="text">
             <p class='live_tv'>
@@ -133,29 +132,26 @@
                 <use xlink:href="#icon-yuanjiantou"></use>
               </svg>
             </p>
-            <p class='see_text'>如果您不方便观看视频，请<a class='mark'>点击此处</a>查看图文详情</p>
           </div>
           <div class="image">
             <div class="company"></div>
             <img src="../../assets/product/icon.png">
-            <div class="quality">
+            <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
               <h3>品控保证</h3>
-              <div class="desc">
-                <a href='https://www.baidu.com'>SGS</a>
-                <a href='http://www.qq.com'>检测<br>报告</a>
-                <a href='https://www.taobao.com'>品质<br>承诺</a>
+              <div class="desc" v-if='product_obj.goods_video.quality'>
+                <a v-for='item of product_obj.goods_video.quality' @click='toQuality(item.id)'>{{ item.title }}</a>
               </div>
             </div>
-            <!-- <img src="../../assets/product/quality.png"> -->
           </div>
         </div>
 
-        <div class="eat">
+        <div class="eat" v-if='product_obj.goods_video && product_obj.goods_video.recommend'>
           <div class="eat_way"></div>
           <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
-            <swiper-slide v-for='(item, key) of videoArr' :key='key'>
-              <video :src="item" controls poster='https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg'></video>
-              <div class='text'>这是 丨 我的金球奖</div>
+            <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
+              <!-- <video :src="item" controls poster='https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg'></video> -->
+              <img :src='item.image' @click='toEatType(item.id)'></img>
+              <div class='text'>{{ item.title }}</div>
             </swiper-slide>
           </swiper>
         </div>
@@ -178,7 +174,7 @@
         <placeholder></placeholder>
 
         <div class="rate">
-          <x-header class='x-header'>
+          <x-header class='x-header vux-1px-b'>
             <span slot='left'>产品评价</span>
             <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
           </x-header>
@@ -230,7 +226,7 @@
           </div>
           <div class="right">
             <h3>{{ product_obj.goods_name }}</h3>
-            <p class='middle'>{{ product_obj.goods_jingle }}</p>
+            <p class='middle'>{{ product_obj.goods_unit}}</p>
             <p class='last'><strong>¥{{ product_obj.goods_price }}</strong><span>库存: {{ product_obj.goods_storage }}件</span></p>
           </div>
         </div>
@@ -248,7 +244,7 @@
     </transition>
     <tab @add='addCart' @tel='tel' :num='num'></tab>
     <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
-    <Confirms text='18137855665' ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
+    <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
   </scroll>
 </template>
 <script>
@@ -261,6 +257,7 @@
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
   import { mapGetters } from 'vuex'
+  const INIT = 0
   export default {
     data () {
       return {
@@ -274,7 +271,7 @@
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 18,
-          initialSlide: 1
+          initialSlide: INIT
         },
         // 底部的swiper组件
         swiperOption1: {
@@ -282,7 +279,7 @@
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 10,
-          initialSlide: 1
+          initialSlide: INIT
         },
         // 推荐产品的swiper组件
         swiperOption2: {
@@ -306,7 +303,8 @@
         show: false, // comfirm的状态
         select_type: -1, // 到店购买为0，配送到家1，门店2
         rateList: [],
-        num: 0 // 购物车的数量
+        num: 0, // 购物车的数量
+        telephone: ''
       }
     },
     created () {
@@ -379,7 +377,7 @@
         this.pullicon = false
         this.$refs.productWrapper.style.top = '30px'
         setTimeout(() => {
-          this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/category').then(res => {
+          this._getProductDesc(this.id, () => {
             this.pullDownFlag = false
             this.$refs.productWrapper.style.top = 0
             // 加载后的页面返回原始的时候加个过渡，需要给上部的滑块也加个过渡 对应的.slide1
@@ -515,26 +513,67 @@
           })
         }
       },
-      _getProductDesc (id) {
+      toQuality (id) {
+        this.$router.push({
+          path: '/desc',
+          query: {
+            title: '品控保证',
+            id
+          }
+        })
+      },
+      toImgText (id) {
+        this.$router.push({
+          path: '/desc',
+          query: {
+            title: '图文查看',
+            id
+          }
+        })
+      },
+      toEatType (id) {
+        this.$router.push({
+          path: '/desc',
+          query: {
+            title: '建议吃法',
+            id
+          }
+        })
+      },
+      toProduct (id) {
+        this.$router.push(`/product/${id}`)
+        // 刷新页面
+        this.$router.go(0)
+      },
+      _getProductDesc (id, cb) {
         // 因为api_token 不一定存在，为了防止后端程序错误，要做个区分哟，要不然传的是undefined
-        let data = {}
-        if (this.api_token) {
-          data = {
+        // 这里正确打开方式是使用 拦截器
+        // let data = {}
+        // if (this.api_token) {
+        //   data = {
+        //     id,
+        //     api_token: this.api_token
+        //   }
+        // } else {
+        //   data = {
+        //     id
+        //   }
+        // }
+        this.$http.get('/api/goods/detail', {
+          params: {
             id,
             api_token: this.api_token
           }
-        } else {
-          data = {
-            id
-          }
-        }
-        this.$http.get('/api/goods/detail', {
-          params: data
         }).then(res => {
           if (~~res.data.status === 200) {
             this.product_obj = res.data.data
+            this.telephone = res.data.data.store.store_phone
             this._getCollect()
+            cb && cb()
           }
+        }).catch(e => {
+          console.log(e)
+          this.$router.replace('/404')
         })
       },
       _getCollect () {
@@ -690,7 +729,6 @@
         }
         .desc{
           width: 100vw;
-          height: 170px;
           padding: 20px 15px;
           .sells_volume{
             display: flex;
@@ -736,7 +774,6 @@
               font-size: @font-size-small;
               color: #666;
               line-height: 24px;
-              height: 48px;
               margin-bottom: 6px;
             }
           }
@@ -901,9 +938,12 @@
           padding: 0 15px;
           width: 100vw;
           .item{
-            height: 272px;
+            // height: 272px;
             width: 100%;
             border-top: 1px solid transparent;
+            &~.item{
+              margin-top: 10px;
+            }
             .title{
               margin-top: 18px;
               padding-left: 16px;
@@ -936,9 +976,16 @@
                 object-fit: fill;
               }
             }
+            .see_text{
+              line-height: 50px;
+              font-size: @font-size-small;
+              text-align: center;
+              font-weight: bold;
+            }
           }
           .text{
             font-size: @font-size-small;
+            margin-bottom: 20px;
             .live_tv{
               color: #b8b8b8;
               .icon {
@@ -948,11 +995,6 @@
                 fill: currentColor;
                 overflow: hidden;
               }
-            }
-            .see_text{
-              line-height: 90px;
-              text-align: center;
-              font-weight: bold;
             }
           }
           .image{
@@ -976,7 +1018,7 @@
                 height: 95px;
                 display: flex;
                 flex-flow: row nowrap;
-                justify-content: space-between;
+                justify-content: space-around;
                 a{
                   height: 54px;
                   width: 54px;
@@ -1009,7 +1051,7 @@
               padding-top: 56.25%;
               padding-bottom: 13.75%;
               position: relative;
-              video{
+              video, img{
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -1178,7 +1220,7 @@
           }
           .middle{
             color: #adadad;
-            margin: 10px 0;
+            height: 36px;
           }
           .last{
             display: flex;

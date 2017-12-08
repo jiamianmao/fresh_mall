@@ -6,7 +6,7 @@
         <img v-lazy='item.goods_image'>
         <div class="down">
           <h1 class='title'>{{item.goods_name}}</h1>
-          <p class='desc'>{{item.goods_jingle}}</p>
+          <p class='desc' v-html='item.goods_jingle'></p>
           <p class='price'>¥{{item.goods_price}}</p>
         </div>
       </div>

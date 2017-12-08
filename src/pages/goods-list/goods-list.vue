@@ -152,7 +152,7 @@
         })
       },
       _getSort () {
-        this.$http.get(`/api/good_class/attr?api_token=${this.api_token}&id=256`).then(res => {
+        this.$http.get(`/api/good_class/attr?api_token=${this.api_token}&id=${this.gc_id}`).then(res => {
           if (res.data.status === 200) {
             this.sortArr = res.data.data
             this.sortArr.splice(1, 0, {

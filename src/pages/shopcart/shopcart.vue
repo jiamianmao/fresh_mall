@@ -21,7 +21,7 @@
               <img src="../../assets/selectAdd/select.png" v-else>
             </div>
             <div class="right">
-              <div class="brand">
+              <div class="brand" @click='toProduct(item.goods_id)'>
                 <img v-lazy='item.goods_image'>
               </div>
               <div class="desc">
@@ -110,6 +110,9 @@
             name
           }
         })
+      },
+      toProduct (id) {
+        this.$router.push(`/product/${id}`)
       },
       onConfirm () {
         this.$http.post(`/mobile/?act=member_cart&op=cart_del&api_token=${this.api_token}`, {

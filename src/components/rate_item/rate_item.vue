@@ -1,5 +1,5 @@
 <template>
-  <div class='wrapper vux-1px-t'>
+  <div class='wrapper vux-1px-b'>
     <div class="top">
       <div class="brand">
         <img :src="rateData.member_avatar">
@@ -23,6 +23,10 @@
       <div class="image-box">
         <img v-for='value of rateData.geval_image' :src="value">
       </div>
+    </div>
+    <div v-if='rateData.geval_explain' class='explain vux-1px-t'>
+      <div class='left'>商家回复:</div>
+      <div class='right'>{{rateData.geval_explain}}</div>
     </div>
   </div>
 </template>
@@ -110,6 +114,19 @@
             margin-left: 0;
           }
         }
+      }
+    }
+    .explain{
+      width: 100%;
+      display: flex;
+      padding: 18px 0;
+      font-size: @font-size-medium;
+      .left{
+        width: 85px;
+      }
+      .right{
+        flex: 1;
+        color: #333;
       }
     }
   }
