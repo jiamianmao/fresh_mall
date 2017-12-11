@@ -10,6 +10,7 @@
           <p class='price'>¥{{item.goods_price}}</p>
         </div>
       </div>
+      <div class="nothing" v-show='nothing'>很抱歉，暂时没有与{{keyword}}相关的产品</div>
     </div>
   </div>
 </template>
@@ -20,7 +21,9 @@
     data () {
       return {
         rightContent: '取消',
-        result: []
+        result: [],
+        nothing: false,
+        keyword: ''
       }
     },
     created () {
@@ -31,10 +34,16 @@
         this.$router.go(-1)
       },
       toSearch (keyword) {
+        this.keyword = keyword
         // 拿到搜索关键词去交互
         this.$http.get(`/api/goods/list?api_token=${this.api_token}&name=${keyword}`).then(res => {
           if (parseInt(res.data.status) === 200) {
-            this.result = res.data.data
+            if (res.data.data.length === 0) {
+              this.nothing = true
+            } else {
+              this.nothing = false
+              this.result = res.data.data
+            }
           }
         })
       },
@@ -89,6 +98,16 @@
             margin-top: 6px;
           }
         }
+      }
+      .nothing{
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        text-align: center;
+        width: 100vw;
+        transform: translate3d(-50%, 0, 0);
+        color: #666;
+        font-size: @font-size-medium;
       }
     }
   }

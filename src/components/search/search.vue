@@ -1,7 +1,7 @@
 <template>
   <div class='search' ref='search'>
     <!-- 为了输入框中出现搜索按钮，加了form及action，已经input.type='search' -->
-    <form class='left' action="#" ref='left'>
+    <form class='left' action="" ref='left'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-sousu"></use>
       </svg>
@@ -16,6 +16,7 @@
   </div>
 </template>
 <script>
+  import $ from 'jquery'
   export default {
     props: {
       rightContent: {
@@ -28,9 +29,13 @@
         msg: ''
       }
     },
+    mounted () {
+      $('.left').on('submit', (e) => {
+        e.preventDefault()
+      })
+    },
     methods: {
       clear () {
-        // this.$emit('toSearch', this.msg)
         this.msg = ''
       },
       toSearch () {

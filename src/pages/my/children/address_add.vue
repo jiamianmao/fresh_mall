@@ -14,7 +14,7 @@
         <div class='item vux-1px-b'>
           <div class="left">收货人</div>
           <div class="right area">
-            <input type="text" v-model='address1' placeholder='省市地区选项' @click='selectArea'>
+            <input type="text" class='ipt' v-model='address1' placeholder='省市地区选项' @click='selectArea'>
             <x-address style="display:none;" title="" v-model="address" :list="addressData" placeholder="请选择地址" :show.sync="showAddress"></x-address>
           </div>
           <x-icon type="ios-arrow-right" size="24"></x-icon>
@@ -35,6 +35,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { XAddress, ChinaAddressV4Data, XButton, Value2nameFilter as value2name, Alert } from 'vux'
   import Storage from 'good-storage'
+  import $ from 'jquery'
   export default {
     data () {
       return {
@@ -73,6 +74,8 @@
     },
     methods: {
       selectArea () {
+        // 防止唤起输入框
+        $('.ipt').blur()
         this.showAddress = true
       },
       getName (value) {

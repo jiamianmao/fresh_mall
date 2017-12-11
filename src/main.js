@@ -1,5 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import 'babel-polyfill' // 吃一堑，长一智了 Object.values 等es7方法兼容性很差，需要垫片操作
 import Vue from 'vue'
 import FastClick from 'fastclick'
 import routes from './router'
@@ -16,6 +17,10 @@ import VueAwesomeSwiper from 'vue-awesome-swiper'
 import Vant from 'vant'
 import 'vant/lib/vant-css/index.css'
 import Storage from 'good-storage'
+// import VConsole from 'vconsole'
+
+/* eslint-disable */
+// let vConsole = new VConsole()
 
 Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
@@ -50,7 +55,7 @@ axios.interceptors.response.use(
 Vue.prototype.$http = axios
 
 Vue.use(Vuelazyload, {
-  loadding: require('common/images/default.jpg')
+  loading: require('common/images/default.jpg')
 })
 
 FastClick.attach(document.body)

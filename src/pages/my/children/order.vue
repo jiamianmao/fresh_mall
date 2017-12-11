@@ -6,7 +6,7 @@
         <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
       </tab>
       <div class="order_wrapper">
-        <!--<div class="not_order" v-show='!orderList.length'><img src="../../../assets/my/not_order.png"></div>-->
+        <div class="not_order" v-show='!orderList.length'><img src="../../../assets/my/not_order.png"></div>
         <div class="order" v-for='order of orderList'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">

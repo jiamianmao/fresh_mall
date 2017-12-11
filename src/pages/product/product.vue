@@ -259,6 +259,7 @@
   import { mapGetters } from 'vuex'
   const INIT = 0
   export default {
+    name: 'product',
     data () {
       return {
         member_c: true,
@@ -318,11 +319,6 @@
       storage.remove('type')
       // 获取购物车商品数量
       this._getShopCart()
-    },
-    mounted () {
-      // 给减号一个初始颜色，因为是捕捉的count变化，初始时候为1，却没触发watch
-      // 因为是v-if哦，所以报错咯
-      // this.$refs.minus.style.color = '#999'
     },
     methods: {
       // 商品收藏

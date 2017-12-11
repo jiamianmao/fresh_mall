@@ -22,7 +22,6 @@
     <div class="types">
       <divider>你还可以用以下方式登录</divider>
       <div class="wrapper">
-        <img src="../../assets/login/wechat.png">
         <img src="../../assets/login/qq.png">
       </div>
     </div>
@@ -111,7 +110,9 @@
           margin-right: 10px;
         }
         input{
+          height: 26px;
           border: 0;
+          line-height: 26px;
         }
         .icon{
           position: absolute;

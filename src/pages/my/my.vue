@@ -72,14 +72,12 @@
         </div>
       </main>
     </scroll>
-    <Confirms :text='tel' ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
     <router-view :status='status'></router-view>
   </div>
 </template>
 <script>
   import $ from 'jquery'
   import Scroll from '@/components/scroll/scroll'
-  import Confirms from '@/components/confirm/confirm'
   import storage from 'good-storage'
   export default {
     data () {
@@ -144,12 +142,7 @@
         this.scrollY = pos.y
       },
       findService () {
-        this.$http.get('/mobile/?act=index&op=get_site_tel').then(res => {
-          if (res.data.status === 200) {
-            this.tel = res.data.data.value
-            this.$refs.confirm.show()
-          }
-        })
+        this.$router.push('/my/service')
       },
       _getNums () {
         this.$http.get(`/mobile/?act=member_order&op=series_num&api_token=${this.api_token}`).then(res => {
@@ -178,8 +171,7 @@
       }
     },
     components: {
-      Scroll,
-      Confirms
+      Scroll
     }
   }
 </script>

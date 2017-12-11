@@ -2,13 +2,13 @@
   <div class='item' v-if='goods.goods_list.length'>
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
       <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
-        <img :src="item.img_url">
+        <img v-lazy="item.img_url">
       </swiper-slide>
     </swiper>
     <div class="text">
       <h3>{{text.goods_name}}</h3>
       <p v-html='text.goods_jingle'></p>
-      <strong>{{text.goods_price}}</strong>
+      <strong>¥{{text.goods_price}}<span v-show='text.goods_unit'>/</span>{{text.goods_unit}}</strong>
       <button @click='goCate(goods.gc_id)'>
         <span>更多{{goods.gc_name}}</span>
         <svg class="icon" aria-hidden="true">

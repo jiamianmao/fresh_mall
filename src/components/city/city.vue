@@ -17,7 +17,7 @@
         <li class="list-group" v-if='lately.length'>
           <h2>最近访问城市</h2>
           <ul class="list-hot">
-            <li class="list-group-hot" v-for='city of lately' @click='latelyCity(city)'>{{city}}</li>
+            <li class="list-group-hot" v-for='city of lately' @click='selectCity(city)'>{{city}}</li>
           </ul>
         </li>
         <li class="list-group">
@@ -125,10 +125,12 @@
         this._scrollTo(shortcutIndex)
       },
       selectCity (name) {
-        this.city = name
-      },
-      latelyCity (city) {
-        this.city = city
+        if (this.city === name) {
+          // 处理的不优雅
+          this.city = name + ' '
+        } else {
+          this.city = name
+        }
       },
       selectHot (e) {
         this.city = e.target.innerText

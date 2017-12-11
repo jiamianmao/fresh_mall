@@ -300,8 +300,8 @@
               let two = one.goods.find(y => {
                 return y.goods_id === item.goodsId
               })
-              sum += parseInt(two.goods_price) * parseInt(two.goods_num)
-              cartCount += parseInt(two.goods_num)
+              sum += Number(two.goods_price) * Number(two.goods_num)
+              cartCount += Number(two.goods_num)
             })
             let xLen = x.goodsData.length
             let oneLen = one.goods.length

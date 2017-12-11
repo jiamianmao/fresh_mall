@@ -3,7 +3,7 @@
     <div class="container">
       <x-title>售后服务</x-title>
       <div class="order_wrapper">
-        <div class="order" v-if='obj'>
+        <div class="order" v-if='arr.length > 0' v-for='obj of arr'>
           <div class="order_desc">
             <div class="order_num">
               <div class="num">订单编号: <span>{{obj.order_sn}}</span></div>
@@ -11,7 +11,7 @@
             <div class="goods_wrapper">
               <div class="goods vux-1px-t" v-for='goods of obj.order_good'>
                 <div class="image">
-                  <img :src="goods.goods_image">
+                  <img v-lazy="goods.goods_image">
                 </div>
                 <div class="content">
                   <p>{{goods.goods_name}}</p>
@@ -25,11 +25,11 @@
           </div>
           <div class="count vux-1px-t">
             <div class="text">
-              <span>共 <strong>{{ sum }}</strong> 件</span>
+              <span>共 <strong>{{ obj.sum }}</strong> 件</span>
               <span class='pay'>实付: <strong>¥{{ obj.order_amount }}</strong></span>
             </div>
             <div class="btn">
-              <button class='right' @click='refund'>申请退款</button>
+              <button class='right' @click='refund(obj.order_id)'>申请退款</button>
             </div>
           </div>
         </div>
@@ -43,8 +43,7 @@
   export default {
     data () {
       return {
-        obj: '',
-        sum: 0
+        arr: []
       }
     },
     created () {
@@ -54,20 +53,24 @@
     mounted () {
     },
     methods: {
-      refund () {
-        this.$router.push(`/my/refund?id=${this.obj.order_id}`)
+      refund (id) {
+        this.$router.push(`/my/refund?id=${id}`)
       },
       _getDetail () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
           if (parseInt(res.data.status) === 200) {
-            this.obj = res.data.data.filter(item => {
-              return item.order_state === 30
-            })[0]
-            let sum = 0
-            this.obj.order_good.forEach(item => {
-              sum += Number.parseInt(item.goods_num)
+            res.data.data.filter(item => {
+              if (item.order_state === 30) {
+                this.arr.push(item)
+              }
             })
-            this.sum = sum
+            this.arr.forEach(item => {
+              let sum = 0
+              item.order_good.forEach(item => {
+                sum += Number.parseInt(item.goods_num)
+              })
+              item.sum = sum
+            })
           }
         })
       }

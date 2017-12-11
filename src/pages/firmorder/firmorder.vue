@@ -2,7 +2,8 @@
   <div class="container">
     <x-title>确认订单</x-title>
     <!-- 这里做了个hack方法，因为B端和C端都需要拿到地址信息，C端通过Brand_id来拿到对应的地址，B端因为多个Brand_id,所以直接用defautl来代替好了 -->
-    <div class="address" v-show='!member_c' @click="selectAddress('default')">
+    <!-- 还是需要一个brand_id 后边已经写好了 12.11修改 -->
+    <div class="address" v-show='!member_c' @click="selectAddress(list[0].brand_id)">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-zuobiao"></use>
       </svg>
@@ -147,7 +148,7 @@
         this.$router.push({
           path: '/my/address',
           query: {
-            id: this.brand_id
+            id: id || this.id
           }
         })
       },

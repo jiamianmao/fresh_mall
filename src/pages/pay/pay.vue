@@ -111,6 +111,7 @@
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
   import storage from 'good-storage'
+  import '../../common/js/alipay/ap.js'
   export default {
     data () {
       return {
@@ -152,7 +153,9 @@
       pay () {
         if (this.select1) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=AliPay&api_token=${this.api_token}`).then(res => {
-            window.location.href = res.data.data.pay_sign.url
+            let url = res.data.data.pay_sign.url
+            _AP.pay(url)
+            // window.location.href = res.data.data.pay_sign.url
           })
         } else if (this.select2) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {

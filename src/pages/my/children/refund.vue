@@ -8,7 +8,7 @@
       </div>
       <div class="goods" v-for='goods of obj.goods_list'>
         <div class="image">
-          <img :src="goods.goods_image">
+          <img v-lazy="goods.image_60_url">
         </div>
         <div class="content">
           <p>{{goods.goods_name}}</p>

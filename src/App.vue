@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <keep-alive include='firmorder,map'>
+    <keep-alive include='firmorder,map,product'>
       <router-view></router-view>
     </keep-alive>
     <tab :num='num'></tab>
