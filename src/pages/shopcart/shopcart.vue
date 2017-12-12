@@ -65,6 +65,7 @@
   import Scroll from '@/components/scroll/scroll'
   import Storage from 'good-storage'
   import { Confirm, Alert } from 'vux'
+  import { mapMutations } from 'vuex' 
   export default {
     data () {
       return {
@@ -284,7 +285,10 @@
         }).then(res => {
           this._getShopCart()
         })
-      }
+      },
+      ...mapMutations([
+        'SET_CART_COUNT'
+      ])
     },
     watch: {
       cartdata () {
@@ -369,6 +373,9 @@
           })
         },
         deep: true
+      },
+      cartCount (newVal) {
+        this.SET_CART_COUNT(newVal)
       }
     },
     components: {

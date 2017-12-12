@@ -148,7 +148,7 @@
         this.$router.push({
           path: '/my/address',
           query: {
-            id: id || this.id
+            id: id || this.brand_id
           }
         })
       },
@@ -169,7 +169,7 @@
         })
       },
       orderSubmit () {
-        // 来判断地址是否选择够，因为C端是多地址的
+        // 来判断用户身份
         if (this.member_c) {
           // 因为是多订单，且多种收货方式，当前的收货地址的设计方案是
           // 平台配送关联 address， 商家配送关联 address + addressType ，自提关联 addressType
@@ -216,7 +216,24 @@
                 obj2[str1] = this.address[item[0]].address_id
               }
             })
-            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, this.invoiceType, this.message)).then(res => {
+            // 后台接口又改了，还需要重新调整发票这块的数据结构
+            let invoicePhp = {}
+            for (let i in this.invoiceType) {
+              if (this.invoiceType.hasOwnProperty(i)) {
+                if (i === 'company_name') {
+                  invoicePhp['invite[invoice_name]'] = this.invoiceType[i]
+                } else if (i === 'email') {
+                  invoicePhp['invite[invoice_email]'] = this.invoiceType[i]
+                } else if (i === 'invoice') {
+                  invoicePhp['invite[invoice_type]'] = this.invoiceType[i]
+                } else if (i === 'person') {
+                  invoicePhp['invite[invoice_title]'] = this.invoiceType[i]
+                } else if (i === 'tax_num') {
+                  invoicePhp['invite[invoice_txt_number]'] = this.invoiceType[i]
+                }
+              }
+            }
+            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, invoicePhp, this.message)).then(res => {
               if (res.data.status === 200) {
                 // 在付款页面 需要维护一个总价，及订单号的Array
                 let arr = []

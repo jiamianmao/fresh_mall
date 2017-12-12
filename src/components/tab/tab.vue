@@ -1,24 +1,18 @@
 <template>
   <div>
-    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab' @touchstart.native.prevent @touchmove.native.prevent active-color='#5eb29e'>
-      <tab-item selected  @on-item-click='go(0)'>
-        <!-- <img src="../../assets/tab/home.png" v-if='!active_0'>
-        <img src="../../assets/tab/home_active.png" v-else> -->
+    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab' active-color='#5eb29e'>
+      <tab-item :selected="index === 0" @on-item-click='go(0)'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-shouye1"></use>
         </svg>
       </tab-item>
-      <tab-item class='shopcart' @on-item-click='go(1)'>
-        <!-- <img src="../../assets/tab/shopcart.png" v-if='!active_1'>
-        <img src="../../assets/tab/shopcart_active.png" v-else> -->
+      <tab-item :selected="index === 1" class='shopcart' @on-item-click='go(1)'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-shopping-cart"></use>
         </svg>
         <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
       </tab-item>
-      <tab-item @on-item-click='go(2)'>
-        <!-- <img src="../../assets/tab/my.png" v-if='!active_2'>
-        <img src="../../assets/tab/my_active.png" v-else>  -->
+      <tab-item :selected="index === 2" @on-item-click='go(2)'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-wode"></use>
         </svg>
@@ -28,13 +22,9 @@
 </template>
 <script>
   import { Tab, TabItem } from 'vux'
+  import { mapGetters } from 'vuex'
+  import $ from 'jquery'
   export default {
-    props: {
-      num: {
-        type: Number,
-        default: 0
-      }
-    },
     data () {
       return {
         index: 0
@@ -43,10 +33,20 @@
     created () {
       this.arr = ['/home', '/shopcart', '/my']
     },
+    mounted () {
+      $('.tab').on('touchmove', e => {
+        e.preventDefault()
+      })
+    },
     methods: {
       go (idx) {
         this.$router.push(this.arr[idx])
       }
+    },
+    computed: {
+      ...mapGetters({
+        num: 'cartCount'
+      })
     },
     watch: {
       $route () {

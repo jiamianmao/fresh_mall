@@ -155,7 +155,6 @@
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=AliPay&api_token=${this.api_token}`).then(res => {
             let url = res.data.data.pay_sign.url
             _AP.pay(url)
-            // window.location.href = res.data.data.pay_sign.url
           })
         } else if (this.select2) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {

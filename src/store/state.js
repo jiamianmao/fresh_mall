@@ -5,7 +5,9 @@ const state = {
   qualification: {},
   invoice: {},
   address: {},
-  addressType: {}
+  addressType: {},
+  cartCount: 0,
+  scrollY: 0
 }
 
 export default state

@@ -26,6 +26,12 @@ const mutations = {
       store_id: data.store_id,
       store_add: data.store_add
     }
+  },
+  [types.SET_CART_COUNT] (state, num) {
+    state.cartCount = num
+  },
+  [types.SET_SCROLL_Y] (state, num) {
+    state.scrollY = num
   }
 }
 

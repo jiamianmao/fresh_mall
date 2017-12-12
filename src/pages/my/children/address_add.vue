@@ -12,7 +12,7 @@
           <div class="right"><input type="tel" v-model='tel' placeholder='11位手机号' maxlength="11"></div>
         </div>
         <div class='item vux-1px-b'>
-          <div class="left">收货人</div>
+          <div class="left">收货地址</div>
           <div class="right area">
             <input type="text" class='ipt' v-model='address1' placeholder='省市地区选项' @click='selectArea'>
             <x-address style="display:none;" title="" v-model="address" :list="addressData" placeholder="请选择地址" :show.sync="showAddress"></x-address>
@@ -241,6 +241,7 @@
           position: absolute;
           right: 10px;
           fill: #999;
+          top: 10px;
         }
       }
     }

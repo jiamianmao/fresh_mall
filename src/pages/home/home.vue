@@ -296,16 +296,10 @@
       top: 0;
       left: 0;
       z-index: 8;
-      background: red;
       .swiper{
         width: 100%;
         height: 100%;
-        background: red;
-        .custom-bottom{
-          width: 200px;
-          height: 200px;
-          border: 1px solid red;
-        }
+        background: url('../../common/images/default.jpg') 0 0 ~'/' 100% 100%;
       }
       .dots-wrapper{
         width: 64px;

@@ -1,19 +1,19 @@
 <template>
   <div id="app">
-    <keep-alive include='firmorder,map,product'>
+    <keep-alive include='firmorder,map,product,qualification'>
       <router-view></router-view>
     </keep-alive>
-    <tab :num='num'></tab>
+    <tab></tab>
   </div>
 </template>
 
 <script>
 import Tab from '@/components/tab/tab'
 import storage from 'good-storage'
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
-      num: 0
     }
   },
   created () {
@@ -32,17 +32,18 @@ export default {
                 num += ~~x.goods_num
               })
             })
-            this.num = num
-          } else {
-            this.num = 0
           }
+          this.SET_CART_COUNT(num)
         } else if (res.data.status === 400) {
           storage.remove('api_token')
           storage.remove('member_class')
           storage.remove('currentUrl')
         }
       })
-    }
+    },
+    ...mapMutations([
+      'SET_CART_COUNT'
+    ])
   },
   components: {
     Tab

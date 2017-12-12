@@ -107,19 +107,22 @@
       <footer>
         <button @click='submit'>确认提交</button>
       </footer>
+      <alert v-model="show" title="提示" @on-hide='success'>恭喜您，提交成功</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { mapGetters } from 'vuex'
+  import { Alert } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
       return {
         text: '收起',
         slideDown: true,
-        placeholder: '请具体介绍门店的存储设备、可为平台业务提供的设备容量、设备温度区间等'
+        placeholder: '请具体介绍门店的存储设备、可为平台业务提供的设备容量、设备温度区间等',
+        show: false
       }
     },
     created () {
@@ -143,7 +146,7 @@
           authenticator_truename: this.qualification.authenticator_truename,
           authenticator_idnumber: this.qualification.authenticator_idnumber,
           licence_pic: this.qualification.licence_pic,
-          shop_pic: this.qualification.shop_pic,
+          shop_pic: [].push(this.qualification.shop_pic),
           store_condition: this.qualification.store_condition,
           store_condition_pic: this.qualification.store_condition_pic,
           is_yinliu: this.qualification.is_yinliu,
@@ -152,8 +155,14 @@
           is_dispatching: this.qualification.is_dispatching,
           company_name: this.qualification.company_name
         }).then(res => {
-          console.log(res)
+          if (res.data.status === 200) {
+            storage.remove('upload')
+            this.show = true
+          }
         })
+      },
+      success () {
+        this.$router.replace('/my')
       }
     },
     computed: {
@@ -192,7 +201,8 @@
       ])
     },
     components: {
-      XTitle
+      XTitle,
+      Alert
     },
     watch: {
       slideDown () {

@@ -6,7 +6,7 @@
         <use xlink:href="#icon-sousu"></use>
       </svg>
       <input type="search" v-model='msg' placeholder='搜索商品' @search='toSearch' ref='input'>
-      <svg class="icon" aria-hidden="true" @click='clear'>
+      <svg class="icon hotarea" aria-hidden="true" @click='clear'>
         <use xlink:href="#icon-close47"></use>
       </svg>
     </form>
@@ -61,6 +61,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .search{
     position: relative;
     height: 50px;
@@ -104,5 +105,8 @@
       box-sizing: border-box;
       text-align: center;
     }
+  }
+  .hotarea{
+    .extend-click
   }
 </style>

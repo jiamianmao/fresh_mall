@@ -11,7 +11,7 @@
         </swiper>
       </div>
 
-      <main>
+      <main id='hash'>
         <!-- 名字，价格信息等 -->
         <div class="desc">
           <div class="sells_volume">
@@ -256,7 +256,7 @@
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapMutations } from 'vuex'
   const INIT = 0
   export default {
     name: 'product',
@@ -600,7 +600,10 @@
             }
           }
         })
-      }
+      },
+      ...mapMutations([
+        'SET_SCROLL_Y'
+      ])
     },
     computed: {
       swiper () {
@@ -611,8 +614,37 @@
       },
       ...mapGetters({
         'address': 'address',
-        'addressType': 'addressType'
+        'addressType': 'addressType',
+        'position': 'scrollY'
       })
+    },
+    activated () {
+      let type = storage.get('type')
+        // 这里写的有点粗糙，对应的是三种购买方式
+      if (type === 1) {
+        this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+        this.address_2 = ''
+        this.address_3 = ''
+        if (this.address_1) {
+          this.select_type = 1
+        }
+      } else if (type === 2) {
+        this.address_1 = ''
+        this.address_3 = ''
+        this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+        this.select_type = this.addressType
+      } else if (type === 3) {
+        this.address_1 = ''
+        this.address_2 = ''
+        this.address_3 = this.addressType[this.product_obj.brand.brand_id]
+      }
+      this.product_obj = {}
+      this.id = this.$route.params.id
+      this._getProductDesc(this.id)
+      this._getShopCart()
+    },
+    destroyed () {
+      console.log(1)
     },
     watch: {
       // 进行减法的颜色变化，最低为1
@@ -627,36 +659,17 @@
         if (this.scrollY > 30) {
           this.pullDownFlag = true
           this.$refs.pullDown.style.height = `${this.scrollY}px`
-        }
-        if (this.scrollY < -300) {
-          this.returnFlag = true
         } else {
-          this.returnFlag = false
+          if (this.scrollY < -300) {
+            this.returnFlag = true
+          } else {
+            this.returnFlag = false
+          }
+          this.SET_SCROLL_Y(this.scrollY)
         }
       },
       slideDown () {
         this.$refs.scrollCom.refresh()
-      },
-      $route () {
-        let type = storage.get('type')
-        // 这里写的有点粗糙，对应的是三种购买方式
-        if (type === 1) {
-          this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
-          this.address_2 = ''
-          this.address_3 = ''
-          if (this.address_1) {
-            this.select_type = 1
-          }
-        } else if (type === 2) {
-          this.address_1 = ''
-          this.address_3 = ''
-          this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
-          this.select_type = this.addressType
-        } else if (type === 3) {
-          this.address_1 = ''
-          this.address_2 = ''
-          this.address_3 = this.addressType[this.product_obj.brand.brand_id]
-        }
       }
     },
     filters: {

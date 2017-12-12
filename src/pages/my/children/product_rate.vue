@@ -5,7 +5,7 @@
       <div class="goodsWrapper" :class='{"vux-1px-t": index > 0}' v-for='(goods, index) of goodsBox'>
         <div class="goods">
           <div class="left">
-            <img :src="goods.goods_image">
+            <img :src="goods.image_60_url">
           </div>
           <div class="right">
             <p class='name'>{{ goods.goods_name }}</p>

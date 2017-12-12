@@ -34,6 +34,7 @@
           </div>
         </div>
       </div>
+      <div class="not_order" v-show='!arr.length'><img src="../../../assets/my/not_order.png"></div>
     </div>
   </transition>
 </template>
@@ -189,6 +190,18 @@
             }
           }
         }
+      }
+    }
+    .not_order{
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      width: 131px;
+      height: 113px;
+      img{
+        width: 100%;
+        height: 100%;
       }
     }
   }

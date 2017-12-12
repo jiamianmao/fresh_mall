@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class='fun_wrapper'>
-            <div class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+            <div v-if='member === 2' class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item" @click='address'>收货地址管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has" v-if='~~nums.msg_num'></div></div>
             <div class="item" @click='account'>账号安全<x-icon type="ios-arrow-right" size="16"></x-icon></div>
@@ -86,11 +86,13 @@
         scrollY: 0,
         nums: {},
         info: '',
-        tel: ''
+        tel: '',
+        member: 1
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.member = ~~storage.get('member_class') || 1
       if (this.api_token) {
         this._getNums()
         this._getInfo()

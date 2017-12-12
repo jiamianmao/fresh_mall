@@ -6,3 +6,5 @@ export const qualification = state => state.qualification
 export const invoice = state => state.invoice
 export const address = state => state.address
 export const addressType = state => state.addressType
+export const cartCount = state => state.cartCount
+export const scrollY = state => state.scrollY

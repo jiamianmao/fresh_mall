@@ -63,18 +63,23 @@ FastClick.attach(document.body)
 Vue.config.productionTip = false
 
 const router = new VueRouter({
+  mode: 'history',
   routes,
-  mode: 'history'
   // 这里先暂时不加滚动行为，因为会导致better-scroll的bug
-  // scrollBehavior (to, from, savedPosition) {
-  //   console.log(savedPosition)
-  //   return { x: 0, y: 500 }
-  // }
+  scrollBehavior (to, from, savedPosition) {
+    // return 期望滚动到哪个的位置
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { x: 0, y: 0 }
+    }
+  }
 })
 
 // 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
+  console.log(document.body.scrollTop)
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
     next('/signin')
     Storage.set('currentUrl', to.fullPath)

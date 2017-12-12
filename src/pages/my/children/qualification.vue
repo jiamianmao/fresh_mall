@@ -10,37 +10,37 @@
             <li class='item vux-1px-b'>
               <div class="left">公司全称</div>
               <div class="right">
-                <input type='text' placeholder='请输入营业执照上的公司全称' v-model='company_name' />
+                <input type='text' placeholder='请输入营业执照上的公司全称' v-model.trim='company_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">营业执照注册号</div>
               <div class="right">
-                <input type='text' placeholder='输入纳税识别号' v-model='business_licence_number' />
+                <input type='text' placeholder='输入纳税识别号' v-model.trim='business_licence_number' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">银行开户名</div>
               <div class="right">
-                <input type='text' v-model='bank_account_name' />
+                <input type='text' v-model.trim='bank_account_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户行所在城市</div>
               <div class="right">
-                <input type='text' v-model='bank_address' />
+                <input type='text' v-model.trim='bank_address' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户银行支行名称</div>
               <div class="right">
-                <input type='text' v-model='bank_subbranch_name' />
+                <input type='text' v-model.trim='bank_subbranch_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">公司对公账号</div>
               <div class="right">
-                <input type='tel' v-model='bank_account' />
+                <input type='tel' v-model.trim='bank_account' />
               </div>
             </li>
             <li class='upload'>
@@ -106,14 +106,14 @@
             <li class='item'>
               <div class="left">认证申请人真实姓名</div>
               <div class="right">
-                <input type='text' placeholder='申请人真实姓名' v-model='authenticator_truename' />
+                <input type='text' placeholder='申请人真实姓名' v-model.trim='authenticator_truename' />
               </div>
               <div class="placeholder vux-1px-b"></div>
             </li>
             <li class='item'>
               <div class="left">认证申请人身份证号</div>
               <div class="right">
-                <input type='text' placeholder='申请人身份证号' v-model='authenticator_idnumber' />
+                <input type='text' placeholder='申请人身份证号' v-model.trim='authenticator_idnumber' />
               </div>
             </li>
           </ul>
@@ -256,6 +256,7 @@
   import { mapGetters, mapMutations } from 'vuex'
   import storage from 'good-storage'
   export default {
+    name: 'qualification',
     data () {
       return {
         complete: false, // 是否完成来决定显示哪个
@@ -291,6 +292,7 @@
       }
     },
     created () {
+      console.log(1)
       // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
       this.api_token = storage.get('api_token')
       this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
@@ -409,6 +411,9 @@
         } else if (this.is_storegoods === 1 && !this.storeCondition) {
           this.show = true
           this.msg = '请上传生鲜存储资质'
+        } else if (!this.authenticator_idnumber.match(/^(\d{15}|\d{17}[\dxX])$/)) {
+          this.show = true
+          this.msg = '请输入争取的身份证号'
         } else {
           // 提交审核也是保存，采用vuex，上边的save()采用缓存
           this.set_qualification({

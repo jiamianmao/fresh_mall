@@ -4,7 +4,7 @@
 
     <div class="sort-rule">
       <div class="sort-wrapper">
-        <div class='sort-item' v-for='(item, index) of sortArr' :class='{active:index === idx}' @click='selectSort(index)'>
+        <div class='sort-item' v-for='(item, index) of sortArr' :class='{active:index === idx}' @click='selectSort(item, index)'>
           <span>
             {{item.attr_name}}
             <div class="icon-wrapper" v-if='index === 0 || index > 3'>
@@ -12,7 +12,7 @@
                 <use xlink:href="#icon-arrowdropdown"></use>
               </svg>
             </div>
-            <div class="icon-wrapper price" v-show='index === 3'>
+            <div class="icon-wrapper price" v-show='item.attr_name === "价格"'>
               <svg class="icon" aria-hidden="true" :class='{price_active: !up}'>
                 <use xlink:href="#icon-arrow-up"></use>
               </svg>
@@ -85,19 +85,19 @@
         this.word = word
         this.sure()
       },
-      selectSort (index) {
+      selectSort (item, index) {
         this.idx = index
         // 这里对 综合 销量 价格 进行拦截，不触发下拉框
         if (index >= 1 && index <= 3) {
-          if (index === 1) {
+          if (item.attr_name === '综合') {
             this.goodsData = this.goodsData1.slice()
           }
-          if (index === 2) {
+          if (item.attr_name === '销量') {
             this.goodsData.sort((a, b) => {
               return b.goods_salenum - a.goods_salenum
             })
           }
-          if (index === 3) {
+          if (item.attr_name === '价格') {
             if (!this.up) {
               this.goodsData.sort((a, b) => {
                 return a.goods_price - b.goods_price
@@ -153,23 +153,21 @@
       },
       _getSort () {
         this.$http.get(`/api/good_class/attr?api_token=${this.api_token}&id=${this.gc_id}`).then(res => {
-          if (res.data.status === 200) {
-            this.sortArr = res.data.data
-            this.sortArr.splice(1, 0, {
-              attr_name: '综合'
-            }, {
-              attr_name: '销量'
-            }, {
-              attr_name: '价格'
-            })
-            // 方法有点蠢，不灵活 只能两组加横线
-            this.sortArr.length > 4 && (this.placeholder = true)
-            this.descData = this.sortArr[this.idx].attribute_value
-            // 防止页面重绘
-            this.$nextTick(() => {
-              this._getGoodsData()
-            })
-          }
+          this.sortArr = res.data ? res.data.data : []
+          this.sortArr.splice(1, 0, {
+            attr_name: '综合'
+          }, {
+            attr_name: '销量'
+          }, {
+            attr_name: '价格'
+          })
+          // 方法有点蠢，不灵活 只能两组加横线
+          this.sortArr.length > 4 && (this.placeholder = true)
+          this.descData = this.sortArr[this.idx].attribute_value
+          // 防止页面重绘
+          this.$nextTick(() => {
+            this._getGoodsData()
+          })
         })
       },
       _getGoodsData () {

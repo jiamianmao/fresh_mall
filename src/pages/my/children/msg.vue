@@ -46,6 +46,15 @@
       },
       time (val) {
         return dateFormat(~~val * 1000, 'YYYY.MM.DD HH:mm')
+      },
+      reg (val) {
+        // 应该用正则更好，先用indexOf吧
+        let idx = val.indexOf('<a')
+        if (idx > -1) {
+          return val.substring(0, idx)
+        } else {
+          return val
+        }
       }
     },
     methods: {

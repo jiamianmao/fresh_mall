@@ -44,14 +44,14 @@
           <van-cell-swipe :right-width="65" v-for='(item, index) of arr' :key='index'>
             <van-cell-group>
               <div class="brand"  @click='goBrand(item.brand_id, item.brand.brand_name)'>
-                <div class='icon' ref='icon' @click.stop='active(index, item.id)' v-show='del'></div>
+                <div class='icon' ref='icon' @click.stop='active(index, item.brand_id)' v-show='del'></div>
                 <div class="image">
                   <img v-lazy='item.brand.brand_pic'>
                 </div>
                 <p>{{item.brand.brand_name}}</p>
               </div>
             </van-cell-group>
-            <div class='deltext1' slot="right" @click='delOne(item.id)'>删除</div>
+            <div class='deltext1' slot="right" @click='delOne(item.brand_id)'>删除</div>
           </van-cell-swipe>
         </div>
 
@@ -194,7 +194,6 @@
           this.$http.post(`/mobile/?act=member_goodsbrowse&op=del_browse&api_token=${this.api_token}`, {
             goods_id: this.activeArr
           }).then(res => {
-            console.log(res)
             if (res.data.status === 200) {
               this._getFootMark()
             }
