@@ -489,8 +489,9 @@
           }
           .spec{
             color: #999;
-            height: 12px;
-            // margin-top: 10px;
+            width: 66vw;
+            height: 14px;
+            .no-wrap
           }
           .price{
             display: flex;

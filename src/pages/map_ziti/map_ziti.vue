@@ -27,8 +27,10 @@
 <script>
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
+  import { mapGetters } from 'vuex'
   import storage from 'good-storage'
   export default {
+    name: 'mapziti',
     data () {
       return {
         active: false, // 上浮出来店铺信息的Flag
@@ -41,35 +43,18 @@
     created () {
       this.id = ~~this.$route.query.id
       this.api_token = storage.get('api_token')
-      this.geolocation = new qq.maps.Geolocation()
-      this.geolocation.getIpLocation((position) => {
-        this.lat = position.lat
-        this.lng = position.lng
-      })
-      this._getData()
     },
     mounted () {
-      let center = new qq.maps.LatLng(this.lat, this.lng)
-      this.map = new qq.maps.Map(document.getElementById('container'), {
-        // 地图的中心地理坐标。
-        center,
-        zoom: 15
+      if (!this.position.lat) {
+        this.$emit('position')
+      } else {
+        this._getMap()
+      }
+    },
+    computed: {
+      ...mapGetters({
+        'position': 'position'
       })
-      // 地图的marker标注 这个是定位点
-      let marker1 = new qq.maps.Marker({
-        position: center,
-        map: this.map
-      })
-      var anchor = new qq.maps.Point(0, 39),
-          size = new qq.maps.Size(31, 70),
-          origin = new qq.maps.Point(0, 0),
-          icon = new qq.maps.MarkerImage(
-              "http://outpmmta5.bkt.clouddn.com/curPoint.png",
-              size,
-              origin,
-              anchor
-          )
-      marker1.setIcon(icon)
     },
     methods: {
       close () {
@@ -107,6 +92,30 @@
             })
           }
         })
+      },
+      _getMap () {
+        let center = new qq.maps.LatLng(this.position.lat, this.position.lng)
+        this.map = new qq.maps.Map(document.getElementById('container'), {
+          // 地图的中心地理坐标
+          center,
+          zoom: 15
+        })
+        // 地图的marker标注 这个是定位点
+        let marker1 = new qq.maps.Marker({
+          position: center,
+          map: this.map
+        })
+        var anchor = new qq.maps.Point(0, 39),
+            size = new qq.maps.Size(31, 70),
+            origin = new qq.maps.Point(0, 0),
+            icon = new qq.maps.MarkerImage(
+                "http://outpmmta5.bkt.clouddn.com/curPoint.png",
+                size,
+                origin,
+                anchor
+            )
+        marker1.setIcon(icon)
+        this._getData()
       }
     },
     watch: {
@@ -127,6 +136,9 @@
             this.active = true
           }
         })
+      },
+      position (newVal) {
+        this._getMap()
       }
     },
     components: {

@@ -79,7 +79,7 @@ const router = new VueRouter({
 // 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
-  console.log(document.body.scrollTop)
+  // console.log(document.body.scrollTop)
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
     next('/signin')
     Storage.set('currentUrl', to.fullPath)

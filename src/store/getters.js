@@ -8,3 +8,4 @@ export const address = state => state.address
 export const addressType = state => state.addressType
 export const cartCount = state => state.cartCount
 export const scrollY = state => state.scrollY
+export const position = state => state.position

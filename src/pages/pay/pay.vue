@@ -159,8 +159,7 @@
         } else if (this.select2) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {
-              let url = res.data.data.pay_sign.url + encodeURIComponent('http://ctx.17link.cc/my/order')
-              window.location.href = url
+              window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
             }
           })
         } else if (this.select3) {

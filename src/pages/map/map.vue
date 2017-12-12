@@ -107,36 +107,13 @@
         this.active = true
       }
       this.api_token = storage.get('api_token')
-      this._getData()
-      // 腾讯地图定位
-      this.geolocation = new qq.maps.Geolocation()
-      this.geolocation.getIpLocation((position) => {
-        this.lat = position.lat
-        this.lng = position.lng
-      })
     },
     mounted () {
-      let center = new qq.maps.LatLng(this.lat, this.lng)
-      this.map = new qq.maps.Map(document.getElementById('container'), {
-        // 地图的中心地理坐标
-        center,
-        zoom: 15
-      })
-      // 地图的marker标注 这个是定位点
-      let marker1 = new qq.maps.Marker({
-        position: center,
-        map: this.map
-      })
-      var anchor = new qq.maps.Point(0, 39),
-          size = new qq.maps.Size(31, 70),
-          origin = new qq.maps.Point(0, 0),
-          icon = new qq.maps.MarkerImage(
-              "http://outpmmta5.bkt.clouddn.com/curPoint.png",
-              size,
-              origin,
-              anchor
-          )
-      marker1.setIcon(icon)
+      if (!this.position.lat) {
+        this.$emit('position')
+      } else {
+        this._getMap()
+      }
     },
     methods: {
       peisong () {
@@ -218,13 +195,38 @@
           }
         })
       },
+      _getMap () {
+        let center = new qq.maps.LatLng(this.position.lat, this.position.lng)
+        this.map = new qq.maps.Map(document.getElementById('container'), {
+          // 地图的中心地理坐标
+          center,
+          zoom: 15
+        })
+        // 地图的marker标注 这个是定位点
+        let marker1 = new qq.maps.Marker({
+          position: center,
+          map: this.map
+        })
+        var anchor = new qq.maps.Point(0, 39),
+            size = new qq.maps.Size(31, 70),
+            origin = new qq.maps.Point(0, 0),
+            icon = new qq.maps.MarkerImage(
+                "http://outpmmta5.bkt.clouddn.com/curPoint.png",
+                size,
+                origin,
+                anchor
+            )
+        marker1.setIcon(icon)
+        this._getData()
+      },
       ...mapMutations({
         'addressType': 'SET_ADDRESS_TYPE'
       })
     },
     computed: {
       ...mapGetters({
-        'address': 'address'
+        'address': 'address',
+        'position': 'position'
       })
     },
     filters: {
@@ -256,6 +258,9 @@
             this.distance = res.data.result.elements[0].distance
           }
         })
+      },
+      position (newVal) {
+        this._getMap()
       }
     },
     components: {

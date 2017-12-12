@@ -57,14 +57,13 @@
 </template>
 
 <script>
-  // index.html引入了qq对象，防止eslint报错
-  /* eslint-disable no-undef */
   import { Swiper } from 'vux'
   import { mapGetters, mapMutations } from 'vuex'
   import storage from 'good-storage'
   import TypeList from '@/components/typeList/typeList'
 
   export default {
+    name: 'home',
     data () {
       return {
         swiperUrlList: [],
@@ -90,8 +89,13 @@
       this.navHeight = this.$refs.nav.clientHeight
       // 用canvas来画出启动页的箭头
       this._downArrow()
-      // 定位拿到当前的城市 这里的处理是如果已经存过city的storage了，就直接拿storage的，如果没有就IP定位
-      storage.has('city') ? this.city = storage.get('city') : this._getPosition()
+      if (storage.has('city')) {
+        this.city = storage.get('city')
+      } else if (this.position.city) {
+        this.city = this.position.city
+      } else {
+        this.$emit('position')
+      }
       this.startPage || this._changeStyle()
     },
     methods: {
@@ -196,13 +200,6 @@
           }
         })
       },
-      _getPosition () {
-        let geolocation = new qq.maps.Geolocation()
-        geolocation.getIpLocation((position) => {
-          this.city = position.city
-          storage.set('city', this.city || 1)
-        })
-      },
       _getGoodsData () {
         this.$http.get('/mobile/?act=goods&op=get_recommend_goods').then(res => {
           if (res.data.status === 200) {
@@ -234,7 +231,8 @@
     },
     computed: {
       ...mapGetters([
-        'startPage'
+        'startPage',
+        'position'
       ])
     },
     watch: {
@@ -242,6 +240,9 @@
         this.$nextTick(() => {
           this._changeStyle()
         })
+      },
+      position (newVal) {
+        this.city = newVal.city
       }
     }
   }
