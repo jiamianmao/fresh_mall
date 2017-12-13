@@ -8,7 +8,7 @@
         <p v-html='desc'></p>
         <p style='display: none;' ref='descText'></p>
         <!-- 终于碰到了sticky-footer的使用场景 wrapper设置min-height top设置flex:1 bottom设置flex: 0 -->
-        <img src="../../assets/product/icon.png">
+        <img v-show='imgFlag' src="../../assets/product/icon.png">
       </div>
     </main>
   </div>
@@ -16,23 +16,13 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   export default {
-    // 不做成子组件形式，因为父组件是个product组件，该组件是企业名片，不合逻辑。
-    // props: {
-    //   title: {
-    //     type: String,
-    //     default: '默认值'
-    //   },
-    //   name: {
-    //     type: String,
-    //     default: '默认值'
-    //   }
-    // },
     data () {
       return {
         title: '',
         name: '',
         desc: '',
-        src: ''
+        src: '',
+        imgFlag: false
       }
     },
     created () {
@@ -52,6 +42,7 @@
         if (item.title === this.title) {
           flag = true
           this.name = item.name
+          this.imgFlag = true
           this._getDesc(this.id)
         }
       })
@@ -60,6 +51,7 @@
       }
     },
     methods: {
+      // 店铺类的详情
       _getDesc (id) {
         this.$http.get(`/mobile/?act=goods&op=store_card&store_id=${id}`).then(res => {
           if (res.data.status === 200) {
@@ -69,6 +61,7 @@
           }
         })
       },
+      // 商品详情
       _getEnsure (id) {
         this.$http.get(`/api/goods_video/detail?id=${id}`).then(res => {
           if (res.data.status === 200) {
@@ -80,16 +73,6 @@
           }
         })
       }
-    },
-    filters: {
-      // unescape:function (html) {
-      //   return html
-      //     .replace(html ? /&(?!#?\w+;)/g : /&/g, '&amp;')
-      //     .replace(/&lt;/g, '<')
-      //     .replace(/&gt;/g, '>')
-      //     .replace(/&quot;/g, '\')
-      //     .replace(/&#39;/g, '\')
-      // }
     },
     components: {
       XTitle

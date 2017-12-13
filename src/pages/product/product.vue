@@ -118,14 +118,15 @@
         <placeholder></placeholder>
 
         <div class="goods_info" v-if='!Array.isArray(product_obj.goods_video) && product_obj.goods_video'>
-          <div class="item" v-if='product_obj.goods_video.video' v-for='item of product_obj.goods_video.video'>
-            <div class="title" v-if='item.Video'>{{ item.Video.title }}</div>
-            <div class="video" v-if='item.Video'>
-              <video ref='video1' :src="item.Video.src" controls :poster='item.Video.image'></video>
+          <div class="item" v-if='product_obj.goods_video.video && item.Video' v-for='item of product_obj.goods_video.video'>
+            <div class="title">{{ item.Video.title }}</div>
+            <div class="video">
+              <!-- <video ref='video1' :src="item.Video.src" controls :poster='item.Video.image'></video> -->
+              <iframe frameborder="0" :src="item.Video.src" allowfullscreen></iframe>
             </div>
-            <p class='see_text'>如果您不方便观看视频，请<a class='mark' @click='toImgText(item.Detail.id)'>点击此处</a>查看图文详情</p>
+            <p v-if='item.Detail' class='see_text'>如果您不方便观看视频，请<a class='mark' @click='toImgText(item.Detail.id)'>点击此处</a>查看图文详情</p>
           </div>
-          <div class="text">
+          <div class="text" v-if='product_obj.goods_video.video'>
             <p class='live_tv'>
               查看24小时监控直播
               <svg class="icon" aria-hidden="true">
@@ -256,7 +257,7 @@
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
-  import { mapGetters, mapMutations } from 'vuex'
+  import { mapGetters } from 'vuex'
   const INIT = 0
   export default {
     name: 'product',
@@ -600,10 +601,7 @@
             }
           }
         })
-      },
-      ...mapMutations([
-        'SET_SCROLL_Y'
-      ])
+      }
     },
     computed: {
       swiper () {
@@ -642,9 +640,9 @@
       this.id = this.$route.params.id
       this._getProductDesc(this.id)
       this._getShopCart()
-    },
-    destroyed () {
-      console.log(1)
+      // 登录后拿到登录状态值
+      this.api_token = storage.get('api_token')
+      this.member_c = storage.get('member_class') === '2' ? '' : '1'
     },
     watch: {
       // 进行减法的颜色变化，最低为1
@@ -665,7 +663,6 @@
           } else {
             this.returnFlag = false
           }
-          this.SET_SCROLL_Y(this.scrollY)
         }
       },
       slideDown () {
@@ -976,7 +973,7 @@
               height: 0;
               padding-top: 56.25%;
               position: relative;
-              video{
+              video, iframe{
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -986,7 +983,8 @@
               }
             }
             .see_text{
-              line-height: 50px;
+              margin-top: 18px;
+              margin-bottom: 12px;
               font-size: @font-size-small;
               text-align: center;
               font-weight: bold;
@@ -994,6 +992,7 @@
           }
           .text{
             font-size: @font-size-small;
+            margin-top: 6px;
             margin-bottom: 20px;
             .live_tv{
               color: #b8b8b8;

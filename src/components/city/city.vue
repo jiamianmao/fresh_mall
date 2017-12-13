@@ -72,8 +72,8 @@
       return {
         cityData: [],
         city: '',
-        lately: [],
-        num: 0 // 做了个判断 阻止了第一次city的改变触发watch逻辑
+        cityFlag: false,
+        lately: []
       }
     },
     created () {
@@ -125,15 +125,12 @@
         this._scrollTo(shortcutIndex)
       },
       selectCity (name) {
-        if (this.city === name) {
-          // 处理的不优雅
-          this.city = name + ' '
-        } else {
-          this.city = name
-        }
+        this.city = name
+        this.cityFlag = !this.cityFlag
       },
       selectHot (e) {
         this.city = e.target.innerText
+        this.cityFlag = !this.cityFlag
       },
       // 滚动到当前元素
       _scrollTo (index) {
@@ -195,22 +192,24 @@
       }
     },
     watch: {
-      city () {
-        if (!this.num) {
-          this.num++
-          return
-        }
+      cityFlag () {
         storage.set('city', this.city)
         if (!storage.has('lately')) {
           storage.set('lately', [this.city])
         } else {
           let arr = storage.get('lately')
           if (!arr.includes(this.city)) {
-            arr.push(this.city)
+            arr.unshift(this.city)
             // 控制长度
             if (arr.length > 6) {
-              arr.unshift()
+              arr.pop()
             }
+          } else {
+            let idx = arr.findIndex(item => {
+              return item === this.city
+            })
+            arr.splice(idx, 1)
+            arr.unshift(this.city)
           }
           storage.set('lately', arr)
         }

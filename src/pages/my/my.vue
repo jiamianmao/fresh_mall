@@ -144,7 +144,7 @@
         this.scrollY = pos.y
       },
       findService () {
-        this.$router.push('/my/service')
+        this.$router.push('/service?type=service_help')
       },
       _getNums () {
         this.$http.get(`/mobile/?act=member_order&op=series_num&api_token=${this.api_token}`).then(res => {

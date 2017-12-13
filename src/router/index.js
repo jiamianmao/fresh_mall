@@ -21,7 +21,6 @@ const Invoice = () => import('@/pages/firmorder/children/invoice')
 
 const BrandGoodsList = () => import('@/pages/brandGoodsList/brandGoodsList')
 const Pay = () => import('@/pages/pay/pay')
-const Ali = () => import('@/pages/ali/ali')
 
 // 我的页面
 const My = () => import('@/pages/my/my')
@@ -40,7 +39,8 @@ const Collect = () => import('@/pages/my/children/collect')
 const UserInfo = () => import('@/pages/my/children/userinfo')
 const Refund = () => import('@/pages/my/children/refund')
 const ProductRate = () => import('@/pages/my/children/product_rate')
-const Service = () => import('@/pages/my/children/service')
+
+const Service = () => import('@/pages/service/service')
 
 const Signin = () => import('@/pages/signin/signin')
 const Signup = () => import('@/pages/signup/signup')
@@ -65,7 +65,6 @@ export default [
       children: [
         { path: 'order', component: Order },
         { path: 'aftersell', component: AfterSell },
-        { path: 'service', component: Service },
         { path: 'account', component: Account,
           children: [
             { path: 'password', component: ForgetPwd },
@@ -97,6 +96,7 @@ export default [
         { path: 'rate', component: ProductRate }
       ]
     },
+    { path: '/service', component: Service },
     { path: '/firmorder', component: FirmOrder,
       children: [
         { path: 'invoice', component: Invoice }
@@ -113,7 +113,6 @@ export default [
     { path: '/desc', component: Desc },
     { path: '/brandGoodsList', component: BrandGoodsList },
     { path: '/pay', component: Pay },
-    { path: '/ali', component: Ali },
     { path: '/signin', component: Signin,
       children: [
          { path: 'forgetpassword', component: ForgetPwd },

@@ -163,6 +163,14 @@
             }
           })
         } else if (this.select3) {
+          this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
+            console.log(res)
+            if (res.data.status === 200) {
+              this.$http.post('/union/gateway/api/frontTransReq.do', res.data.data.pay_sign).then(r => {
+                console.log(r)
+              })
+            }
+          })
         } else {
           this.company = true
         }

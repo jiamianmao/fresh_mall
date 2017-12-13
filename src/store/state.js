@@ -7,7 +7,6 @@ const state = {
   address: {},
   addressType: {},
   cartCount: 0,
-  scrollY: 0,
   position: {}
 }
 

@@ -25,7 +25,7 @@
             <div class="dots" v-for='n of 4' :class='{active: n === curIndx + 1}'></div>
           </div>
           <div class='down-arrow' @click='startPageChange'>
-            <canvas ref='down_canvas' width='50' height='50'></canvas>
+            <canvas ref='down_canvas' width='20' height='20'></canvas>
           </div>
         </div>
       </transition>
@@ -34,7 +34,7 @@
       <transition name='slide_nav'>
         <nav ref='nav'>
           <div class="left" ref='navLeft'>
-            <span v-for='(item, index) of arr' :class='{active: activeIdx === index}' @click='selectCate(index)' ref='navItem'>{{item.gc_name}}</span>
+            <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index, item.gc_id)' ref='navItem'>{{item.gc_name}}</span>
           </div>
           <div class='arrow_box' @click='arrowToggle'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
@@ -89,14 +89,20 @@
       this.navHeight = this.$refs.nav.clientHeight
       // 用canvas来画出启动页的箭头
       this._downArrow()
+      this.startPage || this._changeStyle()
+    },
+    activated () {
+      this.activeIdx = 0
+      // storage -> vuex -> 重新取
       if (storage.has('city')) {
         this.city = storage.get('city')
+        return
       } else if (this.position.city) {
         this.city = this.position.city
+        return
       } else {
         this.$emit('position')
       }
-      this.startPage || this._changeStyle()
     },
     methods: {
       // 记录启动页轮播的页码
@@ -148,17 +154,18 @@
         }
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
       },
-      selectCate (key) {
+      selectCate (key, gcId) {
         this.activeIdx = key
         if (this.slideDown) {
           this.arrowToggle()
         } else {
           this.slideDown = false
         }
+        if (key === 0) return
         // let navLeft = this.$refs.navLeft
         // let step = navLeft.clientWidth / 4 * key
         // $(navLeft).animate({scrollLeft: step}, 500)
-        let gcId = this.cate_list[key].gc_id
+        // let gcId = this.cate_list[key].gc_id
         this.$router.push({
           path: '/goodslist',
           query: {
@@ -169,20 +176,20 @@
       _downArrow () {
         let ctx = this.$refs.down_canvas.getContext('2d')
         ctx.beginPath()
-        ctx.moveTo(0, 15)
-        ctx.lineTo(20, 40)
-        ctx.lineTo(40, 15)
-        ctx.lineWidth = 5
-        ctx.strokeStyle = '#fff'
+        ctx.moveTo(0, 0)
+        ctx.lineTo(9, 10)
+        ctx.lineTo(18, 0)
+        ctx.lineWidth = 2
+        ctx.strokeStyle = 'rgba(255, 255, 255, .5)'
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         ctx.stroke()
         ctx.beginPath()
-        ctx.moveTo(0, 0)
-        ctx.lineTo(20, 25)
-        ctx.lineTo(40, 0)
-        ctx.lineWidth = 5
-        ctx.strokeStyle = 'rgba(255, 255, 255, .5)'
+        ctx.moveTo(0, 10)
+        ctx.lineTo(9, 19)
+        ctx.lineTo(18, 10)
+        ctx.lineWidth = 2
+        ctx.strokeStyle = '#fff'
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         ctx.stroke()
@@ -202,8 +209,9 @@
       },
       _getGoodsData () {
         this.$http.get('/mobile/?act=goods&op=get_recommend_goods').then(res => {
-          if (res.data.status === 200) {
-            this.arr = res.data.data
+          let r = res.data
+          if (r.status === 200) {
+            this.arr = r.data.splice(1, r.data.length)
           }
         })
       },
@@ -323,13 +331,13 @@
         }
       }
       .down-arrow{
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         position: absolute;
         bottom: 20px;
         left: 50%;
         transform: translate3d(-50%, 0, 0);
-        animation: myMove 1s linear 2s infinite alternate;
+        animation: myMove 1s linear 2s infinite alternate
       }
     }
     nav{
@@ -399,10 +407,10 @@
 
  @keyframes myMove {
   0% {
-    padding-bottom: 0px;
+    bottom: 10px;
   }
   100% {
-    padding-bottom: 16px;
+    bottom: 20px;
   }
 }
 </style>

@@ -25,17 +25,20 @@
         <img src="../../assets/login/qq.png">
       </div>
     </div>
+    <alert v-model="show" title="提示">{{msg}}</alert>
     <router-view></router-view>
   </div>
 </template>
 <script>
-  import { Divider } from 'vux'
+  import { Divider, Alert } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
       return {
         tel: '',
-        pwd: ''
+        pwd: '',
+        show: false,
+        msg: ''
       }
     },
     created () {
@@ -72,13 +75,15 @@
               path: storage.get('currentUrl')
             })
           } else {
-            alert('账号密码错误')
+            this.msg = res.data.data.error
+            this.show = true
           }
         })
       }
     },
     components: {
-      Divider
+      Divider,
+      Alert
     }
   }
 </script>

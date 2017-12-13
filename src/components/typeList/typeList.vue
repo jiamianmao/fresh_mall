@@ -85,8 +85,8 @@
     margin-top: 15px;
     .swiper-wrapper{
       .swiper-slide {
-        width: 70vw;
-        height: 345px;
+        width: 69.2vw;
+        height: 92.26667vw;
         img{
           width: 100%;
           height: 100%;

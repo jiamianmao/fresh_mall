@@ -52,13 +52,13 @@
           <div class="item vux-1px-b">
             <span>营业执照照片</span>
             <div class="img_wrapper">
-              <img v-for='item of qualification.licence_pic' v-lazy='item.content'>
+              <img v-for='item of qualification.licence_pic' v-lazy='item'>
             </div>
           </div>
           <div class="item vux-1px-b">
             <span>门店照片</span>
             <div class="img_wrapper">
-              <img v-lazy='qualification.shop_pic.content'>
+              <img v-lazy='qualification.shop_pic'>
             </div>
           </div>
           <div class="item vux-1px-b">
@@ -137,7 +137,13 @@
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
       },
       submit () {
-        this.$http.post(`/mobile/?act=member_index&op=company_authority&api_token=${this.api_token}`, {
+        let obj = {}
+        if (this.storeCondition) {
+          obj.store_condition = this.storeCondition
+        } else if (this.storeConditionPic.content) {
+          obj.store_condition_pic = this.storeConditionPic.content
+        }
+        this.$http.post(`/mobile/?act=member_index&op=company_authority&api_token=${this.api_token}`, Object.assign({
           business_licence_number: this.qualification.business_licence_number,
           bank_account_name: this.qualification.bank_account_name,
           bank_account: this.qualification.bank_account,
@@ -146,18 +152,19 @@
           authenticator_truename: this.qualification.authenticator_truename,
           authenticator_idnumber: this.qualification.authenticator_idnumber,
           licence_pic: this.qualification.licence_pic,
-          shop_pic: [].push(this.qualification.shop_pic),
-          store_condition: this.qualification.store_condition,
-          store_condition_pic: this.qualification.store_condition_pic,
+          shop_pic: [this.qualification.shop_pic],
           is_yinliu: this.qualification.is_yinliu,
           is_ziti: this.qualification.is_ziti,
           is_storegoods: this.qualification.is_storegoods,
           is_dispatching: this.qualification.is_dispatching,
           company_name: this.qualification.company_name
-        }).then(res => {
+        }, obj)).then(res => {
           if (res.data.status === 200) {
+            // 清理掉之前保存的storage
             storage.remove('upload')
             this.show = true
+          } else {
+            alert(res.data.data.error)
           }
         })
       },

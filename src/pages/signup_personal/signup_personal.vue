@@ -33,7 +33,7 @@
             <img src="../../assets/selectAdd/select.png" v-if='active'>
             <img src="../../assets/selectAdd/selected.png" v-else>
           </div>
-          <p>我已阅读并同意<span>《用户注册协议》</span></p>
+          <p>我已阅读并同意<span @click='seeRule'>《用户注册协议》</span></p>
         </div>
         <button @click='personal'>注册</button>
       </div>
@@ -68,6 +68,9 @@
           $(`.pwd:eq(${n})`).attr('type', 'text')
           $(`.icon:eq(${n})`).css({fill: '#333'})
         }
+      },
+      seeRule () {
+        this.$router.push('/service?type=regist_rule')
       },
       getCode () {
         let regTel = /^1[34578]{1}\d{9}$/

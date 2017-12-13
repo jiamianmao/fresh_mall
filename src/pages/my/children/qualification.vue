@@ -126,12 +126,12 @@
               </div>
               <div class="content">
                 <p @click='select(1, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
-                  <span>是，我已阅读<a href="#">《在售门店规则》</a></span>
+                  <span>是，我已阅读<a @click='see(0)' href="javascript:;">《在售门店规则》</a></span>
                 </p>
                 <p @click='select(1, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -144,12 +144,12 @@
               </div>
               <div class="content">
                 <p @click='select(2, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
-                  <span>是，我已阅读<a href="#">《自提门店规则》</a></span>
+                  <span>是，我已阅读<a @click='see(1)' href="javascript:;">《自提门店规则》</a></span>
                 </p>
                 <p @click='select(2, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -162,12 +162,12 @@
               </div>
               <div class="content">
                 <p @click='select(3, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，<router-link to="/my/qualification/fresh">点击上传</router-link>生鲜存储资质</span>
                 </p>
                 <p @click='select(3, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -180,12 +180,12 @@
               </div>
               <div class="content">
                 <p @click='select(4, 1)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 1'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，配送费根据自己公示规则收取</span>
                 </p>
                 <p @click='select(4, 2)'>
-                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 2'>
+                  <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
                 </p>
@@ -292,40 +292,21 @@
       }
     },
     created () {
-      console.log(1)
       // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
       this.api_token = storage.get('api_token')
-      this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
-        if (res.data.status === 200) {
-          let data = res.data.data
-          if (~~data.examine_state === -1) {
-            Object.assign(this, storage.get('upload'))
-          } else {
-            if (parseInt(data.company_info.deposit) === 0) {
-              this.deposit = false
-            } else {
-              this.deposit = true
-            }
-            this.stroe_name = data.company_info.company_name
-            this.complete = true
-            this.title = '审核状态'
-            this.text = ''
-            this.status = data.examine_state | 0
-          }
-        }
-      })
+      this._getStatus()
     },
     methods: {
       logContent (file) {
         if (!this.$refs.img1) {
           this.img1 = true
-          this.licence_pic.unshift(file)
+          this.licence_pic.unshift(file.content)
           this.$nextTick(() => {
             this.$refs.img1.setAttribute('src', file.content)
           })
         } else {
           this.img2 = true
-          this.licence_pic.push(file)
+          this.licence_pic.push(file.content)
           this.$nextTick(() => {
             this.$refs.img2.setAttribute('src', file.content)
           })
@@ -333,7 +314,7 @@
       },
       store (file) {
         this.img3 = true
-        this.shop_pic = file
+        this.shop_pic = file.content
         this.$nextTick(() => {
           this.$refs.img3.setAttribute('src', file.content)
         })
@@ -404,8 +385,15 @@
         this.show = true
         this.msg = '已成功保存'
       },
+      see (num) {
+        let dict = {
+          0: 'online_rule',
+          1: 'pickup_rule'
+        }
+        this.$router.push(`/service?type=${dict[num]}`)
+      },
       submit () {
-        if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching) {
+        if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching || !this.licence_pic.length || !this.shop_pic) {
           this.show = true
           this.msg = '请完整输入信息'
         } else if (this.is_storegoods === 1 && !this.storeCondition) {
@@ -436,6 +424,27 @@
           })
           this.$router.push('/my/qualification/sure')
         }
+      },
+      _getStatus () {
+        this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            let data = res.data.data
+            if (~~data.examine_state === -1) {
+              Object.assign(this, storage.get('upload'))
+            } else {
+              if (parseInt(data.company_info.deposit) === 0) {
+                this.deposit = false
+              } else {
+                this.deposit = true
+              }
+              this.stroe_name = data.company_info.company_name
+              this.complete = true
+              this.title = '审核状态'
+              this.text = ''
+              this.status = data.examine_state | 0
+            }
+          }
+        })
       },
       ...mapMutations({
         set_qualification: 'SET_QUALIFICATION'

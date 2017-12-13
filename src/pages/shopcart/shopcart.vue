@@ -262,6 +262,7 @@
             this.cartdata = res.data.data.list
             this.sum = res.data.data.sum
             let count = 0
+            // 为后端妹妹处理边界情况
             if (!res.data.data) {
               return
             }
@@ -318,6 +319,7 @@
         }
         this.sum = sum
         this.cartCount = cartCount
+        this.SET_CART_COUNT(cartCount)
       },
       activeArr: {
         handler (newVal) {
@@ -373,9 +375,6 @@
           })
         },
         deep: true
-      },
-      cartCount (newVal) {
-        this.SET_CART_COUNT(newVal)
       }
     },
     components: {

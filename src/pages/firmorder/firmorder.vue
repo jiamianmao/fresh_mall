@@ -131,6 +131,16 @@
       }
       this.api_token = storage.get('api_token')
       this._getOrderData()
+      this.enums = {
+        invoice: {
+          1: '纸质发票',
+          2: '电子发票'
+        },
+        person: {
+          1: '个人',
+          2: '单位'
+        }
+      }
     },
     methods: {
       // 选发票
@@ -225,9 +235,9 @@
                 } else if (i === 'email') {
                   invoicePhp['invite[invoice_email]'] = this.invoiceType[i]
                 } else if (i === 'invoice') {
-                  invoicePhp['invite[invoice_type]'] = this.invoiceType[i]
+                  invoicePhp['invite[invoice_type]'] = this.invoiceInfo.invoice
                 } else if (i === 'person') {
-                  invoicePhp['invite[invoice_title]'] = this.invoiceType[i]
+                  invoicePhp['invite[invoice_title]'] = this.invoiceInfo.person
                 } else if (i === 'tax_num') {
                   invoicePhp['invite[invoice_txt_number]'] = this.invoiceType[i]
                 }
@@ -246,7 +256,7 @@
                   arr.push(item.order_sn)
                 })
                 sum = sum / 100
-                this.$router.push({
+                this.$router.replace({
                   path: '/pay',
                   query: {
                     sum,
@@ -271,20 +281,10 @@
       },
       _getInvoice () {
         // 通过vuex拿到发票信息
-        let data = {
-          invoice: {
-            1: '纸质发票',
-            2: '电子发票'
-          },
-          person: {
-            1: '个人',
-            2: '单位'
-          }
-        }
         if (this.invoiceType.invoice) {
           this.invoiceFlag = true
-          this.invoiceInfo.invoice = data.invoice[this.invoiceType.invoice]
-          this.invoiceInfo.person = data.person[this.invoiceType.person]
+          this.invoiceInfo.invoice = this.enums.invoice[this.invoiceType.invoice]
+          this.invoiceInfo.person = this.enums.person[this.invoiceType.person]
         } else {
           this.invoiceFlag = false
         }

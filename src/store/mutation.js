@@ -30,9 +30,6 @@ const mutations = {
   [types.SET_CART_COUNT] (state, num) {
     state.cartCount = num
   },
-  [types.SET_SCROLL_Y] (state, num) {
-    state.scrollY = num
-  },
   [types.SET_POSITION] (state, position) {
     state.position = position
   }

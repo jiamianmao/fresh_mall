@@ -44,7 +44,7 @@
             <img src="../../assets/selectAdd/select.png" v-if='active'>
             <img src="../../assets/selectAdd/selected.png" v-else>
           </div>
-          <p>我已阅读并同意<span>《用户注册协议》</span></p>
+          <p>我已阅读并同意<span @click='seeRule'>《用户注册协议》</span></p>
         </div>
         <button @click='submit'>注册</button>
       </div>
@@ -130,6 +130,9 @@
             this.msg = res.data.data.error
           }
         })
+      },
+      seeRule () {
+        this.$router.push('/service?type=regist_rule')
       }
     },
     components: {
