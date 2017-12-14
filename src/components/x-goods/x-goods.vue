@@ -8,10 +8,10 @@
       <p class='desc' v-html='goods.goods_jingle'></p>
       <div class='wrapper'>
         <div class="typeWrapper">
-          <span class='type' v-for='n of goods.goods_attr'>{{n.attr_name}}</span>
+          <span class='type'>{{goods.goods_unit}}</span>
         </div>
         <div class="iconWrapper">
-          <span v-for='n of goods.goods_attr'>{{n.attr_value_name}}</span>
+          <span v-for='n of goods.goods_attr'>{{ n.attr_value_name }}</span>
         </div>
       </div>
       <div class="sellInfo">
@@ -64,7 +64,7 @@
       flex-direction: column;
       position: relative;
       h3{
-        margin: 8px 0;
+        margin: 10px 0;
         font-size: @font-size-medium;
         width: 100%;
         .no-wrap
@@ -73,6 +73,7 @@
         color: #666;
         font-size: @font-size-small;
         height: 12px;
+        .no-wrap
       }
       .sellInfo{
         position: absolute;
@@ -90,7 +91,7 @@
           }
         }
         .num{
-          color: #666;
+          color: #999;
           font-size: @font-size-small;
         }
       }
@@ -100,8 +101,10 @@
         .iconWrapper{
           display: flex;
           flex-flow: row wrap;
+          overflow: hidden;
+          height: 22px;
           span{
-            // height: 12px;
+            flex-shrink: 0;
             border: 1px solid @color;
             padding: 2px;
             font-size: @font-size-small-s;
@@ -111,6 +114,7 @@
           }
         }
         .typeWrapper{
+          font-size: 30px;
           span{
             margin-bottom: 8px;
             margin-top: 8px;

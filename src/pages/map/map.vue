@@ -242,14 +242,13 @@
         this.address_1 = Object.assign({}, this.address)[this.id]
       },
       activePoint (newVal) {
-        console.log(newVal)
         let x = this.addList.find(item => {
           return item.location_lat === newVal.split(',')[0]
         })
         this.activeAddData = x
         this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/nginx', {
           params: {
-            from: `${this.lat},${this.lng}`,
+            from: `${this.position.lat},${this.position.lng}`,
             to: `${this.activePoint}`,
             key: '2JHBZ-UC7WO-MKLWW-SDXUZ-WSI4J-XYF25'
           }

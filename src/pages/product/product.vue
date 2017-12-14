@@ -122,7 +122,8 @@
             <div class="title">{{ item.Video.title }}</div>
             <div class="video">
               <!-- <video ref='video1' :src="item.Video.src" controls :poster='item.Video.image'></video> -->
-              <iframe frameborder="0" :src="item.Video.src" allowfullscreen></iframe>
+              <!-- <iframe frameborder="0" :src="item.Video.src" allowfullscreen></iframe> -->
+              <iframe frameborder="0" src="https://v.qq.com/iframe/player.html?vid=w0022szc9je&tiny=0&auto=0" allowfullscreen></iframe>
             </div>
             <p v-if='item.Detail' class='see_text'>如果您不方便观看视频，请<a class='mark' @click='toImgText(item.Detail.id)'>点击此处</a>查看图文详情</p>
           </div>
@@ -243,7 +244,7 @@
         <button @click='submit'>加入购物车</button>
       </div>
     </transition>
-    <tab @add='addCart' @tel='tel' :num='num'></tab>
+    <tab @add='addCart' @tel='tel'></tab>
     <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
     <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
   </scroll>
@@ -257,7 +258,7 @@
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapMutations } from 'vuex'
   const INIT = 0
   export default {
     name: 'product',
@@ -349,6 +350,7 @@
         this.$refs.minus.style.color = '#999'
       },
       submit () {
+        if (this.count > this.product_obj.goods_storage) return
         this.addFlag = false
         this.$http.post(`/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`, {
           goods_id: this.id,
@@ -601,7 +603,10 @@
             }
           }
         })
-      }
+      },
+      ...mapMutations([
+        'SET_CART_COUNT'
+      ])
     },
     computed: {
       swiper () {
@@ -667,6 +672,9 @@
       },
       slideDown () {
         this.$refs.scrollCom.refresh()
+      },
+      num (newVal) {
+        this.SET_CART_COUNT(newVal)
       }
     },
     filters: {
@@ -1217,18 +1225,20 @@
           }
         }
         .right{
-          width: 242px;
+          flex: 1;
           display: flex;
           flex-flow: column nowrap;
           justify-content: center;
+          overflow: hidden;
           h3{
             font-size: @font-size-large;
-            letter-spacing: 1px;
+            margin: 14px 0 10px 0;
             .no-wrap
           }
           .middle{
             color: #adadad;
-            height: 36px;
+            margin-bottom: 10px;
+            font-size: @font-size-small;
           }
           .last{
             display: flex;

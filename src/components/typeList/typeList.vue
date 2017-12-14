@@ -3,12 +3,19 @@
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
       <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
         <img v-lazy="item.img_url">
+        <div class="mask" v-show='index !== swiperOption.idx'></div>
       </swiper-slide>
     </swiper>
     <div class="text">
-      <h3>{{text.goods_name}}</h3>
+      <p class='title'>{{text.goods_name}}</p>
       <p v-html='text.goods_jingle'></p>
-      <strong>¥{{text.goods_price}}<span v-show='text.goods_unit'>/</span>{{text.goods_unit}}</strong>
+      <strong>
+        <span class='price'>¥{{text.goods_price}}</span>
+        <span class='box' v-show='text.goods_unit'>
+          <span class='fen'>/</span>
+          <span class='unit'>{{text.goods_unit}}</span>
+        </span>
+      </strong>
       <button @click='goCate(goods.gc_id)'>
         <span>更多{{goods.gc_name}}</span>
         <svg class="icon" aria-hidden="true">
@@ -35,23 +42,26 @@
           pagination: '.swiper-pagination',
           slidesPerView: 'auto',
           centeredSlides: true,
-          spaceBetween: 9,
+          spaceBetween: 8,
           idx: index,
+          // loop: true,
           initialSlide: index,
           onSlideChangeEnd (swiper) {
+            // console.log(vm)
             this.idx = swiper.activeIndex
           }
         }
       }
     },
     created () {
-      if (this.goods.goods_list.length === 0) {
-        this.text = {}
-      } else if (this.goods.goods_list.length === 1) {
-        this.text = this.goods.goods_list[0]
-      } else {
-        this.text = this.goods.goods_list[index]
-      }
+      // if (this.goods.goods_list.length === 0) {
+      //   this.text = {}
+      // } else if (this.goods.goods_list.length === 1) {
+      //   this.text = this.goods.goods_list[0]
+      // } else {
+      //   this.text = this.goods.goods_list[index]
+      // }
+      this.text = this.goods.goods_list[index]
     },
     methods: {
       goProduct (id) {
@@ -87,6 +97,15 @@
       .swiper-slide {
         width: 69.2vw;
         height: 92.26667vw;
+        position: relative;
+        .mask{
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, .4);
+        }
         img{
           width: 100%;
           height: 100%;
@@ -99,10 +118,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      h3{
+      .title{
         margin-top: 20px;
         width: 90%;
         text-align: center;
+        font-size: @font-size-medium-x;
+        font-weight: bold;
+        color: #111;
         .no-wrap
       }
       p{
@@ -115,6 +137,19 @@
       }
       strong{
         margin: 12px 0;
+        font-size: 0;
+        .price{
+          font-size: @font-size-medium;
+          font-weight: bold;
+        }
+        .box{
+          .fen{
+            font-size: @font-size-medium-x;
+          }
+          .unit{
+            font-size: @font-size-small-s !important;
+          }
+        }
       }
       button{
         width: 180px;

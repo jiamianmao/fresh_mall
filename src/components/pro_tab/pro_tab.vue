@@ -17,7 +17,7 @@
         <use xlink:href="#icon-shopcart"></use>
       </svg>
       <span>购物车</span>
-      <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
+      <div class='num' ref='num' v-show='cartCount > 0'>{{cartCount}}</div>
     </div>
     <div class="item item_add" @click='addCart'>
       加入购物车
@@ -25,13 +25,8 @@
   </div>
 </template>
 <script>
+  import { mapGetters } from 'vuex'
   export default {
-    props: {
-      num: {
-        type: Number,
-        default: 0
-      }
-    },
     data () {
       return {
         flag: false
@@ -51,8 +46,13 @@
         this.$router.push('/shopcart')
       }
     },
+    computed: {
+      ...mapGetters([
+        'cartCount'
+      ])
+    },
     watch: {
-      num () {
+      cartCount () {
         this.$nextTick(() => {
           this.$refs.num.classList.add('change')
           this.timer = setTimeout(() => {

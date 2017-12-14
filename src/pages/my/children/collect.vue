@@ -27,8 +27,8 @@
                   <img v-lazy='item.goods_image_url'>
                 </div>
                 <div class="content">
-                  <p>{{item.goods_name}}</p>
-                  <span>{{item.jingle}}</span>
+                  <p>{{ item.goods_name }}</p>
+                  <span>{{item.goods_unit}}</span>
                   <div class="price">
                     <strong>¥{{item.goods_price}}</strong>
                   </div>
@@ -66,9 +66,9 @@
                 </div>
                 <div class="content">
                   <p>{{item.goods_name}}</p>
-                  <span>{{item.goods_marketprice}}</span>
+                  <span>{{item.goods_unit}}</span>
                   <div class="price">
-                    <strong>¥{{item.goods_promotion_price}}</strong>
+                    <strong>¥{{item.goods_marketprice}}</strong>
                   </div>
                 </div>
               </div>
@@ -230,6 +230,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable.less';
+  @import '~common/less/mixin.less';
   .container{
     position: absolute;
     top: 0;
@@ -250,6 +251,7 @@
           width: 81px;
           height: 81px;
           margin-right: 10px;
+          flex-basis: 81px;
           img{
             width: 100%;
             height: 100%;
@@ -257,12 +259,18 @@
         }
         .content{
           flex: 1;
-          height: 100%;
+          height: 81px;
           display: flex;
           flex-flow: column nowrap;
-          justify-content: space-around;
+          justify-content: space-between;
           font-size: @font-size-medium;
-          padding-right: 15px;
+          overflow: hidden;
+          padding: 4px 15px 10px 0;
+          p{
+            width: 100%;
+            color: #414141;
+            .no-wrap
+          }
           >span{
             color: #999;
           }

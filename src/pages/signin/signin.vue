@@ -22,7 +22,7 @@
     <div class="types">
       <divider>你还可以用以下方式登录</divider>
       <div class="wrapper">
-        <img src="../../assets/login/qq.png">
+        <img @click='loginByWechat' src="../../assets/login/wechat.png">
       </div>
     </div>
     <alert v-model="show" title="提示">{{msg}}</alert>
@@ -69,8 +69,10 @@
           code: 123
         }).then(res => {
           if (res.data.status === 200) {
+            // 其实应该以对象的方式存入进去的
             storage.set('api_token', res.data.data.api_token)
             storage.set('member_class', res.data.data.member_class)
+            storage.set('mobile', res.data.data.member_mobile)
             this.$router.push({
               path: storage.get('currentUrl')
             })
@@ -79,6 +81,10 @@
             this.show = true
           }
         })
+      },
+      loginByWechat () {
+        // todo
+        console.log('wechat logined')
       }
     },
     components: {

@@ -3,14 +3,19 @@
     <search @close='close' @toSearch='toSearch' :rightContent='rightContent'></search>
     <div class="main">
       <div class="item" v-for='item of result' @click='select(item.goods_id)'>
-        <img v-lazy='item.goods_image'>
+        <div class="img_box">
+          <img v-lazy='item.goods_image'>
+        </div>
         <div class="down">
           <h1 class='title'>{{item.goods_name}}</h1>
           <p class='desc' v-html='item.goods_jingle'></p>
           <p class='price'>¥{{item.goods_price}}</p>
         </div>
       </div>
-      <div class="nothing" v-show='nothing'>很抱歉，暂时没有与{{keyword}}相关的产品</div>
+      <div class="nothing" v-show='nothing'>
+        <img src="../../assets/home/no_result.png">
+        <p>很抱歉，暂时没有与{{keyword}}相关的产品</p>
+      </div>
     </div>
   </div>
 </template>
@@ -42,8 +47,8 @@
               this.nothing = true
             } else {
               this.nothing = false
-              this.result = res.data.data
             }
+            this.result = res.data.data
           }
         })
       },
@@ -58,6 +63,7 @@
 </script>
 <style lang="less" scoped>
   @import '~common/less/variable';
+  @import '~common/less/mixin';
   .container{
     position: absolute;
     top: 0;
@@ -73,41 +79,62 @@
       justify-content: space-between;
       .item{
         width: 49.2%;
-        height: calc(~"50vh - 25px");
         text-align: center;
         display: flex;
         flex-direction: column;
-        img{
+        .img_box{
           width: 100%;
-          height: 230px;
+          height: 0;
+          padding-top: 125%;
+          background: red;
+          position: relative;
+          img{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+          }
         }
         .down{
           flex: 1;
+          padding: 0 5%;
+          text-align: center;
           overflow: hidden;
+          padding-bottom: 25px;
           .title{
+            margin-top: 21px;
+            margin-bottom: 0;
             font-size: @font-size-medium;
+            .no-wrap
           }
           .desc{
             font-size: @font-size-small;
+            line-height: 29px;
             color: #858585;
-            height: 12px;
+            height: 29px;
+            .no-wrap
           }
           .price{
             font-size: @font-size-small;
             font-weight: bold;
-            margin-top: 6px;
           }
         }
       }
       .nothing{
         position: absolute;
-        top: 20%;
+        top: 50%;
         left: 50%;
         text-align: center;
         width: 100vw;
-        transform: translate3d(-50%, 0, 0);
-        color: #666;
+        transform: translate3d(-50%, -50%, 0);
+        color: #999;
         font-size: @font-size-medium;
+        img{
+          width: 68px;
+          height: 62px;
+          margin-bottom: 22px;
+        }
       }
     }
   }

@@ -140,8 +140,8 @@
         let obj = {}
         if (this.storeCondition) {
           obj.store_condition = this.storeCondition
-        } else if (this.storeConditionPic.content) {
-          obj.store_condition_pic = this.storeConditionPic.content
+        } else if (this.storeConditionPic) {
+          obj.store_condition_pic = this.storeConditionPic
         }
         this.$http.post(`/mobile/?act=member_index&op=company_authority&api_token=${this.api_token}`, Object.assign({
           business_licence_number: this.qualification.business_licence_number,

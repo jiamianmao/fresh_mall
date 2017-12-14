@@ -36,16 +36,16 @@
           <div class="left" ref='navLeft'>
             <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index, item.gc_id)' ref='navItem'>{{item.gc_name}}</span>
           </div>
-          <div class='arrow_box' @click='arrowToggle'>
+          <div class='arrow_box' @click='arrowToggle' v-show='!slideDown'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
-              <use xlink:href="#icon-arrowdropdown"></use>
+              <use xlink:href="#icon-arrow-b"></use>
             </svg>
           </div>
         </nav>
       </transition>
 
       <!-- 遮罩层 z-index: 6 -->
-      <div class="mask" v-show='slideDown' @click='arrowToggle'>
+      <div class="mask" v-show='slideDown' @click='arrowToggle' @touchmove.prevent>
       </div>
 
       <!-- 主内容区 -->
@@ -152,7 +152,7 @@
           navLeft.style.flexWrap = 'nowrap'
           navLeft.style.overflowX = 'scroll'
         }
-        this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
+        // this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
       },
       selectCate (key, gcId) {
         this.activeIdx = key
@@ -300,7 +300,8 @@
     }
     .swiper-wrapper{
       width: 100%;
-      height: calc(~"100vh - 49px");
+      // height: calc(~"100vh - 49px");
+      height: 100vh;
       position: absolute;
       top: 0;
       left: 0;
@@ -352,12 +353,12 @@
       display: flex;
       flex-flow: row nowrap;
       .left{
-        width: 90%;
         height: @nav_height;
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         overflow: visible;
+        flex: 1;
         background: #fff;
         span{
           width: 25%;
@@ -369,16 +370,14 @@
       }
       .arrow_box{
         width: 10vw;
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translate3d(0, -50%, 0);
+        height: @nav_height;
+        flex-basis: 10vw;
         background: #fff;
         .arrow{
-          width: 30px;
-          height: 30px;
+          width: 1em;
+          height: 1em;
           fill: @active-color;
-          vertical-align: middle;
+          vertical-align: -.1em;
           overflow: hidden;
         }
       }

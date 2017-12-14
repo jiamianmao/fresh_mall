@@ -23,7 +23,6 @@
 <script>
   import { Tab, TabItem } from 'vux'
   import { mapGetters } from 'vuex'
-  import $ from 'jquery'
   export default {
     data () {
       return {
@@ -32,11 +31,6 @@
     },
     created () {
       this.arr = ['/home', '/shopcart', '/my']
-    },
-    mounted () {
-      $('.tab').on('touchmove', e => {
-        e.preventDefault()
-      })
     },
     methods: {
       go (idx) {

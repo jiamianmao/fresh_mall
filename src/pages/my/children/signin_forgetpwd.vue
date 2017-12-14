@@ -4,10 +4,10 @@
       <x-title>{{title}}</x-title>
       <main class='vux-1px-b'>
         <div class="username">
-          <img src="../../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
+          <img src="../../../assets/login/tel.png"><input type="tel" v-model.trim='tel' placeholder='手机号' maxlength='11'>
         </div>
         <div class="code vux-1px-t">
-          <img src="../../../assets/login/code.png"><input type="tel" v-model='code' placeholder='验证码' maxlength='6'>
+          <img src="../../../assets/login/code.png"><input type="tel" v-model.trim='code' placeholder='验证码' maxlength='6'>
           <div class="active">
             <span @click='getCode' v-if='!start'>获取验证码</span>
             <div  v-else><countdown v-model='time' :start='start' @on-finish="finish"></countdown> 秒</div>
@@ -36,7 +36,7 @@
         </div>
         <button @click='submit'>{{btn}}</button>
       </div>
-      <alert v-model="show" title="请核对信息">{{msg}}</alert>
+      <alert v-model="show" title="提示" @on-hide='sure'>{{msg}}</alert>
       <router-view></router-view>
     </div>
   </transition>
@@ -75,11 +75,13 @@
         active: true,   // 协议按钮的flag
         msg: '',
         show: false,      // alert的flag
-        btn: '完成'
+        btn: '完成',
+        success: false
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.tel = storage.get('mobile')
       // 用来手机验证的，因为要验证两次 所以提取出来
       this.regTel = /^1[34578]{1}\d{9}$/
       if (!this.title) {
@@ -93,37 +95,46 @@
     },
     methods: {
       seePassword (idx) {
-        if (idx === 1) {
-          if (this.$refs.pwd1.getAttribute('type') === 'text') {
-            this.$refs.pwd1.setAttribute('type', 'password')
-            this.$refs.icon1.style.fill = '#5eb29e'
-          } else {
-            this.$refs.pwd1.setAttribute('type', 'text')
-            this.$refs.icon1.style.fill = '#333'
-          }
-        } else {
-          if (this.$refs.pwd2.getAttribute('type') === 'text') {
-            this.$refs.pwd2.setAttribute('type', 'password')
-            this.$refs.icon2.style.fill = '#5eb29e'
-          } else {
-            this.$refs.pwd2.setAttribute('type', 'text')
-            this.$refs.icon2.style.fill = '#333'
-          }
+        // if (idx === 1) {
+        //   if (this.$refs.pwd1.getAttribute('type') === 'text') {
+        //     this.$refs.pwd1.setAttribute('type', 'password')
+        //     this.$refs.icon1.style.fill = '#5eb29e'
+        //   } else {
+        //     this.$refs.pwd1.setAttribute('type', 'text')
+        //     this.$refs.icon1.style.fill = '#333'
+        //   }
+        // } else {
+        //   if (this.$refs.pwd2.getAttribute('type') === 'text') {
+        //     this.$refs.pwd2.setAttribute('type', 'password')
+        //     this.$refs.icon2.style.fill = '#5eb29e'
+        //   } else {
+        //     this.$refs.pwd2.setAttribute('type', 'text')
+        //     this.$refs.icon2.style.fill = '#333'
+        //   }
+        // }
+        let val = this.$refs[`pwd${idx}`].getAttribute('type')
+        // 做个字典来进行判断
+        let dict = {
+          'text': ['password', '#5eb29e'],
+          'password': ['text', '#333']
         }
+        this.$refs[`pwd${idx}`].setAttribute('type', dict[val][0])
+        this.$refs[`icon${idx}`].style.fill = dict[val][1]
       },
       getCode () {
-        if (!this.regTel.test(this.tel.trim())) {
+        if (!this.regTel.test(this.tel)) {
           this.msg = '请正确输入手机号码'
           this.show = true
           return
         } else {
           this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=3`).then(res => {
-            console.log(res)
-            if (res.data.status !== 200) {
-              this.msg = res.data.data.error
-              this.show = true
-            } else {
-              this.start = true
+            if (res.data.status === 200) {
+              if (res.data.data.error === '1') {
+                this.msg = '暂时无法获取验证码'
+                this.show = true
+              } else {
+                this.start = true
+              }
             }
           })
         }
@@ -134,10 +145,9 @@
         this.time = 60
       },
       submit () {
-        console.log(this.title)
         // 修改密码
         if (this.title === '修改密码') {
-          if (!this.regTel.test(this.tel.trim())) {
+          if (!this.regTel.test(this.tel)) {
             this.msg = '请正确输入手机号码'
             this.show = true
             return
@@ -146,7 +156,7 @@
             this.show = true
             return
           } else if (!this.active) {
-            this.msg = '请接受用户注册协议'
+            this.msg = '请选择接受用户注册协议'
             this.show = true
             return
           } else {
@@ -157,7 +167,9 @@
               password1: this.pwd2
             }).then(res => {
               if (res.data.status === 200) {
-                this.$router.go(-2)
+                this.success = true
+                this.show = true
+                this.msg = '密码修改成功'
               } else {
                 this.msg = '验证码输入错误'
                 this.show = true
@@ -165,7 +177,7 @@
             })
           }
         } else if (this.title === '更改手机号') {
-          if (!this.regTel.test(this.tel.trim())) {
+          if (!this.regTel.test(this.tel)) {
             this.msg = '请正确输入手机号码'
             this.show = true
             return
@@ -174,7 +186,6 @@
               auth_code: this.code
             }).then(res => {
               if (res.data.status === 200) {
-                console.log(1)
                 this.$router.push('/my/account/tel/newtel')
               } else {
                 this.msg = '验证码输入错误'
@@ -183,7 +194,7 @@
             })
           }
         } else if (this.title === '忘记密码') {
-          if (!this.regTel.test(this.tel.trim())) {
+          if (!this.regTel.test(this.tel)) {
             this.msg = '请正确输入手机号码'
             this.show = true
             return
@@ -207,6 +218,10 @@
             })
           }
         }
+      },
+      sure () {
+        // 统一跳转到首页
+        this.success && this.$router.replace('/home')
       }
     },
     components: {

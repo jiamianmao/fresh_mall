@@ -317,7 +317,7 @@
             }
           })
         }
-        this.sum = sum
+        this.sum = sum.toFixed(2)
         this.cartCount = cartCount
         this.SET_CART_COUNT(cartCount)
       },
@@ -368,7 +368,7 @@
                 this.ok.splice(index, 1, false)
               })
             }
-            this.sum = sum
+            this.sum = sum.toFixed(2)
             this.cartCount = cartCount
             this.cartType = cartType
             this.all = flag

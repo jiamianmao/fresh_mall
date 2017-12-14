@@ -410,13 +410,12 @@
             }
           }
           button{
-            width: 19.733vw;
+            min-width: 19.733vw;
             height: 26px;
-            border: 1px solid red;
             line-height: 26px;
             text-align: center;
             background: #fff;
-            font-size: @font-size-small;
+            font-size: @font-size-small-s;
             &.left{
               border: 1px solid #000;
               margin-right: 10px;

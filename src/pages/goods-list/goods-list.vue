@@ -198,10 +198,6 @@
       // 选择不同的筛选条件来渲染对应的筛选值
       idx () {
         this.descData = this.sortArr[this.idx].attribute_value
-      },
-      // 来监控word，如果word改变的话，就把分类这个id置空
-      word () {
-        this.gc_id = ''
       }
     },
     components: {

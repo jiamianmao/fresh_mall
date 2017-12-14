@@ -126,7 +126,7 @@
         this.activeAddData = x
         this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/nginx', {
           params: {
-            from: `${this.lat},${this.lng}`,
+            from: `${this.position.lat},${this.position.lng}`,
             to: `${this.activePoint}`,
             key: '2JHBZ-UC7WO-MKLWW-SDXUZ-WSI4J-XYF25'
           }
