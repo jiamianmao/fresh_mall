@@ -13,7 +13,7 @@
         </div>
       </div>
       <div class="nothing" v-show='nothing'>
-        <img src="../../assets/home/no_result.png">
+        <!-- <img src="../../assets/home/no_result.png"> -->
         <p>很抱歉，暂时没有与{{keyword}}相关的产品</p>
       </div>
     </div>

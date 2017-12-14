@@ -2,8 +2,8 @@
   <div class='item' v-if='goods.goods_list.length'>
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
       <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
-        <img v-lazy="item.img_url">
-        <div class="mask" v-show='index !== swiperOption.idx'></div>
+        <img :src="item.img_url">
+        <div class="mask" v-show='index !== swiperOption.idx % goods.goods_list.length'></div>
       </swiper-slide>
     </swiper>
     <div class="text">
@@ -43,17 +43,18 @@
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 8,
+          loop: true,
           idx: index,
-          // loop: true,
-          initialSlide: index,
+          initialSlide: 0,
           onSlideChangeEnd (swiper) {
-            // console.log(vm)
+            // console.log(swiper.activeIndex)
             this.idx = swiper.activeIndex
           }
         }
       }
     },
     created () {
+      // let _this = this
       // if (this.goods.goods_list.length === 0) {
       //   this.text = {}
       // } else if (this.goods.goods_list.length === 1) {
@@ -79,7 +80,8 @@
     watch: {
       swiperOption: {
         handler () {
-          this.text = this.goods.goods_list[this.swiperOption.idx]
+          let list = this.goods.goods_list
+          this.text = list[this.swiperOption.idx % list.length]
         },
         deep: true
       }

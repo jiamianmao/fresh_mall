@@ -82,7 +82,7 @@ router.beforeEach((to, from, next) => {
   // console.log(document.body.scrollTop)
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
     next('/signin')
-    Storage.set('currentUrl', to.fullPath)
+    Storage.set('currentUrl', from.fullPath)
   } else if (to.path === '/signin' && Storage.get('api_token')) {
     next('/')
   } else {
