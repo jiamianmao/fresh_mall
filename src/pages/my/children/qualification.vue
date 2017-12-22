@@ -125,12 +125,12 @@
                 <p>您是否愿意成为平台在售门店？</p>
               </div>
               <div class="content">
-                <p @click='select(1, 1)'>
+                <p @click='select(1, 2)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，我已阅读<a @click='see(0)' href="javascript:;">《在售门店规则》</a></span>
                 </p>
-                <p @click='select(1, 2)'>
+                <p @click='select(1, 1)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_yinliu === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
@@ -143,12 +143,12 @@
                 <p>您是否愿意成为平台自提门店？</p>
               </div>
               <div class="content">
-                <p @click='select(2, 1)'>
+                <p @click='select(2, 2)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，我已阅读<a @click='see(1)' href="javascript:;">《自提门店规则》</a></span>
                 </p>
-                <p @click='select(2, 2)'>
+                <p @click='select(2, 1)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_ziti === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
@@ -161,12 +161,12 @@
                 <p>您是否愿意代收生鲜产品？</p>
               </div>
               <div class="content">
-                <p @click='select(3, 1)'>
+                <p @click='select(3, 2)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，<router-link to="/my/qualification/fresh">点击上传</router-link>生鲜存储资质</span>
                 </p>
-                <p @click='select(3, 2)'>
+                <p @click='select(3, 1)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_storegoods === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
@@ -179,12 +179,12 @@
                 <p>您是否愿意配送生鲜产品？</p>
               </div>
               <div class="content">
-                <p @click='select(4, 1)'>
+                <p @click='select(4, 2)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 2'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>是，配送费根据自己公示规则收取</span>
                 </p>
-                <p @click='select(4, 2)'>
+                <p @click='select(4, 1)'>
                   <img src="../../../assets/selectAdd/selected.png" v-if='is_dispatching === 1'>
                   <img src="../../../assets/selectAdd/select.png" v-else>
                   <span>否</span>
@@ -196,7 +196,7 @@
         <footer>
           <button @click='submit'>提交审核</button>
           <p>请在48小时内到“我的-资质认证”页面查看审核结果，若审核成功，您还需到此查看是否需要交纳保证金。</p>
-          <p><a href="#">《保证金管理制度》</a></p>
+          <p><a>《保证金管理制度》</a></p>
         </footer>
       </div>
 
@@ -227,11 +227,11 @@
             </div>
             <div class="text_wrapper"  v-show='status === 1'>
               <p>恭喜您审核成功，缴纳保证金即可购买</p>
-              <a href="#">缴纳保证金</a><br>
+              <a href="#" @click='toPromise'>缴纳保证金</a><br>
               <a href="#">保证金管理制度</a>
             </div>
             <div class="text_wrapper"  v-show='status === 2 && !deposit'>
-              <p>经审核，您属于{{stroe_name}}的经销门店，免交保证金</p>
+              <p>经审核，您属于{{store_name}}的经销门店，免交保证金</p>
             </div>
             <div class="text_wrapper"  v-show='status === 3'>
               <p>请您仔细阅读资质认证的信息填写要求</p>
@@ -239,7 +239,7 @@
             </div>
             <div class="text_wrapper"  v-show='status === 2 && deposit'>
               <p>恭喜您审核成功!</p>
-              <a href="#">保证金管理制度</a>
+              <a>保证金管理制度</a>
             </div>
           </div>
         </div>
@@ -288,11 +288,13 @@
         store_condition: '',
         store_condition_pic: [],
         deposit: false,  // 是否交保证金
-        stroe_name: ''
+        store_name: '',
+        store_id: null
       }
     },
     created () {
       // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
+      console.log('reinter')
       this.api_token = storage.get('api_token')
       this._getStatus()
     },
@@ -396,7 +398,7 @@
         if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching || !this.licence_pic.length || !this.shop_pic) {
           this.show = true
           this.msg = '请完整输入信息'
-        } else if (this.is_storegoods === 1 && !this.storeCondition) {
+        } else if (this.is_storegoods === 2 && !this.storeCondition) {
           this.show = true
           this.msg = '请上传生鲜存储资质'
         } else if (!this.authenticator_idnumber.match(/^(\d{15}|\d{17}[\dxX])$/)) {
@@ -425,6 +427,9 @@
           this.$router.push('/my/qualification/sure')
         }
       },
+      toPromise () {
+        this.$router.push(`/pay?store_id=${this.store_id}`)
+      },
       _getStatus () {
         this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
@@ -437,11 +442,12 @@
               } else {
                 this.deposit = true
               }
-              this.stroe_name = data.company_info.company_name
+              this.store_name = data.company_info.store_name
               this.complete = true
               this.title = '审核状态'
               this.text = ''
               this.status = data.examine_state | 0
+              this.store_id = data.company_info.store_id
             }
           }
         })
@@ -668,6 +674,7 @@
           line-height: 22px;
           font-size: @font-size-medium;
           color: #333;
+          text-align: center;
           &~p{
             margin-top: 10px;
             a{

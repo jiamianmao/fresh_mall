@@ -2,10 +2,10 @@
   <div class="container">
     <x-title>{{title}}</x-title>
     <main>
-      <h3 class="name">{{name}}</h3>
+      <h3 class="name" v-show='flag'>{{name}}</h3>
       <div class="text">
-        <video v-if='src' :src="src" controls></video>
-        <p v-html='desc'></p>
+        <iframe v-if='src' frameborder="0" :src="src" allowfullscreen></iframe>
+        <div v-html='desc'></div>
         <p style='display: none;' ref='descText'></p>
         <!-- 终于碰到了sticky-footer的使用场景 wrapper设置min-height top设置flex:1 bottom设置flex: 0 -->
         <img v-show='imgFlag' src="../../assets/product/icon.png">
@@ -15,6 +15,7 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
@@ -22,7 +23,8 @@
         name: '',
         desc: '',
         src: '',
-        imgFlag: false
+        imgFlag: false,
+        flag: true
       }
     },
     created () {
@@ -37,6 +39,7 @@
       ]
       this.title = this.$route.query.title
       this.id = this.$route.query.id
+      this.api_token = storage.get('api_token')
       let flag
       init.forEach(item => {
         if (item.title === this.title) {
@@ -47,7 +50,13 @@
         }
       })
       if (!flag) {
-        this._getEnsure(this.id)
+        if (this.title === '图文查看') {
+          this._getImgText(this.id)
+        } else if (this.title === '平台详情') {
+          this._getPt()
+        } else {
+          this._getEnsure(this.id)
+        }
       }
     },
     methods: {
@@ -63,13 +72,35 @@
       },
       // 商品详情
       _getEnsure (id) {
-        this.$http.get(`/api/goods_video/detail?id=${id}`).then(res => {
+        this.$http.get(`/api/goods_video/detail?id=${id}&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
             let data = res.data.data
             this.$refs.descText.innerHTML = data.content
-            this.desc = this.$refs.descText.innerText
+            this.desc = this.$refs.descText.innerHTML
             this.name = data.title
             this.src = data.src
+          }
+        })
+      },
+      // 图文详情
+      _getImgText (id) {
+        this.$http.get(`/api/goods/getGoodsBody?goods_id=${this.id}`).then(res => {
+          if (res.data.status === 200) {
+            this.flag = false
+            let data = res.data.data
+            this.$refs.descText.innerHTML = data
+            this.desc = this.$refs.descText.innerHTML
+          }
+        })
+      },
+      // 平台类
+      _getPt () {
+        this.$http.post('/mobile?act=index&op=get_site_tel&name=site_describe').then(res => {
+          if (res.data.status === 200) {
+            this.flag = false
+            let data = res.data.data.value
+            this.$refs.descText.innerHTML = data
+            this.desc = this.$refs.descText.innerText
           }
         })
       }
@@ -85,11 +116,10 @@
     width: 100vw;
     min-height: calc(~"100vh - 50px");
     padding: 15px 12px 0 12px;
-    video{
-      margin-top: 20px;
-      width: 100%;
-      height: 0;
-      padding-top: 56.25%;
+    iframe{
+      margin: 20px 0;
+      width: calc(~"100vw - 24px");
+      height: calc(~"56.25vw - 11.25px");
     }
     .name{
       position: relative;
@@ -112,14 +142,10 @@
     .text{
       width: 100%;
       min-height: calc(~"100vh - 85px");
-      text-align: center;
       display: flex;
-      flex-flow: column nowrap;
-      p{
-        margin: 14px 0 19px 0;
-        line-height: 28px;
-        color: #666;
-        text-align: left;
+      flex-direction: column;
+      overflow: hidden;
+      div{
         flex: 1;
       }
       img{

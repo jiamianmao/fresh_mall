@@ -3,7 +3,7 @@
     <div class='box'>
       <x-title>收货地址</x-title>
       <div class="container">
-        <div class="content" v-for='(item, index) of list'>
+        <div class="content" v-for='(item, index) of list' @click='select(item)'>
           <div class="add vux-1px-b">
             <div class="top">
               <span class='name'>{{item.true_name}}</span>
@@ -14,14 +14,14 @@
             </div>
           </div>
           <div class="config">
-            <div class="left" @click='select(item)'>
+            <div class="left">
               <img src="../../../assets/selectAdd/selected.png" v-if='parseInt(item.is_default)'>
               <img src="../../../assets/selectAdd/select.png" v-else>
               <span>默认地址</span>
             </div>
             <div class="right">
-              <span @click='change(item.address_id)'><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
-              <span @click='del(item.address_id)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
+              <span @click.stop='change(item.address_id, item.is_default)'><img src="../../../assets/selectAdd/rewrite.png" >编辑</span>
+              <span @click.stop='del(item.address_id)'><img class='del' src="../../../assets/selectAdd/del.png">删除</span>
             </div>
           </div>
         </div>
@@ -60,6 +60,7 @@
       // 因为是一个组件在多个路由使用，所以需要灵活写路由
       this.initPath = this.$route.path
       this.brand_id = this.$route.query.id
+      this.transport = this.$route.query.transport
       this._getAddList()
     },
     methods: {
@@ -100,11 +101,12 @@
         })
       },
       // 编辑地址
-      change (id) {
+      change (id, status) {
         this.$router.push({
           path: '/my/address/add',
           query: {
-            id
+            id,
+            status
           }
         })
       },
@@ -118,17 +120,25 @@
                   this.address = item
                 }
               })
-              let ids = {
+              let address = {
                 brand_id: this.brand_id,
                 address: this.address
               }
-              this.SET_ADDRESS(ids)
+              let addressType = {
+                id: this.brand_id,
+                transport: this.transport,
+                store_id: null,
+                store_add: this.address
+              }
+              this.SET_ADDRESS(address)
+              this.SET_ADDRESS_TYPE(addressType)
             }
           }
         })
       },
       ...mapMutations([
-        'SET_ADDRESS'
+        'SET_ADDRESS',
+        'SET_ADDRESS_TYPE'
       ])
     },
     components: {

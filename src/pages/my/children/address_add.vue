@@ -55,6 +55,7 @@
     created () {
       this.api_token = Storage.get('api_token')
       this.id = this.$route.query.id
+      this.is_default = this.$route.query.status
       if (this.id) {
         this.$http.post(`/mobile/?act=member_address&op=address_info&api_token=${this.api_token}`, {
           address_id: this.id
@@ -123,7 +124,7 @@
             tel_phone: this.tel,
             area_id: this.area_id,
             city_id: this.city_id,
-            is_default: 0,
+            is_default: this.is_default,
             address_id: this.id
           }).then(res => {
             if (res.data.status === 200) {

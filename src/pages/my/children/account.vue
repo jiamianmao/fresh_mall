@@ -12,19 +12,24 @@
           <x-icon type="ios-arrow-right" size="22"></x-icon>
         </div>
       </div>
+      <button @click='clear'>退出当前账户</button>
+      <confirm @confirm='confirm' ref='confirm' title='确定退出账户吗？'></confirm>
       <router-view :correct='correct' :title='title' :tels='tels' :text='text'></router-view>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import storage from 'good-storage'
+  import Confirm from '@/components/confirm/confirm'
   export default {
     data () {
       return {
         title: '',
         tels: false,
         correct: false,
-        text: ''
+        text: '',
+        show: false
       }
     },
     methods: {
@@ -40,10 +45,19 @@
         this.correct = false
         this.tels = true
         this.$router.push('/my/account/tel')
+      },
+      clear () {
+        this.$refs.confirm.show()
+      },
+      confirm () {
+        storage.clear()
+        this.$router.replace('/signin')
+        window.location.reload()
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Confirm
     }
   }
 </script>
@@ -72,6 +86,20 @@
           fill: #999;
         }
       }
+    }
+    button{
+      position: fixed;
+      bottom: 60px;
+      width: 88vw;
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      color: #fff;
+      background: @color;
+      border: 0;
+      font-size: @font-size-large;
     }
   }
   .slide-enter-active, .slide-leave-active{

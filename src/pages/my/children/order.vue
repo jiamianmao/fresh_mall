@@ -6,7 +6,10 @@
         <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
       </tab>
       <div class="order_wrapper">
-        <div class="not_order" v-show='!orderList.length'><img src="../../../assets/my/not_order.png"></div>
+        <div class="not_order" v-if='!orderList.length'>
+          <img src="../../../assets/my/not_order.png">
+          <p>您还没有订单</p>
+        </div>
         <div class="order" v-for='order of orderList'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">
@@ -17,16 +20,20 @@
               <div class="status" v-if='order.order_state === 30'>等待收货</div>
               <div class="status" v-if='order.order_state === 40'>交易成功</div>
             </div>
+            <div class='order_num shipping vux-1px-b' v-if='order.order_common && order.order_common.shipping_company'>
+              <div class='num'>{{ order.order_common.shipping_company }}: <span>{{ order.order_common.shipping_number }}</span></div>
+            </div>
             <div class="goods_wrapper">
-              <div class="goods vux-1px-b" v-for='goods of order.order_good'>
+              <div class="goods vux-1px-b" v-for='goods of order.order_good'  @click='toProduct(goods.goods_id)'>
                 <div class="image">
-                  <img :src="goods.goods_image">
+                  <img v-lazy="goods.goods_image">
                 </div>
                 <div class="content">
                   <p>{{ goods.goods_name }}</p>
                   <div class='center'>
                     <span>{{ goods.goods_unit || ' ' }}</span>
                     <span v-show='order.delivery && order.delivery.dlyo_state === 20'>货物已到达门店</span>
+                    <span v-show='order.delivery && order.delivery.dlyo_state === 10 && order.order_state === 30'>运输中</span>
                   </div>
                   <div class="price">
                     <strong>¥{{goods.goods_price}}</strong>
@@ -59,31 +66,37 @@
           <div class="count vux-1px-t">
             <div class="text">
               <span>共 <strong>{{ order.sum }}</strong> 件</span>
-              <span class='pay'>实付: <strong>¥{{order.order_amount}}</strong></span>
+              <span class='pay' v-if='order.order_state === 10'>合计: <strong>¥{{order.order_amount}}</strong></span>
+              <span class='pay' v-else>实付: <strong>¥{{order.order_amount}}</strong></span>
             </div>
             <div class="btn">
               <button class='left' v-if='order.order_state === 10' @click='cancle_nopay(order.order_id)'>取消订单</button>
-              <button class='left' v-if='order.order_state === 20' @click='cancle_pay(order.order_id)'>取消订单</button>
+              <button class='left' v-if='order.order_state === 20 && !order.lock_state' @click='cancle_pay(order.order_id)'>取消订单</button>
+              <button class='center' v-if='order.order_state === 20 && order.lock_state'>退款中</button>
               <button class='left' v-if='order.order_state === 40 || order.order_state === 0' @click='del(order.order_id)'>删除订单</button>
-              <button class='right' v-if='order.order_state === 10' @click='pay(order.order_sn, order.order_amount)'>去支付</button>
+              <button class='right' v-if='order.order_state === 10 && order.payment_code !== "offline"' @click='pay(order.order_sn, order.order_amount, order.order_id)'>去支付</button>
               <button class='right' v-if='order.order_state === 30' @click='confirmGoods(order.order_id)'>确认收货</button>
+              <button class='right' v-if='order.order_state === 40 && order.evaluation_state === 1' @click='seeRate(order.order_id)'>查看评价</button>
               <button class='right' v-if='order.order_state === 40 && order.evaluation_state === 0' @click='rate(order.order_id)'>评价</button>
             </div>
           </div>
         </div>
       </div>
-      <confirm :text='text' ref='confirm' @confirm='sure' :title='title'></confirm>
+      <confirm :tel='false' :text='text' ref='confirm' @confirm='sure' :title='title'></confirm>
+      <alert v-model='show' title='提示'>取消订单申请已提交<br />等待商家确认后<br />订单金额将退还到您的支付账户</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Tab, TabItem } from 'vux'
-  import storage from 'good-storage'
   import Confirm from '@/components/confirm/confirm'
+  import { Tab, TabItem, Alert } from 'vux'
+  import storage from 'good-storage'
+  
   const PAY_NO = 1
   const PAY_YES = 2
   const DEL = 3
+
   export default {
     props: {
       status: {
@@ -101,7 +114,8 @@
         init: [], // 用来存储原始信息的
         flag: false, // 仅仅是增加一个判断是不是重新请求数据的
         text: '',
-        title: ''
+        title: '',
+        show: false
       }
     },
     created () {
@@ -110,7 +124,7 @@
     },
     mounted () {
       this.$nextTick(() => {
-        this.index = this.status
+        this.index = this.$route.query.status ? this.$route.query.status : this.status
       })
     },
     methods: {
@@ -118,29 +132,30 @@
       cancle_nopay (id) {
         this.order_id = id
         this.type = PAY_NO
-        this.text = '你要取消订单吗？'
+        this.text = '您要取消订单吗？'
         this.$refs.confirm.show()
       },
       // 已付款取消订单
       cancle_pay (id) {
         this.order_id = id
         this.type = PAY_YES
-        this.text = '你要取消订单吗？'
+        this.text = '您要取消订单吗？'
         this.$refs.confirm.show()
       },
       del (id) {
         this.order_id = id
         this.type = DEL
-        this.text = '你要删除订单吗？'
+        this.text = '您要删除订单吗？'
         this.$refs.confirm.show()
       },
-      pay (sn, sum) {
-        let sums = sum | 0
+      pay (sn, sum, id) {
+        let sums = Number(sum)
         this.$router.push({
           path: '/pay',
           query: {
             sum: sums,
-            arr: sn
+            arr: sn,
+            id
           }
         })
       },
@@ -161,9 +176,11 @@
           })
         } else if (this.type === PAY_YES) {
           this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
-            order_id: this.order_id
+            order_id: this.order_id,
+            type: 1
           }).then(res => {
             if (res.data.status === 200) {
+              this.show = true
               this._getOrder()
             }
           })
@@ -185,6 +202,12 @@
             this._getOrder()
           }
         })
+      },
+      seeRate (id) {
+        this.$router.push(`/rate?order=${id}`)
+      },
+      toProduct (id) {
+        this.$router.push(`/product/${id}`)
       },
       _getOrder () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
@@ -213,7 +236,8 @@
       XTitle,
       Tab,
       TabItem,
-      Confirm
+      Confirm,
+      Alert
     },
     watch: {
       index (newVal) {
@@ -282,7 +306,6 @@
     background: #f4f4f4;
     .order_wrapper{
       width: 100vw;
-      // height: calc(~"100vh - 94px");
       position: relative;
       background: #F4F4F4;
       .not_order{
@@ -291,10 +314,19 @@
         left: 50%;
         transform: translate3d(-50%, -50%, 0);
         width: 131px;
-        height: 113px;
+        height: 78px;
         img{
           width: 100%;
           height: 100%;
+        }
+        p{
+          position: absolute;
+          font-size: @font-size-small;
+          bottom: -26px;
+          left: 0;
+          width: 100%;
+          color: #ababab;
+          text-align: center;
         }
       }
       .order{
@@ -423,6 +455,10 @@
             &.right{
               border: 1px solid @color;
               color: @color;
+            }
+            &.center{
+              border: 1px solid transparent;
+              color: red;
             }
           }
         }

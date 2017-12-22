@@ -11,7 +11,7 @@
           <span class='type'>{{goods.goods_unit}}</span>
         </div>
         <div class="iconWrapper">
-          <span v-for='n of goods.goods_attr'>{{ n.attr_value_name }}</span>
+          <span v-for='n of goods.goods_attr' v-if='n.attr_value_name'>{{ n.attr_value_name }}</span>
         </div>
       </div>
       <div class="sellInfo">
@@ -111,6 +111,8 @@
             border-radius: 4px;
             color: @color;
             margin-top: 3px;
+            display: flex;
+            align-items: center;
           }
         }
         .typeWrapper{

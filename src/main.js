@@ -26,7 +26,7 @@ Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
 
 // axios 默认配置
-axios.defaults.baseURL = '/apis'
+axios.defaults.baseURL = 'http://ctx.17link.cc'
 axios.defaults.timeout = 5000
 
 // request 拦截器 （json -> 表单）
@@ -79,9 +79,9 @@ const router = new VueRouter({
 // 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
-  // console.log(document.body.scrollTop)
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
     next('/signin')
+    // let url = to.fullPath.includes('/my/') ? '/my' : to.fullPath
     Storage.set('currentUrl', from.fullPath)
   } else if (to.path === '/signin' && Storage.get('api_token')) {
     next('/')

@@ -117,6 +117,7 @@
     background: #fff;
     z-index: 1;
     text-align: center;
+    overflow-x: hidden;
     main{
       width: 100vw;
       padding-left: 15px;
@@ -145,6 +146,7 @@
               width: 100%;
               height: 100%;
               border-radius: 50%;
+              object-fit: cover;
             }
           }
           .radio_wrapper{

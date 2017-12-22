@@ -4,10 +4,10 @@
       <x-title>更改手机号</x-title>
       <main class='vux-1px-b'>
         <div class="username">
-          <img src="../../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='新手机号' maxlength='11'>
+          <img src="../../../assets/login/tel.png"><input type="tel" v-model.trim='tel' placeholder='新手机号' maxlength='11'>
         </div>
         <div class="code vux-1px-t">
-          <img src="../../../assets/login/code.png"><input type="tel" v-model='code' placeholder='验证码' maxlength='6'>
+          <img src="../../../assets/login/code.png"><input type="tel" v-model.trim='code' placeholder='验证码' maxlength='6'>
           <div class="active">
             <span @click='getCode' v-if='!start'>获取验证码</span>
             <div  v-else><countdown v-model='time' :start='start' @on-finish="finish"></countdown> 秒</div>
@@ -17,7 +17,7 @@
       <div class="bottom">
         <button @click='submit'>完成</button>
       </div>
-      <alert v-model="show" title="请核对信息">{{msg}}</alert>
+      <alert v-model="show" title="提示">{{msg}}</alert>
     </div>
   </transition>
 </template>
@@ -43,13 +43,22 @@
     },
     methods: {
       getCode () {
-        if (!this.regTel.test(this.tel.trim())) {
+        if (!this.regTel.test(this.tel)) {
           this.msg = '请正确输入手机号码'
           this.show = true
           return
         } else {
           // 获取验证码
-          this.start = true
+          this.$http.post(`/mobile/?act=member_account&op=bind_mobile_step1&api_token=${this.api_token}`, {
+            mobile: this.tel
+          }).then(res => {
+            if (res.data.status === 200) {
+              this.start = true
+            } else {
+              this.msg = res.data.data.error
+              this.show = true
+            }
+          })
         }
       },
       // 倒计时结束
@@ -58,6 +67,27 @@
         this.time = 60
       },
       submit () {
+        if (!this.regTel.test(this.tel)) {
+          this.msg = '请正确输入手机号码'
+          this.show = true
+          return
+        }
+        if (!this.code) {
+          this.msg = '请输入验证码'
+          this.show = true
+          return
+        }
+        this.$http.post(`/mobile/?act=member_account&op=edit_phonetwo&api_token=${this.api_token}`, {
+          mobile: this.tel,
+          auth_code: this.code
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.$router.replace('/my')
+          } else {
+            this.msg = res.data.data.error
+            this.show = true
+          }
+        })
       }
     },
     components: {

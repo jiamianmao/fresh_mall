@@ -81,8 +81,8 @@
       this.listenScroll = true
       this.probeType = 3  // 滑动的时候不节流
       this._getCityList()
-      this.city = storage.get('city')
-      this.lately = storage.has('lately') ? storage.get('lately') : []
+      this.city = storage.session.get('city')
+      this.lately = storage.session.has('lately') ? storage.session.get('lately') : []
     },
     computed: {
       // 固定字母列表
@@ -187,17 +187,16 @@
         ret.sort((a, b) => {
           return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
-        // console.log(ret)
         return ret
       }
     },
     watch: {
       cityFlag () {
-        storage.set('city', this.city)
-        if (!storage.has('lately')) {
-          storage.set('lately', [this.city])
+        storage.session.set('city', this.city)
+        if (!storage.session.has('lately')) {
+          storage.session.set('lately', [this.city])
         } else {
-          let arr = storage.get('lately')
+          let arr = storage.session.get('lately')
           if (!arr.includes(this.city)) {
             arr.unshift(this.city)
             // 控制长度
@@ -211,7 +210,7 @@
             arr.splice(idx, 1)
             arr.unshift(this.city)
           }
-          storage.set('lately', arr)
+          storage.session.set('lately', arr)
         }
         this.$router.push('/home')
       }

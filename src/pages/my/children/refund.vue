@@ -1,10 +1,10 @@
 <template>
   <div class="container">
-    <x-title>申请退款</x-title>
+    <x-title class='title'>申请退款</x-title>
     <div class="wrapper" v-if='obj'>
       <div class="item vux-1px-b">
         <p class="left">订单编号: {{obj.order_sn}}</p>
-        <p class="right">已发货</p>
+        <p class="right status">已发货</p>
       </div>
       <div class="goods" v-for='goods of obj.goods_list'>
         <div class="image">
@@ -15,7 +15,7 @@
           <span>{{goods.goods_unit}}</span>
           <div class="price">
             <strong>¥{{goods.goods_price}}</strong>
-            <strong>x{{goods.goods_num}}</strong>
+            <strong class='nums'>x{{goods.goods_num}}</strong>
           </div>
         </div>
       </div>
@@ -51,12 +51,14 @@
     <div class="btn">
       <button @click='submit'>提交</button>
     </div>
+    <alert v-show='show' :clo='false'>您的退款申请已提交，系统正在审核，请耐心等待</alert>
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { XTextarea, Group } from 'vux'
   import storage from 'good-storage'
+  import Alert from '@/components/alert/alert'
   export default {
     data () {
       return {
@@ -65,13 +67,20 @@
         img1: false,
         img2: false,
         obj: '',
-        imgs: []
+        imgs: [],
+        show: false
       }
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.status = this.$route.query.status
       this.id = this.$route.query.id
       this._getData()
+    },
+    mounted () {
+      if (this.status) {
+        this.show = true
+      }
     },
     methods: {
       logContent1 (file) {
@@ -99,19 +108,34 @@
         }
       },
       submit () {
-        this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
-          order_id: this.id,
-          refund_pic: this.imgs,
-          buyer_message: this.reason,
-          refund_amount: this.obj.order_amount
-        }).then(res => {
-          console.log(res)
-        })
+        // 只要原因和图片不全为空即可
+        if (this.imgs.length === 0 && !this.reason) {
+          this.show = true
+          return
+        }
+        // this.$refs.alert.show()
+        // this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
+        //   order_id: this.id,
+        //   refund_pic: this.imgs,
+        //   buyer_message: this.reason,
+        //   refund_amount: this.obj.order_amount,
+        //   type: 2
+        // }).then(res => {
+        //   console.log(res)
+        // })
       },
       _getData () {
         this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
           if (res.data.status === 200) {
             this.obj = res.data.data.order_info
+            this.reason = this.obj.refund_list[0].buyer_message
+            this.imgs = this.obj.refund_list[0].pic_info
+            if (this.imgs.length === 1) {
+              this.img1 = true
+            } else if (this.imgs.length === 2) {
+              this.img1 = true
+              this.img2 = true
+            }
           }
         })
       }
@@ -119,7 +143,8 @@
     components: {
       XTitle,
       XTextarea,
-      Group
+      Group,
+      Alert
     }
   }
 </script>
@@ -133,12 +158,15 @@
     min-height: 100vh;
     background: #f4f4f4;
     z-index: 1;
+    .title{
+      margin-bottom: 10px;
+    }
     .wrapper{
       width: 100vw;
       font-size: @font-size-medium;
       padding-left: 15px;
       background: #fff;
-      padding-bottom: 20px;
+      padding-bottom: 16px;
       .item{
         display: flex;
         width: 100%;
@@ -151,7 +179,7 @@
         .left{
           color: #666;
         }
-        .right{
+        .status{
           color: @color;
         }
       }
@@ -177,7 +205,7 @@
           flex-flow: column nowrap;
           justify-content: space-around;
           font-size: @font-size-medium;
-          padding-right: 15px;
+          padding: 5px 15px 5px 0;
           >span{
             color: #999;
           }
@@ -185,7 +213,10 @@
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-between;
-            font-size: @font-size-small;
+            font-size: @font-size-medium;
+            .nums{
+              color: #555;
+            }
           }
         }
       }
@@ -238,17 +269,17 @@
       width: 100%;
       height: 50px;
       text-align: center;
-      margin-top: 40px;
-    }
-    button{
-      width: 85.333%;
-      height: 50px;
-      background: @color;
-      border: 0;
-      color: #fff;
-      letter-spacing: 8px;
-      text-align: center;
-      line-height: 50px;
+      margin: 40px 0;
+      button{
+        width: 85.333%;
+        height: 50px;
+        background: @color;
+        border: 0;
+        color: #fff;
+        letter-spacing: 8px;
+        text-align: center;
+        line-height: 50px;
+      }
     }
   }
 </style>

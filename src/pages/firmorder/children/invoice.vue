@@ -10,7 +10,7 @@
             <span :class='{"active": invoice === 2}' data-id='2'>电子发票</span>
           </p>
         </div>
-        <div class="email vux-1px-b" v-show='person === 2'>
+        <div class="email vux-1px-b" v-show='invoice === 2'>
           <div class="left">
             请输入您的邮箱
           </div>
@@ -50,7 +50,7 @@
         </div>
       </div>
       <button @click='submit'>确定</button>
-      <alert v-model="show" title="请注意">{{msg}}</alert>
+      <alert v-model="show" title="提示">{{msg}}</alert>
     </div>
   </transition>
 </template>
@@ -87,25 +87,58 @@
       },
       submit () {
         let data
-        if (this.person === Invoice.company) {
-          let re = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
-          if (re.test(this.email) && this.company_name && this.tax_num) {
-            data = {
-              invoice: this.invoice,
-              email: this.email,
-              person: Invoice.company,
-              company_name: this.company_name,
-              tax_num: this.tax_num
+        let re = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+        // 个人
+        if (this.person === Invoice.person) {
+          // 如果是电子发票 就加一层拦截
+          if (this.invoice === Invoice.elec) {
+            if (!re.test(this.email)) {
+              this.show = true
+              this.msg = '请完善信息'
+              return
+            } else {
+              data = {
+                invoice: this.invoice,
+                person: Invoice.person,
+                email: this.email
+              }
             }
           } else {
-            this.show = true
-            this.msg = '请完善信息'
-            return
+            data = {
+              invoice: this.invoice,
+              person: Invoice.person
+            }
           }
         } else {
-          data = {
-            invoice: this.invoice,
-            person: Invoice.person
+          // 单位
+          // 电子
+          if (this.invoice === Invoice.elec) {
+            if (!re.test(this.email) || !this.company_name || !this.tax_num) {
+              this.show = true
+              this.msg = '请完善信息'
+              return
+            } else {
+              data = {
+                invoice: this.invoice,
+                email: this.email,
+                person: Invoice.company,
+                company_name: this.company_name,
+                tax_num: this.tax_num
+              }
+            }
+          } else {
+            if (!this.company_name || !this.tax_num) {
+              this.show = true
+              this.msg = '请完善信息'
+              return
+            } else {
+              data = {
+                invoice: this.invoice,
+                person: Invoice.company,
+                company_name: this.company_name,
+                tax_num: this.tax_num
+              }
+            }
           }
         }
         this.set_invoice(data)

@@ -1,25 +1,27 @@
 <template>
   <div class='tab_wrapper vux-1px-t'>
-    <div class="item" @click='goTel'>
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-kefucopy"></use>
-      </svg>
-      <span>客服</span>
+    <div class="left">
+      <div class="item" @click='goTel'>
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-kefucopy"></use>
+        </svg>
+        <span>客服</span>
+      </div>
+      <div class="item" @click='goHome'>
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-shouye1"></use>
+        </svg>
+        <span>首页</span>
+      </div>
+      <div class="item" @click='shopCart'>
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-shopcart"></use>
+        </svg>
+        <span>购物车</span>
+        <div class='num' ref='num' v-show='cartCount > 0'>{{cartCount}}</div>
+      </div>
     </div>
-    <div class="item" @click='goHome'>
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-shouye1"></use>
-      </svg>
-      <span>首页</span>
-    </div>
-    <div class="item" @click='shopCart'>
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-shopcart"></use>
-      </svg>
-      <span>购物车</span>
-      <div class='num' ref='num' v-show='cartCount > 0'>{{cartCount}}</div>
-    </div>
-    <div class="item item_add" @click='addCart'>
+    <div class="right" @click='addCart'>
       加入购物车
     </div>
   </div>
@@ -79,39 +81,51 @@
     flex-flow: row nowrap;
     background: #fff;
     z-index: 1;
-    .item{
-      width: 25%;
+    .left{
+      height: 100%;
+      flex: 1;
+      padding: 0 36px 0 30px;
+      display: flex;
+      justify-content: space-between;
+      .item{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #707070;
+        font-size: @font-size-small-s;
+        position: relative;
+        .num{
+          position: absolute;
+          right: -3px;
+          top: 2px;
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          background: #5eb29e;
+          text-align: center;
+          line-height: 16px;
+          color: #fff;
+        }
+        .icon {
+          width: 28px;
+          height: 25px;
+          margin-bottom: 4px;
+          fill: currentColor;
+          overflow: hidden;
+        }
+      }
+    }
+    .right{
+      width: 30.4vw;
+      color: #fff;
       height: 100%;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: #707070;
-      font-size: @font-size-small-s;
-      position: relative;
-      .num{
-        position: absolute;
-        right: 30%;
-        top: 3px;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background: #5eb29e;
-        text-align: center;
-        line-height: 16px;
-        color: #fff;
-      }
-      &.item_add{
-        color: #fff;
-        background: #5eb29e;
-      }
-      .icon {
-        width: 28px;
-        height: 25px;
-        margin-bottom: 4px;
-        fill: currentColor;
-        overflow: hidden;
-      }
+      background: #5eb29e;
+      font-size: @font-size-medium;
     }
   }
   .change{

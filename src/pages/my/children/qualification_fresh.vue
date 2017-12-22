@@ -36,7 +36,7 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { mapActions } from 'vuex'
+  import { mapActions, mapGetters } from 'vuex'
   import { Alert } from 'vux'
   export default {
     data () {
@@ -50,6 +50,23 @@
         store_condition_pic: [],
         show: false,
         msg: ''
+      }
+    },
+    created () {
+      this.store_condition = this.textInfo
+      this.store_condition_pic = this.imageInfo
+    },
+    mounted () {
+      if (this.store_condition_pic[0]) {
+        this.img1 = true
+        this.$nextTick(() => {
+          this.$refs.img1.setAttribute('src', this.store_condition_pic[0])
+        })
+      } else if (this.store_condition_pic[1]) {
+        this.img2 = true
+        this.$nextTick(() => {
+          this.$refs.img2.setAttribute('src', this.store_condition_pic[1])
+        })
       }
     },
     components: {
@@ -98,6 +115,12 @@
       ...mapActions([
         'fresh'
       ])
+    },
+    computed: {
+      ...mapGetters({
+        'textInfo': 'storeCondition',
+        'imageInfo': 'storeConditionPic'
+      })
     }
   }
 </script>

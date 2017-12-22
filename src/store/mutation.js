@@ -24,7 +24,8 @@ const mutations = {
     state.addressType[data.id] = {
       transport: data.transport,
       store_id: data.store_id,
-      store_add: data.store_add
+      store_add: data.store_add,
+      store_name: data.store_name
     }
   },
   [types.SET_CART_COUNT] (state, num) {
@@ -32,6 +33,9 @@ const mutations = {
   },
   [types.SET_POSITION] (state, position) {
     state.position = position
+  },
+  [types.SET_USERINFO] (state, info) {
+    state.userInfo = info
   }
 }
 

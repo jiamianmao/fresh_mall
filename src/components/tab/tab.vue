@@ -8,11 +8,16 @@
       </tab-item>
       <tab-item :selected="index === 1" class='shopcart' @on-item-click='go(1)'>
         <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-fenleisousuo2"></use>
+        </svg>
+      </tab-item>
+      <tab-item :selected="index === 2" class='shopcart' @on-item-click='go(2)'>
+        <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-shopping-cart"></use>
         </svg>
         <div class='num' ref='num' v-show='num > 0'>{{num}}</div>
       </tab-item>
-      <tab-item :selected="index === 2" @on-item-click='go(2)'>
+      <tab-item :selected="index === 3" @on-item-click='go(3)'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-wode"></use>
         </svg>
@@ -30,7 +35,7 @@
       }
     },
     created () {
-      this.arr = ['/home', '/shopcart', '/my']
+      this.arr = ['/home', '/category', '/shopcart', '/my']
     },
     methods: {
       go (idx) {
@@ -51,6 +56,11 @@
           this.index = idx
         } else {
           this.$refs.tab.$el.style.display = 'none'
+        }
+        if (idx === 1) {
+          this.$refs.tab.$el.style.background = 'rgba(255, 255, 255, .4)'
+        } else {
+          this.$refs.tab.$el.style.background = 'rgb(255, 255, 255)'
         }
       },
       num () {
@@ -86,8 +96,8 @@
       position: relative;
       .num{
         position: absolute;
-        right: 33%;
-        top: 5px;
+        right: 28%;
+        top: 6px;
         width: 15px;
         height: 15px;
         border-radius: 50%;

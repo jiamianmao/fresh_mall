@@ -13,7 +13,10 @@
       </div>
       <div class="content">
         <div class="item tel vux-1px-b">
-          门店联系电话：<img src="./tel.png">{{ activeAddData.contact_phone }}
+          门店联系电话：<img src="./tel.png">
+          <a :href="tel">
+          {{ activeAddData.contact_phone }}
+          </a>
         </div>
         <div class="item transport vux-1px-b">
           您可以选择门店配送到家/到店自提: 
@@ -77,7 +80,7 @@
   import storage from 'good-storage'
   import { Delivery } from '../../common/config/config.js'
   export default {
-    name: 'map',
+    name: 'maps',
     data () {
       return {
         active: false, // 上浮出来店铺信息的Flag
@@ -93,6 +96,7 @@
       }
     },
     created () {
+      console.log(this.$route.query)
       this.id = this.$route.query.id
       this.goodsId = this.$route.query.goodsId
       // 因为后端需要从传递一个Arr,当goodsId只有一个时，利用history路由取到的值是一个String,所以做个hack
@@ -115,6 +119,19 @@
         this._getMap()
       }
     },
+    activated () {
+      this.id = this.$route.query.id
+      this.goodsId = this.$route.query.goodsId
+      if (typeof this.goodsId === 'string') {
+        let arr = []
+        arr.push(this.goodsId)
+        this.goodsId = arr
+      }
+      // 不是父子路由，用go(-1)还是要重新加载路由的，通过判断this.address的值来判断是否已经选好了地址
+      if (Object.keys(this.address).includes(this.id)) {
+        this.active = true
+      }
+    },
     methods: {
       peisong () {
         this.transport = Delivery.stSend
@@ -129,7 +146,8 @@
         this.$router.push({
           path: '/my/address',
           query: {
-            id: this.id
+            id: this.id,
+            transport: Delivery.stSend
           }
         })
       },
@@ -147,8 +165,9 @@
         let data = {
           id: this.id,
           transport: this.transport,
-          store_id: this.addList[0].member_id,
-          store_add: this.addList[0].location
+          store_id: this.activeAddData.member_id,
+          store_add: this.activeAddData.location,
+          store_name: this.activeAddData.company_name
         }
         // 不管是商家配送和还是自提都是关联 addressType 
         this.addressType(data)
@@ -227,7 +246,10 @@
       ...mapGetters({
         'address': 'address',
         'position': 'position'
-      })
+      }),
+      tel () {
+        return `tel:${this.activeAddData.contact_phone}`
+      }
     },
     filters: {
       blank (value) {

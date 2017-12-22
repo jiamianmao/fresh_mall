@@ -65,8 +65,8 @@
           <div class='fun_wrapper'>
             <div v-if='member === 2' class="item" @click='qualification'>资质认证<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item" @click='address'>收货地址管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
-            <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has" v-if='~~nums.msg_num'></div></div>
-            <div class="item" @click='account'>账号安全<x-icon type="ios-arrow-right" size="16"></x-icon></div>
+            <div class="item" @click='msg'>消息中心<x-icon type="ios-arrow-right" size="16"></x-icon><div class="has" v-if='~~nums.msg_num > 0'></div></div>
+            <div class="item" @click='account'>账户管理<x-icon type="ios-arrow-right" size="16"></x-icon></div>
             <div class="item" @click='findService'>客服与帮助<x-icon type="ios-arrow-right" size="16"></x-icon></div>
           </div>
         </div>
@@ -79,6 +79,7 @@
   import $ from 'jquery'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
+  import { mapGetters, mapMutations } from 'vuex'
   export default {
     data () {
       return {
@@ -154,12 +155,25 @@
         })
       },
       _getInfo () {
-        this.$http.get(`/mobile/?act=member_account&op=get_member_info&api_token=${this.api_token}`).then(res => {
-          if (res.data.status === 200) {
-            this.info = res.data.data
-          }
-        })
-      }
+        if (this.user.openid) {
+          this.info = this.user
+        } else {
+          this.$http.get(`/mobile/?act=member_account&op=get_member_info&api_token=${this.api_token}`).then(res => {
+            if (res.data.status === 200) {
+              this.info = res.data.data
+              this.SET_USERINFO(this.info)
+            }
+          })
+        }
+      },
+      ...mapMutations([
+        'SET_USERINFO'
+      ])
+    },
+    computed: {
+      ...mapGetters({
+        'user': 'userInfo'
+      })
     },
     mounted () {
       this.bgHeight = this.$refs.bg.clientHeight
@@ -204,7 +218,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            object-fil: cover;
+            object-fit: cover;
           }
         }
         .name{

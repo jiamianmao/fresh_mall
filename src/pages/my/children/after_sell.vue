@@ -7,9 +7,11 @@
           <div class="order_desc">
             <div class="order_num">
               <div class="num">订单编号: <span>{{obj.order_sn}}</span></div>
+              <div class='status' v-if='obj.lock_state === 1 && obj.refund_return_state === 2'>退款成功</div>
+              <div class='status' v-if='obj.lock_state === 1 && obj.refund_return_state === 3'>退款关闭</div>
             </div>
             <div class="goods_wrapper">
-              <div class="goods vux-1px-t" v-for='goods of obj.order_good'>
+              <div class="goods vux-1px-t" v-for='goods of obj.order_good' @click='toProduct(goods.goods_id)'>
                 <div class="image">
                   <img v-lazy="goods.goods_image">
                 </div>
@@ -29,12 +31,16 @@
               <span class='pay'>实付: <strong>¥{{ obj.order_amount }}</strong></span>
             </div>
             <div class="btn">
-              <button class='right' @click='refund(obj.order_id)'>申请退款</button>
+              <button class='right' @click='refund(obj.order_id, 0)' v-if='obj.lock_state === 0'>申请退款</button>
+              <button class='applyed' @click='refund(obj.order_id, 1)' v-if='obj.lock_state === 1 && obj.refund_return_state === 1'>申请退款</button>
             </div>
           </div>
         </div>
       </div>
-      <div class="not_order" v-show='!arr.length'><img src="../../../assets/my/not_order.png"></div>
+      <div class="not_order" v-if='!arr.length'>
+        <img src="../../../assets/my/not_order.png">
+        <p>您还没有订单</p>
+      </div>
     </div>
   </transition>
 </template>
@@ -51,11 +57,16 @@
       this.api_token = storage.get('api_token')
       this._getDetail()
     },
-    mounted () {
-    },
     methods: {
-      refund (id) {
-        this.$router.push(`/my/refund?id=${id}`)
+      refund (id, num) {
+        if (num > 0) {
+          this.$router.push(`/my/refund?id=${id}&status=${num}`)
+        } else {
+          this.$router.push(`/my/refund?id=${id}`)
+        }
+      },
+      toProduct (id) {
+        this.$router.push(`/product/${id}`)
       },
       _getDetail () {
         this.$http.get(`/api/order/list?api_token=${this.api_token}`).then(res => {
@@ -179,14 +190,13 @@
             text-align: center;
             background: #fff;
             font-size: @font-size-small;
-            &.left{
-              border: 1px solid #999;
-              color: #999;
-              margin-right: 10px;
-            }
             &.right{
               border: 1px solid @color;
               color: @color;
+            }
+            &.applyed{
+              color: #999;
+              border: 1px solid #999;
             }
           }
         }
@@ -198,10 +208,19 @@
       left: 50%;
       transform: translate3d(-50%, -50%, 0);
       width: 131px;
-      height: 113px;
+      height: 78px;
       img{
         width: 100%;
         height: 100%;
+      }
+      p{
+        position: absolute;
+        font-size: @font-size-small;
+        bottom: -26px;
+        left: 0;
+        width: 100%;
+        color: #ababab;
+        text-align: center;
       }
     }
   }

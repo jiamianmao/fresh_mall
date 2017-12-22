@@ -10,7 +10,7 @@
           {{city}}
         </span>
         <span class='title'>创合品质</span>
-        <span @click='search'>
+        <span @click='search' class='search_icons'>
           <svg class="search_icon" aria-hidden="true">
             <use xlink:href="#icon-sousu"></use>
           </svg>
@@ -19,10 +19,10 @@
 
       <!-- swiper启动页的轮播 z-index: 8 -->
       <transition name='slide'>
-        <div class="swiper-wrapper" ref='swiperWrapper' v-show='startPage' @touchstart.prevent='touchStart' @touchmove.prevent='touchMove' @touchend='touchEnd'>
-          <swiper @on-index-change='swiper_change' loop class='swiper' :list="swiperUrlList" :height="swiperHeight" :show-desc-mask='false' :show-dots='false'></swiper>
+        <div class="swiper-wrapper" ref='swiperWrapper'>
+          <swiper v-model='curIndx' @on-index-change='swiper_change' loop class='swiper' :list="swiperUrlList" :height="swiperHeight" :show-desc-mask='false' :show-dots='false'></swiper>
           <div class='dots-wrapper'>
-            <div class="dots" v-for='n of 4' :class='{active: n === curIndx + 1}'></div>
+            <div class="dots" v-for='n of 4' :class='{active: n === curIndx + 1}' @click='selectDots(n)'></div>
           </div>
           <div class='down-arrow' @click='startPageChange'>
             <canvas ref='down_canvas' width='20' height='20'></canvas>
@@ -36,21 +36,21 @@
           <div class="left" ref='navLeft'>
             <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index, item.gc_id)' ref='navItem'>{{item.gc_name}}</span>
           </div>
-          <div class='arrow_box' @click='arrowToggle' v-show='!slideDown'>
+          <!-- <div class='arrow_box'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
               <use xlink:href="#icon-arrow-b"></use>
             </svg>
-          </div>
+          </div> -->
         </nav>
       </transition>
 
       <!-- 遮罩层 z-index: 6 -->
-      <div class="mask" v-show='slideDown' @click='arrowToggle' @touchmove.prevent>
-      </div>
+      <!-- <div class="mask" v-show='slideDown' @touchmove.prevent>
+      </div> -->
 
       <!-- 主内容区 -->
       <div class='main'>
-        <type-list v-for='(goods, index) of arr' :goods='goods' :key='index'></type-list>
+        <type-list class='typeList' v-for='(goods, index) of arr' :goods='goods' :key='index'></type-list>
       </div>
 
     </div>
@@ -58,9 +58,9 @@
 
 <script>
   import { Swiper } from 'vux'
-  import { mapGetters, mapMutations } from 'vuex'
-  import storage from 'good-storage'
+  import { mapGetters } from 'vuex'
   import TypeList from '@/components/typeList/typeList'
+  import storage from 'good-storage'
 
   export default {
     name: 'home',
@@ -79,6 +79,8 @@
     created () {
       // 共享touch事件的状态，放在created不用观察者对象
       this.touch = {}
+      this.touchPage = {}
+      this.api_token = storage.get('api_token')
       this._getBanner()
       this._getCategory() // 这里其实不用调该接口，但已经写了很多逻辑，懒得重构了。
       this._getGoodsData()
@@ -86,20 +88,19 @@
     mounted () {
       this.swiperHeight = `${this.$refs.swiperWrapper.clientHeight}px`
       // 拿到nav的初始高度
-      this.navHeight = this.$refs.nav.clientHeight
+      // this.navHeight = this.$refs.nav.clientHeight
       // 用canvas来画出启动页的箭头
       this._downArrow()
-      this.startPage || this._changeStyle()
+      // this.startPage || this._changeStyle()
     },
     activated () {
+      this.api_token = storage.get('api_token')
       this.activeIdx = 0
       // storage -> vuex -> 重新取
-      if (storage.has('city')) {
-        this.city = storage.get('city')
-        return
+      if (storage.session.has('city')) {
+        this.city = storage.session.get('city')
       } else if (this.position.city) {
         this.city = this.position.city
-        return
       } else {
         this.$emit('position')
       }
@@ -110,24 +111,47 @@
         this.curIndx = index
       },
       // 三个touch事件 启动页轮播的上滑
-      touchStart (e) {
-        this.touch.init = true
-        this.touch.moved = false
-        this.touch.startY = e.touches[0].pageY
-      },
-      touchMove (e) {
-        if (!this.touch.init) return
-        if (!this.touch.moved) {
-          this.touch.moved = true
-        }
-        this.touch.moveY = e.touches[0].pageY
-      },
-      touchEnd () {
-        let pos = this.touch.moveY - this.touch.startY
-        pos < -100 && this.startPageChange()
-      },
+      // touchStart (e) {
+      //   this.touch = {}
+      //   this.touch.init = true
+      //   this.touch.moved = false
+      //   this.touch.startY = e.touches[0].pageY
+      // },
+      // touchMove (e) {
+      //   if (!this.touch.init) return
+      //   if (!this.touch.moved) {
+      //     this.touch.moved = true
+      //   }
+      //   this.touch.moveY = e.touches[0].pageY
+      // },
+      // touchEnd () {
+      //   let pos = this.touch.moveY - this.touch.startY
+      //   pos < -100 && this.startPageChange(false)
+      //   this.touch.init = false
+      // },
+      // touchPageStart (e) {
+      //   this.touchPage = {}
+      //   if (this.startPage) {
+      //     return
+      //   }
+      //   this.touchPage.init = true
+      //   this.touchPage.moved = false
+      //   this.touchPage.startY = e.touches[0].pageY
+      // },
+      // touchPageMove (e) {
+      //   if (!this.touchPage.init) return
+      //   if (!this.touchPage.moved) {
+      //     this.touchPage.moved = true
+      //   }
+      //   this.touchPage.moveY = e.touches[0].pageY
+      // },
+      // touchPageEnd () {
+      //   let pos = this.touchPage.moveY - this.touchPage.startY
+      //   pos > 10 && this.startPageChange(true)
+      //   this.touchPage.init = false
+      // },
       startPageChange () {
-        this.set_start_page(false)
+        console.log(1)
       },
       // 定位
       selectCity () {
@@ -138,22 +162,25 @@
       search () {
         this.$router.push('/search')
       },
-      // nav组件的箭头按钮切换
-      arrowToggle () {
-        this.slideDown = !this.slideDown
-        let navLeft = this.$refs.navLeft
-        if (this.slideDown) {
-          let num = Math.ceil(this.cate_list.length / 4)
-          navLeft.style.height = this.navHeight * num + 'px'
-          navLeft.style.flexWrap = 'wrap'
-          navLeft.style.overflowX = 'visible'
-        } else {
-          navLeft.style.height = `${this.navHeight}px`
-          navLeft.style.flexWrap = 'nowrap'
-          navLeft.style.overflowX = 'scroll'
-        }
-        // this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
+      selectDots (n) {
+        this.curIndx = n - 1
       },
+      // nav组件的箭头按钮切换
+      // arrowToggle () {
+      //   this.slideDown = !this.slideDown
+      //   let navLeft = this.$refs.navLeft
+      //   if (this.slideDown) {
+      //     let num = Math.ceil(this.cate_list.length / 4)
+      //     navLeft.style.height = this.navHeight * num + 'px'
+      //     navLeft.style.flexWrap = 'wrap'
+      //     navLeft.style.overflowX = 'visible'
+      //   } else {
+      //     navLeft.style.height = `${this.navHeight}px`
+      //     navLeft.style.flexWrap = 'nowrap'
+      //     navLeft.style.overflowX = 'scroll'
+      //   }
+        // this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
+      // },
       selectCate (key, gcId) {
         this.activeIdx = key
         if (this.slideDown) {
@@ -203,12 +230,14 @@
                 url: item.pic_url,
                 img: item.pic_img
               })
+              // 第一个固定跳转到创合平台
+              this.swiperUrlList[0].url = '/desc?id&title=%E5%B9%B3%E5%8F%B0%E8%AF%A6%E6%83%85'
             })
           }
         })
       },
       _getGoodsData () {
-        this.$http.get('/mobile/?act=goods&op=get_recommend_goods').then(res => {
+        this.$http.get(`/mobile/?act=goods&op=get_recommend_goods&api_token=${this.api_token}`).then(res => {
           let r = res.data
           if (r.status === 200) {
             this.arr = r.data.splice(1, r.data.length)
@@ -221,17 +250,26 @@
             this.cate_list = res.data.data.class_list
           }
         })
-      },
-      _changeStyle () {
-        let search = this.$refs.search
-        let container = this.$refs.container
-        search.classList.add('startOut')
-        search.classList.add('vux-1px-b')
-        container.style.paddingTop = `${this.navHeight + 45}px`
-      },
-      ...mapMutations({
-        'set_start_page': 'SET_START_PAGE'
-      })
+      }
+      // _changeStyle () {
+        // let search = this.$refs.search
+        // let container = this.$refs.container
+        // if (!this.startPage) {
+        //   search.classList.add('startOut')
+        //   search.classList.add('vux-1px-b')
+        //   container.style.paddingTop = `${this.navHeight + 45}px`
+        // } else {
+        //   search.classList.remove('startOut')
+        //   search.classList.remove('vux-1px-b')
+        //   setTimeout(() => {
+        //     container.style.paddingTop = '45px'
+        //     container.style.transition = 'all .2s'
+        //   }, 1000)
+        // }
+      // }
+      // ...mapMutations({
+      //   'set_start_page': 'SET_START_PAGE'
+      // })
     },
     components: {
       Swiper,
@@ -239,16 +277,16 @@
     },
     computed: {
       ...mapGetters([
-        'startPage',
+        // 'startPage',
         'position'
       ])
     },
     watch: {
-      startPage () {
-        this.$nextTick(() => {
-          this._changeStyle()
-        })
-      },
+      // startPage () {
+      //   this.$nextTick(() => {
+      //     this._changeStyle()
+      //   })
+      // },
       position (newVal) {
         this.city = newVal.city
       }
@@ -262,28 +300,32 @@
     @nav_height: 48px;
     width: 100vw;
     position: relative;
-    padding-top: 45px;
+    // padding-top: 45px;
     box-sizing: border-box;
     .search{
       width: 100vw;
       height: 45px;
       padding: 0 15px;
-      box-sizing: border-box;
       position: fixed;
       z-index: 9;
       top: 0;
       left: 0;
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
       align-items: center;
-      background-color: rgba(255, 255, 255, .3);
+      background-color: rgba(180, 180, 180, .8);
       color: #fff;
       font-size: @font-size-small;
+      span{
+        flex: 1;
+        text-align: left;
+      }
       .title{
-        font-size: @font-size-medium;
-        position: relative;
-        left: -5px;
+        font-size: @font-size-large;
+        text-align: center;
+      }
+      .search_icons{
+        text-align: right;
       }
       .search_icon {
         width: 28px;
@@ -302,9 +344,10 @@
       width: 100%;
       // height: calc(~"100vh - 49px");
       height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
+      // position: fixed;
+      // top: 0;
+      // left: 0;
       z-index: 8;
       .swiper{
         width: 100%;
@@ -342,27 +385,15 @@
       }
     }
     nav{
-      position: fixed;
-      top: 45px;
-      left: 0;
       width: 100%;
-      height: @nav_height;
-      z-index: 7;
       line-height: @nav_height;
       text-align: center;
-      display: flex;
-      flex-flow: row nowrap;
+      background: #fff;
       .left{
-        height: @nav_height;
         display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        overflow: visible;
-        flex: 1;
-        background: #fff;
+        flex-flow: row wrap;
         span{
           width: 25%;
-          flex-shrink: 0;
           &.active{
             color: @active-color;
           }
@@ -393,13 +424,23 @@
     }
     .main{
       padding-bottom: 100px;
+      .typeList~.typeList{
+        margin-top: 15px;
+      }
     }
     // swiper过渡
-    .slide-enter-active, .slide-leave-active{
+    .slide-enter-active, {
       transition: all 1s;
-      transform: translateY(calc(~"-100vh + 50px"));
+      transform: translateY(0);
     }
-    .slide-enter, .slide-leave{
+    .slide-enter{
+      transform: translateY(-100%);
+    }
+    .slide-leave-active{
+      transition: all 1s;
+      transform: translateY(-100%);
+    }
+    .slide-leave {
       transform: translateY(0);
     }
   }

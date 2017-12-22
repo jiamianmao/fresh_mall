@@ -87,13 +87,13 @@
             <span>3</span>
             <p>{{msg3}}</p>
           </div>
-          <div class="store" v-show='qualification.is_storegoods === 1'>
+          <div class="store" v-show='qualification.is_storegoods === 2'>
             <p>门店资质</p>
-            <div class="area">
+            <div class="area" v-show='storeCondition'>
               <p>{{storeCondition}}</p>
             </div>
             <div class="img_wrapper">
-              <img v-for='item of storeConditionPic' v-lazy="item.content">
+              <img v-for='item of storeConditionPic' v-lazy="item">
             </div>
           </div>
         </div>
@@ -174,28 +174,28 @@
     },
     computed: {
       msg1 () {
-        if (this.qualification.is_yinliu === 1) {
+        if (this.qualification.is_yinliu === 2) {
           return '我愿意成为平台在售门店'
         } else {
           return '我不愿意成为平台在售门店'
         }
       },
       msg2 () {
-        if (this.qualification.is_ziti === 1) {
+        if (this.qualification.is_ziti === 2) {
           return '我愿意成为平台自提门店'
         } else {
           return '我不愿意成为平台自提门店'
         }
       },
       msg3 () {
-        if (this.qualification.is_storegoods === 1) {
+        if (this.qualification.is_storegoods === 2) {
           return '我愿意代收生鲜产品'
         } else {
           return '我不愿意代收生鲜产品'
         }
       },
       msg4 () {
-        if (this.qualification.is_dispatching === 1) {
+        if (this.qualification.is_dispatching === 2) {
           return '我愿意配送生鲜产品'
         } else {
           return '我不愿意配送生鲜产品'

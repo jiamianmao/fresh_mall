@@ -53,7 +53,9 @@ const MapZiti = () => import('@/pages/map_ziti/map_ziti')
 
 const NotFound = () => import('@/pages/NotFound/404')
 
-const Test = () => import('@/components/test')
+const Auth = () => import('@/pages/auth/auth')
+
+const Union = () => import('@/pages/union')
 
 Vue.use(Router)
 
@@ -129,6 +131,7 @@ export default [
     },
     { path: '/message', component: Message },
     { path: '/mapziti', component: MapZiti },
-    { path: '/test', component: Test },
+    { path: '/auth', component: Auth },
+    { path: '/union', component: Union },
     { path: '*', component: NotFound }
   ]

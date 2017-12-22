@@ -73,7 +73,6 @@
           display: flex;
           flex-direction: column;
           justify-content: center;
-          align-items: center;
           text-align: center;
           font-size: @font-size-small-s;
           h3{
@@ -86,6 +85,7 @@
             line-height: 30px;
             color: #999;
             height: 30px;
+            .no-wrap
           }
         }
       }

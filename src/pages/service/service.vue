@@ -2,6 +2,16 @@
   <transition name='slide'>
     <div class="container">
       <x-title>{{title}}</x-title>
+      <div class="head" v-if='telFlag'>
+        <div class='vux-1px-r'>
+          <img src="../../assets/service/refund.png">
+          <p>支持售后退款</p>
+        </div>
+        <div>
+          <img src="../../assets/service/bu.png">
+          <p>不支持补发货</p>
+        </div>
+      </div>
       <main>
         <div class="text">
           <p v-html='desc'></p>
@@ -75,6 +85,30 @@
     background: #f4f4f4;
     z-index: 50;
     padding-bottom: 50px;
+    .head{
+      height: 55px;
+      width: 100vw;
+      padding: 9px 0;
+      display: flex;
+      flex-flow: row nowrap;
+      background: #fff;
+      div{
+        width: 50%;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        img{
+          width: 24px;
+          height: 21px;
+        }
+        p{
+          margin-top: 5px;
+          font-size: @font-size-small;
+          color: #5c5c5c;
+        }
+      }
+    }
     main{
       width: 100%;
       min-height: calc(~"100vh - 100px");

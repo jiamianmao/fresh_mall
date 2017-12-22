@@ -4,7 +4,7 @@
       <img v-lazy="img">
     </div>
 
-    <search class='search vux-1px-b' ref='serach'></search>
+    <search class='search' ref='serach'></search>
 
     <loading v-show='loading' position='absolute'></loading>
 
@@ -30,9 +30,11 @@
   import Scroll from '@/components/scroll/scroll'
   import { Loading } from 'vux'
   export default {
+    // 这里不要把该组件加入到keep-alive中，因为还需要使用销毁钩子
+    // name: 'category',
     data () {
       return {
-        img: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3326244098,183580375&fm=27&gp=0.jpg',
+        img: require('../../assets/category/bg.png'),
         cate_list: [],
         idx: 0,
         type_list: [],
@@ -43,7 +45,7 @@
       this._getCategory()
     },
     mounted () {
-      // this.$refs.serach.changeColor()
+      this.$refs.serach.changeColor()
     },
     methods: {
       active (key, id) {
@@ -51,13 +53,15 @@
         this._getType(id)
       },
       selectType (id) {
-        console.log(id)
-        this.$router.push('/goodslist')
+        this.$router.push(`/goodslist?gc_id=${id}`)
       },
       _getCategory () {
         this.$http.get('/mobile/?act=goods_class&op=goods_list').then(res => {
           if (res.data.status === 200) {
             this.cate_list = res.data.data.class_list
+            if (this.cate_list[0].gc_name === '首页') {
+              this.cate_list.shift()
+            }
             if (this.cate_list) {
               this._getType(this.cate_list[0].gc_id)
             }
@@ -74,6 +78,9 @@
         })
       }
     },
+    beforeDestroy () {
+      console.log('hahahah')
+    },
     components: {
       Search,
       Scroll,
@@ -84,7 +91,7 @@
 
 <style lang="less" scoped>
   @import '~common/less/variable.less';
-  // rgba(51, 1, 14, .6)
+  @import '~common/less/mixin.less';
   .container{
     width: 100vw;
     height: calc(~"100vh - 50px");
@@ -103,6 +110,9 @@
         width: 100%;
         height: 100%;
       }
+    }
+    .search{
+      .border-1px(rgba(0, 0, 0, .4))
     }
     .main{
       flex: 1;
@@ -130,7 +140,8 @@
             }
           }
           &.active{
-            background: rgba(255, 255, 255, .5)
+            background: rgba(255, 255, 255, .5);
+            color: #110708;
           }
         }
       }
@@ -143,6 +154,7 @@
           display: flex;
           flex-flow: row wrap;
           padding: 0 35px;
+          width: 100%;
           box-sizing: border-box;
           justify-content: space-between;
           .right_item{

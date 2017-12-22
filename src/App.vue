@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <keep-alive include='firmorder,map,mapziti,product,qualification,home'>
+    <keep-alive include='firmorder,maps,mapziti,product,qualification,home,signup_person'>
       <router-view @position='_getPosition'></router-view>
     </keep-alive>
     <tab></tab>
@@ -21,11 +21,11 @@
     created () {
       this.api_token = storage.get('api_token')
       // 初始化的时候请求
+      // 获取购物车信息
       this.api_token && this._getShopCart()
     },
     methods: {
       _getPosition () {
-        console.log(1)
         let geolocation = new qq.maps.Geolocation('2JHBZ-UC7WO-MKLWW-SDXUZ-WSI4J-XYF25', 'jiamianmao2ss')
         geolocation.getLocation((position) => {
           this.SET_POSITION({
@@ -33,7 +33,7 @@
             lng: position.lng,
             city: position.city
           })
-          position.city && storage.set('city', position.city)
+          position.city && storage.session.set('city', position.city)
         })
       },
       _getShopCart () {

@@ -68,7 +68,7 @@
                   <p>{{item.goods_name}}</p>
                   <span>{{item.goods_unit}}</span>
                   <div class="price">
-                    <strong>¥{{item.goods_marketprice}}</strong>
+                    <strong>¥{{item.goods_price}}</strong>
                   </div>
                 </div>
               </div>
@@ -169,9 +169,15 @@
         }
       },
       goProduct (id) {
+        if (this.del) {
+          return
+        }
         this.$router.push(`/product/${id}`)
       },
       goBrand (id, name) {
+        if (this.del) {
+          return
+        }
         this.$router.push(`/brandGoodsList?id=${id}&name=${name}`)
       },
       _del () {

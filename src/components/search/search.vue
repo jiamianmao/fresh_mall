@@ -1,12 +1,12 @@
 <template>
   <div class='search' ref='search'>
     <!-- 为了输入框中出现搜索按钮，加了form及action，已经input.type='search' -->
-    <form class='left' action="" ref='left'>
+    <form class='left' ref='left'>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-sousu"></use>
       </svg>
       <input type="search" v-model='msg' placeholder='搜索商品' @search='toSearch' ref='input'>
-      <svg class="icon hotarea" aria-hidden="true" @click='clear'>
+      <svg class="icon hotarea" aria-hidden="true" v-show='msg' @click='clear'>
         <use xlink:href="#icon-close47"></use>
       </svg>
     </form>
@@ -45,15 +45,16 @@
         this.$emit('close')
       },
       changeColor () {
-        this.$refs.search.style.color = '#fff'
-        this.$refs.input.style.color = '#fff'
-        this.$refs.left.style.backgroundColor = 'rgba(255, 255, 255, .4)'
+        $('input').parent('.left').addClass('category')
+        $('input').css('color', '#eee')
+        this.$refs.left.style.color = '#eee'
+        this.$refs.left.style.backgroundColor = 'rgba(255, 255, 255, .15)'
       }
     },
     watch: {
       rightContent () {
         if (this.rightContent) {
-          console.log('caole')
+          console.log('rightContent')
         }
       }
     }
@@ -84,7 +85,7 @@
         width: 18px; 
         height: 18px;
         vertical-align: -0.15em;
-        fill: #333;
+        fill: currentColor;
         overflow: hidden;
       }
       input{
@@ -97,6 +98,11 @@
         font-size: @font-size-small;
         height: 20px;
         line-height: 20px;
+      }
+    }
+    .category{
+      input::-webkit-input-placeholder{
+        color: #eee;
       }
     }
     .right{

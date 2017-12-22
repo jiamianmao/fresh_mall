@@ -98,16 +98,13 @@
         })
         this.$http.post(`/mobile/?act=member_evaluate&op=add_evaluate&api_token=${this.api_token}`, x).then(res => {
           if (res.data.status === 200) {
-            this.$router.push('/my/order')
+            this.$router.replace('/my/order')
           }
         })
       },
       _getOrder () {
         this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
           if (res.data.status === 200) {
-            // let x = res.data.data.filter(item => {
-            //   return item.order_id === this.id
-            // })[0]
             this.goodsBox = res.data.data.order_info.goods_list
             this.order_id = res.data.data.order_info.order_id
           }
@@ -130,7 +127,7 @@
     min-height: 100vh;
     background: #fff;
     z-index: 1;
-    padding-bottom: 100px;
+    padding-bottom: 110px;
     .main{
       padding: 0 15px;
       .goodsWrapper{
@@ -201,7 +198,7 @@
     }
     .btn{
       position: absolute;
-      bottom: 0;
+      bottom: 50px;
       left: 0;
       width: 100%;
       padding: 0 10px;

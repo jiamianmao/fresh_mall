@@ -2,11 +2,12 @@
   <scroll class='outBox' ref='scrollCom' :data='Object.values(product_obj)' :probeType='3' :pulldown='true' :listenScroll='true' @scroll='scroll' @pullDown='pullEnd'>
 
     <div class='product_wrapper' ref='productWrapper' @touchmove.prevent>
-
+      <!-- 轮播图 增加一个外容器设置高度，以免重绘 -->
       <div class="placeholder">
         <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-          <swiper-slide v-for='item of product_obj.goods_image' :key='item.name'>
-            <img :src="item">
+          <swiper-slide v-for='(item, index) of product_obj.goods_image' :key='item.name'>
+            <img v-lazy="item">
+            <div class="mask" v-show='index !== swiperOption.idx'></div>
           </swiper-slide>
         </swiper>
       </div>
@@ -21,11 +22,12 @@
           <div class="content">
             <h6 class="name">{{product_obj.goods_name}}</h6>
             <div class="sell_point" v-html='product_obj.goods_jingle'></div>
-            <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}</strong>
+            <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}<span>/<span style='font-size: 12px;'>{{product_obj.goods_unit}}</span></span></strong>
             <strong v-else>¥ 0</strong>
           </div>
         </div>
-        <div class="find vux-1px-t" @click='joinBrand(product_obj.brand.brand_id)' v-if='!member_c && product_obj.brand'>
+        <!-- B端 如何加入经销商 -->
+        <div class="find vux-1px-t" @click='toDesc(product_obj.brand.brand_id, 0)' v-if='!member_c && product_obj.brand'>
           <div class="left"><img src="../../assets/product/find.png"></div>
           <div class="center">查看如何成为{{product_obj.brand.brand_name}}经销商</div>
           <span class='right'>
@@ -34,14 +36,15 @@
         </div>
         <placeholder></placeholder>
 
-        <!-- 支付方式（名字，价格信息等）-->
+        <!-- C端 支付方式（名字，价格信息等）-->
         <ul class="pay_way" v-if='member_c && product_obj.brand'>
           <li class='title'>两种购买方式供您选择</li>
           <li @click='goZiti(product_obj.brand.brand_id)'>
             <span class='left'>到店购买:</span>
             <div class='center'>
               <p>请查看附近的<a class='mark'>在售门店</a></p>
-              <p>线下零售店价格可能有所波动</p>
+              <p v-if='offline_switch === "1"'>线下零售店价格可能有所波动</p>
+              <p v-else>线下销售门店正在完善中，敬请期待</p>
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
@@ -78,7 +81,10 @@
               <p>
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-cc-marker"></use>
-                </svg>选择门店</p>
+                </svg>
+                <span v-if='collect_switch === "1"'>选择门店</span>
+                <span v-else>代收货门店正在完善中，敬请期待</span>
+              </p>
             </div>
             <div class="center" v-if='address_2'>
               <p>{{address_2.area_info | blank}}{{address_2.address}}</p>
@@ -94,14 +100,16 @@
           </li>
         </ul>
 
-        <div class="recommend" v-if='!member_c && product_obj.brand'>
+        <!-- B端 产品组合推荐及配送规则 -->
+        <div class="recommend" v-if='!member_c && product_obj.goods_combo && product_obj.goods_combo.length > 0'>
           <p class='title'>
             以下产品{{ product_obj.brand.brand_name }}可一起配送，节省物流费
             <svg class="icon" aria-hidden="true" ref='arrow' @click='toggleRecommend'>
               <use xlink:href="#icon-arrow-up"></use>
             </svg>
           </p>
-          <swiper class="wrapper" :options='swiperOption2' v-show='slideDown'>
+          <p class='rule' v-show='slideDown'>配送规则： <span>{{product_obj.store.delivery_rule}}</span></p>
+          <swiper class="wrapper" :options='swiperOption2'>
             <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
               <div class="goods">
                 <img :src="item.combo_goods.goods_image">
@@ -117,48 +125,94 @@
 
         <placeholder></placeholder>
 
-        <div class="goods_info" v-if='!Array.isArray(product_obj.goods_video) && product_obj.goods_video'>
-          <div class="item" v-if='product_obj.goods_video.video && item.Video' v-for='item of product_obj.goods_video.video'>
-            <div class="title">{{ item.Video.title }}</div>
-            <div class="video">
-              <!-- <video ref='video1' :src="item.Video.src" controls :poster='item.Video.image'></video> -->
-              <!-- <iframe frameborder="0" :src="item.Video.src" allowfullscreen></iframe> -->
-              <iframe frameborder="0" src="https://v.qq.com/iframe/player.html?vid=w0022szc9je&tiny=0&auto=0" allowfullscreen></iframe>
+        <div class="goods_info" v-if='product_obj.goods_video'>
+          <p class='see_text vux-1px-b'>以下资料如果您不方便观看视频，请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</p>
+
+          <!-- 固定视频 -->
+          <div class="item" v-if='product_obj.goods_video.video' v-for='(item, index) of product_obj.goods_video.video'>
+            <div class="title" v-if='index === 0'>
+              <span class='name'>生长环境</span>
+              {{ item.Video.title }}
             </div>
-            <p v-if='item.Detail' class='see_text'>如果您不方便观看视频，请<a class='mark' @click='toImgText(item.Detail.id)'>点击此处</a>查看图文详情</p>
+            <div class="title" v-else-if='index === 1'>
+              <span class='name'>加工过程</span>
+              {{ item.Video.title }}
+            </div>
+            <div class="video" v-if='index < 2'>
+              <iframe v-if='item.Video && item.Video.src' frameborder="0" :src="item.Video.src" allowfullscreen></iframe>
+              <img @click='toDesc(item.Video.id, 4)' v-else v-lazy='item.Video.image' />
+            </div>
+            <div class="text" v-if='item.Live && index < 2'>
+              <p class='live_tv' @click='toLive(item.Live.src)'>
+                查看24小时监控直播
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yuanjiantou"></use>
+                </svg>
+              </p>
+            </div>
           </div>
-          <div class="text" v-if='product_obj.goods_video.video'>
-            <p class='live_tv'>
-              查看24小时监控直播
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-yuanjiantou"></use>
-              </svg>
-            </p>
+
+          <!-- 品种  -->
+          <div class="item" v-if='product_obj.goods_video.variety && product_obj.goods_video.variety.length > 0'>
+            <div class="title">
+              <span class='name'>品种</span>
+              {{ product_obj.goods_video.variety[0].title }}
+            </div>
+            <div class="video">
+              <img @click='toDesc(product_obj.goods_video.variety[0].id, 4)' v-lazy="product_obj.goods_video.variety[0].image">
+            </div>
           </div>
+
+          <!-- 吃法 -->
+          <div class="eat" v-if='product_obj.goods_video && product_obj.goods_video.recommend'>
+            <div class="eat_way"></div>
+            <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
+              <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
+                <div class='img'>
+                  <img :src='item.image' @click='toDesc(item.id, 6)'></img>
+                  <div class="zhezhao" v-show='idx !== swiperOption1.idx % product_obj.goods_video.recommend.length'></div>
+                </div>
+                <div class='text'>{{ item.title }}</div>
+              </swiper-slide>
+            </swiper>
+          </div>
+
+          <!-- 不定视频 -->
+          <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video.length > 2 && product_obj.goods_video.video[2].Video'>
+            <div class="title">
+              {{ product_obj.goods_video.video[2].Video.title }}
+            </div>
+            <div class="video">
+              <iframe v-if='product_obj.goods_video.video[2].Video' frameborder="0" :src="product_obj.goods_video.video[2].Video.src" allowfullscreen></iframe>
+              <img @click='toDesc(product_obj.goods_video.video[2].Video.id, 4)' v-else v-lazy='product_obj.goods_video.video[2].Video.image' />
+            </div>
+            <div class="text" v-if='product_obj.goods_video.video[2].Live'>
+              <p class='live_tv' @click='toLive(product_obj.goods_video.video[2].Live.src)'>
+                查看24小时监控直播
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yuanjiantou"></use>
+                </svg>
+              </p>
+            </div>
+          </div>
+
           <div class="image">
-            <div class="company"></div>
+            <div class="company" @click='toDesc(null, 5)'></div>
             <img src="../../assets/product/icon.png">
             <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
               <h3>品控保证</h3>
               <div class="desc" v-if='product_obj.goods_video.quality'>
-                <a v-for='item of product_obj.goods_video.quality' @click='toQuality(item.id)'>{{ item.title }}</a>
+                <a v-for='(item, index) of product_obj.goods_video.quality' @click='toDesc(item.id, item.title)'>
+                  <span v-show='index === 0'>SGS</span>
+                  <span v-show='index === 1'>检测<br />报告</span>
+                  <span v-show='index === 2'>品质<br />承诺</span>
+                </a>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="eat" v-if='product_obj.goods_video && product_obj.goods_video.recommend'>
-          <div class="eat_way"></div>
-          <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
-            <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
-              <!-- <video :src="item" controls poster='https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1614268835,1230847192&fm=27&gp=0.jpg'></video> -->
-              <img :src='item.image' @click='toEatType(item.id)'></img>
-              <div class='text'>{{ item.title }}</div>
-            </swiper-slide>
-          </swiper>
-        </div>
-
-        <div class="company_card" v-if='product_obj.store' @click='company_card(product_obj.store_id)'>
+        <div class="company_card" v-if='product_obj.store' @click='toDesc(product_obj.store_id, 1)'>
           <div class="brand">
             <img :src="product_obj.store.store_label">
           </div>
@@ -174,10 +228,10 @@
         </div>
 
         <placeholder></placeholder>
-
+        <!-- 产品评价 -->
         <div class="rate">
           <x-header class='x-header vux-1px-b'>
-            <span slot='left'>产品评价</span>
+            <span slot='left'>评价</span>
             <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
           </x-header>
           <rate-item v-for='(item, index) of rateList' :rateData='item' :key='index'></rate-item>
@@ -211,8 +265,8 @@
 
     <transition name='slide1'>
       <div class='pulldown' v-show='pullDownFlag' ref='pullDown'>
-        <img src="../../assets/product/pulldown.png" v-if='pullicon'>
-        <spinner v-else></spinner>
+        <!-- <img src="../../assets/product/pulldown.png" v-if='pullicon'> -->
+        <spinner v-if='!pullicon'></spinner>
       </div>
     </transition>
 
@@ -236,17 +290,19 @@
           <p>数量</p>
           <div class='wrapper'>
             <div class='box minus' @click='minus' ref='minus'>-</div>
-            <div class='count'>{{count}}</div>
+            <input class='count' v-model.number="count" @blur='_changeNum()'></input>
             <div class='box add' @click='add'>+</div>
-            <div class="cue" v-show='count > product_obj.goods_storage'>库存不足</div>
+            <div class="cue" v-show='goods_storage'>库存不足</div>
           </div>
         </div>
         <button @click='submit'>加入购物车</button>
+        <!-- <input type='button' @click='submit' value='加入购物车' /> -->
       </div>
     </transition>
     <tab @add='addCart' @tel='tel'></tab>
     <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
     <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
+    <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
   </scroll>
 </template>
 <script>
@@ -254,12 +310,13 @@
   import Placeholder from '@/components/placeholder/placeholder'
   import xHeader from '@/components/x-header/x-header'
   import RateItem from '@/components/rate_item/rate_item'
-  import { Spinner, Confirm } from 'vux'
+  import { Spinner, Confirm, Alert } from 'vux'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
   import { mapGetters, mapMutations } from 'vuex'
-  const INIT = 0
+  import { Delivery } from '../../common/config/config.js'
+  const INIT = 1
   export default {
     name: 'product',
     data () {
@@ -268,23 +325,32 @@
         product_obj: {},
         videoArr: ['http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA1', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/MIXRT'],
         notNextTick: true,
-        // 顶部的swiper组件
+        // 顶部产品图片的swiper组件
         swiperOption: {
           pagination: '.swiper-pagination',
           slidesPerView: 'auto',
           centeredSlides: true,
-          spaceBetween: 18,
-          initialSlide: INIT
+          spaceBetween: 8,
+          initialSlide: INIT,
+          idx: INIT,
+          onSlideChangeStart (swiper) {
+            this.idx = swiper.activeIndex
+          }
         },
-        // 底部的swiper组件
+        // 建议吃法的swiper组件
         swiperOption1: {
           pagination: '.swiper-pagination',
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 10,
-          initialSlide: INIT
+          initialSlide: INIT,
+          idx: INIT,
+          loop: true,
+          onSlideChangeStart (swiper) {
+            this.idx = swiper.activeIndex
+          }
         },
-        // 推荐产品的swiper组件
+        // B端推荐产品的swiper组件
         swiperOption2: {
           pagination: '.swiper-pagination',
           slidesPerView: 3,
@@ -306,8 +372,13 @@
         show: false, // comfirm的状态
         select_type: -1, // 到店购买为0，配送到家1，门店2
         rateList: [],
+        offline_switch: '',
+        collect_switch: '',
         num: 0, // 购物车的数量
-        telephone: ''
+        telephone: '',
+        alertFlag: false,
+        msg: '该店铺还未添加手机号',
+        goods_storage: false
       }
     },
     created () {
@@ -321,6 +392,8 @@
       storage.remove('type')
       // 获取购物车商品数量
       this._getShopCart()
+      this.submitFlag = false
+      this.goods_storage = false
     },
     methods: {
       // 商品收藏
@@ -350,26 +423,44 @@
         this.$refs.minus.style.color = '#999'
       },
       submit () {
-        if (this.count > this.product_obj.goods_storage) return
+        if (this.count > this.product_obj.goods_storage || this.submitFlag) {
+          return
+        }
+        this.submitFlag = true
         this.addFlag = false
         this.$http.post(`/mobile/?act=member_cart&op=cart_add&api_token=${this.api_token}`, {
           goods_id: this.id,
           quantity: this.count
         }).then(res => {
+          this.submitFlag = false
           if (res.data.status === 200) {
             // 获取购物车最新的数量
             this._getShopCart()
+          } else if (res.data.status === 400) {
+            this.alertFlag = true
+            this.msg = res.data.data.error
           }
         })
       },
+      // 这块对于goods_storage的判断应该提取到watch里
       minus () {
         if (this.count === 1) {
           return
         }
         this.count--
+        this.goods_storage = false
       },
       add () {
-        this.count++
+        if (this.count < this.product_obj.goods_storage) {
+          this.count++
+        } else {
+          this.goods_storage = true
+        }
+      },
+      _changeNum () {
+        if (this.count < 1) {
+          this.count = 1
+        }
       },
       // 下拉刷新的放手时回调函数
       pullEnd (pos) {
@@ -391,16 +482,6 @@
       // 滑动的时候直接给我pos值，来判断下拉的icon变化
       scroll (pos) {
         this.scrollY = pos.y
-      },
-      // 企业名片
-      company_card (id) {
-        this.$router.push({
-          path: '/desc',
-          query: {
-            id,
-            title: '企业名片'
-          }
-        })
       },
       // 品牌收藏
       brand () {
@@ -437,19 +518,35 @@
         this.slideDown = !this.slideDown
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(.5turn)' : 'rotate(0)'
       },
-      joinBrand (id) {
-        this.$router.push({
-          path: '/desc',
-          query: {
-            id,
-            title: '快速加入品牌'
-          }
-        })
+      toDesc (id, idx) {
+        if (idx > -1) {
+          let arr = ['快速加入品牌', '企业名片', '品控保证', '图文查看', '图文详情', '平台详情', '建议吃法']
+          this.$router.push({
+            path: '/desc',
+            query: {
+              id,
+              title: arr[idx]
+            }
+          })
+        } else {
+          this.$router.push({
+            path: '/desc',
+            query: {
+              id,
+              title: idx
+            }
+          })
+        }
       },
       tel () {
+        if (!this.telephone) {
+          this.alertFlag = true
+          return
+        }
         this.$refs.confirm.show()
       },
       goZiti () {
+        if (this.offline_switch !== '1') return
         this.$router.push({
           path: '/mapziti',
           query: {
@@ -469,12 +566,14 @@
         this.$router.push({
           path: '/my/address',
           query: {
-            id // 传的是品牌id
+            id, // 传的是品牌id
+            transport: Delivery.ptSend
           }
         })
       },
       // 这里改来改去 也不给我说 一会品牌id,一会商品id，让我被动改一大堆。
       goStore (id) {
+        if (this.collect_switch !== '1') return
         if (this.select_type === 1) {
           this.show = true
           this.select_type = 2
@@ -499,7 +598,8 @@
           this.$router.push({
             path: '/my/address',
             query: {
-              id
+              id,
+              transport: Delivery.ptSend
             }
           })
         } else if (this.select_type === 2) {
@@ -512,52 +612,15 @@
           })
         }
       },
-      toQuality (id) {
-        this.$router.push({
-          path: '/desc',
-          query: {
-            title: '品控保证',
-            id
-          }
-        })
-      },
-      toImgText (id) {
-        this.$router.push({
-          path: '/desc',
-          query: {
-            title: '图文查看',
-            id
-          }
-        })
-      },
-      toEatType (id) {
-        this.$router.push({
-          path: '/desc',
-          query: {
-            title: '建议吃法',
-            id
-          }
-        })
-      },
       toProduct (id) {
         this.$router.push(`/product/${id}`)
         // 刷新页面
         this.$router.go(0)
       },
+      toLive (url) {
+        window.location.href = url
+      },
       _getProductDesc (id, cb) {
-        // 因为api_token 不一定存在，为了防止后端程序错误，要做个区分哟，要不然传的是undefined
-        // 这里正确打开方式是使用 拦截器
-        // let data = {}
-        // if (this.api_token) {
-        //   data = {
-        //     id,
-        //     api_token: this.api_token
-        //   }
-        // } else {
-        //   data = {
-        //     id
-        //   }
-        // }
         this.$http.get('/api/goods/detail', {
           params: {
             id,
@@ -567,11 +630,18 @@
           if (~~res.data.status === 200) {
             this.product_obj = res.data.data
             this.telephone = res.data.data.store.store_phone
+            // 对swiper的长度进行判断
+            if (this.product_obj.goods_image.length === 1) {
+              this.swiperOption.idx = 0
+            }
+            if (this.product_obj.goods_video.recommend && this.product_obj.goods_video.recommend.length === 1) {
+              this.swiperOption1.idx = 0
+            }
             this._getCollect()
+            this._getAddressStatus()
             cb && cb()
           }
         }).catch(e => {
-          console.log(e)
           this.$router.replace('/404')
         })
       },
@@ -584,6 +654,8 @@
             this.goodsFlag = res.data.data.is_collect_goods
             this.brandFlag = res.data.data.is_collect_brand
             this.rateList = res.data.data.goods_eval_list
+            this.collect_switch = res.data.data.site_collect_switch
+            this.offline_switch = res.data.data.site_offline_switch
           }
         })
       },
@@ -604,6 +676,26 @@
           }
         })
       },
+      _getAddressStatus () {
+        let type = storage.get('type')
+        if (type === 1) {
+          this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+          this.address_2 = ''
+          this.address_3 = ''
+          if (this.address_1) {
+            this.select_type = 1
+          }
+        } else if (type === 2) {
+          this.address_1 = ''
+          this.address_3 = ''
+          this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
+          this.select_type = this.addressType
+        } else if (type === 3) {
+          this.address_1 = ''
+          this.address_2 = ''
+          this.address_3 = this.addressType[this.product_obj.brand.brand_id]
+        }
+      },
       ...mapMutations([
         'SET_CART_COUNT'
       ])
@@ -620,34 +712,6 @@
         'addressType': 'addressType',
         'position': 'scrollY'
       })
-    },
-    activated () {
-      let type = storage.get('type')
-        // 这里写的有点粗糙，对应的是三种购买方式
-      if (type === 1) {
-        this.address_1 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
-        this.address_2 = ''
-        this.address_3 = ''
-        if (this.address_1) {
-          this.select_type = 1
-        }
-      } else if (type === 2) {
-        this.address_1 = ''
-        this.address_3 = ''
-        this.address_2 = Object.assign({}, this.address)[this.product_obj.brand.brand_id]
-        this.select_type = this.addressType
-      } else if (type === 3) {
-        this.address_1 = ''
-        this.address_2 = ''
-        this.address_3 = this.addressType[this.product_obj.brand.brand_id]
-      }
-      this.product_obj = {}
-      this.id = this.$route.params.id
-      this._getProductDesc(this.id)
-      this._getShopCart()
-      // 登录后拿到登录状态值
-      this.api_token = storage.get('api_token')
-      this.member_c = storage.get('member_class') === '2' ? '' : '1'
     },
     watch: {
       // 进行减法的颜色变化，最低为1
@@ -675,6 +739,19 @@
       },
       num (newVal) {
         this.SET_CART_COUNT(newVal)
+      },
+      $route (newVal) {
+        if (newVal.path.indexOf('product') > -1) {
+          // 这里写的有点粗糙，对应的是三种购买方式
+          this.product_obj = {}
+          this.id = this.$route.params.id
+          this._getProductDesc(this.id)
+          this._getShopCart()
+          // 登录后拿到登录状态值
+          this.api_token = storage.get('api_token')
+          this.member_c = storage.get('member_class') === '2' ? '' : '1'
+          this.goods_storage = false
+        }
       }
     },
     filters: {
@@ -694,7 +771,8 @@
       Scroll,
       Spinner,
       Confirms,
-      Confirm
+      Confirm,
+      Alert
     }
   }
 </script>
@@ -725,11 +803,20 @@
       z-index: 1;
       background: #fff;
       .placeholder{
-        height: 386px;
+        height: 102vw;
         .swiper-wrapper{
           .swiper-slide {
-            width: 70vw;
-            height: 386px;
+            width: 77.333vw;
+            height: 102vw;
+            position: relative;
+            .mask{
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(255, 255, 255, .4);
+            }
             img{
               width: 100%;
               height: 100%;
@@ -743,7 +830,7 @@
         }
         .desc{
           width: 100vw;
-          padding: 20px 15px;
+          padding: 16px 15px;
           .sells_volume{
             display: flex;
             flex-flow: row nowrap;
@@ -767,6 +854,7 @@
             .sells{
               color: #a0a0a0;
               letter-spacing: 1px;
+              line-height: 18px;
               span:first-child{
                 margin-right: 8px;
               }
@@ -781,14 +869,14 @@
             .name{
               font-size: 20px;
               margin-top: 0;
-              margin-bottom: 10px;
-              .no-wrap
+              margin-bottom: 14px;
+              line-height: 24px;
             }
             .sell_point{
               font-size: @font-size-small;
               color: #666;
               line-height: 24px;
-              margin-bottom: 6px;
+              margin-bottom: 16px;
             }
           }
         }
@@ -830,6 +918,12 @@
               fill: @color;
               overflow: hidden;
             }
+          }
+          .rule{
+            padding: 0 15px 15px;
+            font-size: @font-size-medium;
+            color: #666;
+            line-height: 20px;
           }
           .swiper-slide{
             height: 200px;
@@ -951,12 +1045,17 @@
         .goods_info{
           padding: 0 15px;
           width: 100vw;
+          .see_text{
+            line-height: 50px;
+            font-size: @font-size-small;
+            text-align: center;
+            font-weight: bold;
+            .no-wrap
+          }
           .item{
-            // height: 272px;
             width: 100%;
-            border-top: 1px solid transparent;
             &~.item{
-              margin-top: 10px;
+              margin-top: 6px;
             }
             .title{
               margin-top: 18px;
@@ -975,13 +1074,29 @@
                 top: 0;
                 background: #5fb29e;
               }
+              .name{
+                position: relative;
+                margin-right: 22px;
+                &:before{
+                  content: '';
+                  display: block;
+                  position: absolute;
+                  right: -14px;
+                  top: 50%;
+                  transform: translate3d(0, -50%, 0);
+                  width: 4px;
+                  height: 4px;
+                  border-radius: 50%;
+                  background: @color;
+                }
+              }
             }
             .video{
               width: 100%;
               height: 0;
               padding-top: 56.25%;
               position: relative;
-              video, iframe{
+              video, iframe, img{
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -990,30 +1105,24 @@
                 object-fit: fill;
               }
             }
-            .see_text{
-              margin-top: 18px;
-              margin-bottom: 12px;
+            .text{
               font-size: @font-size-small;
-              text-align: center;
-              font-weight: bold;
-            }
-          }
-          .text{
-            font-size: @font-size-small;
-            margin-top: 6px;
-            margin-bottom: 20px;
-            .live_tv{
-              color: #b8b8b8;
-              .icon {
-                width: 1em; 
-                height: 1em;
-                vertical-align: -0.2em;
-                fill: currentColor;
-                overflow: hidden;
+              height: 42px;
+              line-height: 42px;
+              .live_tv{
+                color: #b8b8b8;
+                .icon {
+                  width: 1em; 
+                  height: 1em;
+                  vertical-align: -0.15em;
+                  fill: currentColor;
+                  overflow: hidden;
+                }
               }
             }
           }
           .image{
+            margin-top: 40px;
             & > img {
               width: 100%;
             }
@@ -1028,7 +1137,7 @@
             .quality{
               width: 100%;
               text-align: center;
-              padding-top: 40px;
+              margin-top: 38px;
               .desc{
                 width: 100%;
                 height: 95px;
@@ -1050,38 +1159,50 @@
               }
             }
           }
-        }
-        .eat{
-          text-align: center;
-          .eat_way{
-            height: 20px;
-            width: 100%;
-            background: url('../../assets/product/eat_way.png') no-repeat 0 0;
-            background-size: 100% 100%;
-            margin-bottom: 22px;
-          }
-          .swiper-wrapper{
-            .swiper-slide {
-              width: 64.266667vw;
-              height: 0;
-              padding-top: 56.25%;
-              padding-bottom: 13.75%;
-              position: relative;
-              video, img{
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 84.507042%;
-                object-fit: fill;
-              }
-              .text{
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translate3d(-50%, 0, 0);
-                color: #000;
-                font-size: @font-size-medium;
+          .eat{
+            margin-top: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            .eat_way{
+              height: 20px;
+              width: 100%;
+              background: url('../../assets/product/eat_way.png') no-repeat 0 0;
+              background-size: 100% 100%;
+              margin-bottom: 22px;
+            }
+            .swiper-wrapper{
+              .swiper-slide {
+                width: 64vw;
+                position: relative;
+                height: 57.333vw;
+                .img{
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 48vw;
+                  img{
+                    width: 100%;
+                    height: 100%;
+                  }
+                  .zhezhao{
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(255, 255, 255, .4);
+                  }
+                }
+                .text{
+                  position: absolute;
+                  bottom: 0;
+                  left: 50%;
+                  width: 64vw;
+                  transform: translate3d(-50%, 0, 0);
+                  color: #000;
+                  font-size: @font-size-medium;
+                }
               }
             }
           }
@@ -1089,7 +1210,7 @@
         .company_card{
           height: 78px;
           width: calc(~"100vw - 32px");
-          margin: 40px auto 20px;
+          margin: 19px auto 19px;
           border: 1px solid #ccc;
           display: flex;
           flex-direction: row;
@@ -1267,8 +1388,11 @@
           }
           .count{
             height: 30px;
+            width: 48px;
             line-height: 30px;
-            margin: 0 35px;
+            text-align: center;
+            font-size: @font-size-medium;
+            border: 0;
           }
           .cue{
             color: @color;

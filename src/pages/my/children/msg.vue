@@ -5,7 +5,7 @@
       <div class="content">
         <div class="item" v-for='(item, index) of arr' :class='{"vux-1px-t": index > 0}' :key='index' @click='selectOne(item.message_id)'>
           <div class="left">
-            <img v-if='~~item.message_open === 0' src="../../../assets/my/unread.png">
+            <img v-if='~~item.read_state === 0' src="../../../assets/my/unread.png">
             <img v-else src="../../../assets//my/readed.png">
           </div>
           <div class="right">
@@ -59,9 +59,15 @@
     },
     methods: {
       selectOne (id) {
-        this.arr.filter(item => {
-          if (item.message_id === id) {
-            item.message_open = '1'
+        this.$http.post(`/mobile/?act=member_message&op=msg_info&api_token=${this.api_token}`, {
+          message_id: id
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.arr.filter(item => {
+              if (item.message_id === id) {
+                item.read_state = '1'
+              }
+            })
           }
         })
       },

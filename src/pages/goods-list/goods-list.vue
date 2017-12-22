@@ -4,7 +4,7 @@
 
     <div class="sort-rule">
       <div class="sort-wrapper">
-        <div class='sort-item' v-for='(item, index) of sortArr' :class='{active:index === idx}' @click='selectSort(item, index)'>
+        <div class='sort-item' v-for='(item, index) of sortArr' :class='{active:index === idx, money: index === 3, "vux-1px-b": index <= 3}' @click='selectSort(item, index)'>
           <span>
             {{item.attr_name}}
             <div class="icon-wrapper" v-if='index === 0 || index > 3'>
@@ -22,7 +22,6 @@
             </div>
           </span>
         </div>
-        <div class="placeholder" v-show='placeholder'></div>
       </div>
 
       <!-- 排序选择下拉框 -->
@@ -86,9 +85,9 @@
         this.sure()
       },
       selectSort (item, index) {
-        this.idx = index
         // 这里对 综合 销量 价格 进行拦截，不触发下拉框
         if (index >= 1 && index <= 3) {
+          this.idx = index
           if (item.attr_name === '综合') {
             this.goodsData = this.goodsData1.slice()
           }
@@ -118,6 +117,7 @@
           this.descFlag = !this.descFlag
           return
         }
+        this.idx = index
         this.descFlag = true
       },
       selectDesc (index) {
@@ -217,7 +217,6 @@
     bottom: 0;
     right: 0;
     background: #fff;
-    // z-index: 1;
     .header{
       z-index: 3;
       background: #fff;
@@ -228,30 +227,33 @@
         display: flex;
         flex-flow: row wrap;
         background: #fff;
-        padding: 0 30px 0 20px;
+        padding: 0 20px;
         position: relative;
         z-index: 3;
         font-size: @font-size-medium;
         color: #666;
-        .placeholder{
-          position: absolute;
-          top: 50%;
-          left: 0;
-          width: 100%;
-          height: 1px;
-          background: #eee;
-        }
         .sort-item{
-          width: 25%;
           height: 50px;
           line-height: 50px;
+          &.money{
+            padding-right: 10px;
+          }
           &.active{
             color: @color;
           }
-          &:nth-child(4n+2), &:nth-child(4n+3) {
+          &:nth-child(4n + 1) {
+            width: 19%
+          }
+          &:nth-child(4n+2) {
             text-align: center;
+            width: 34.139%;
+          }
+          &:nth-child(4n+3) {
+            text-align: center;
+            width: 22.65861%;
           }
           &:nth-child(4n){
+            width: 24.21139%;
             text-align: right;
           }
           span{
@@ -269,15 +271,15 @@
               &.price{
                 .icon:first-child{
                   position: relative;
-                  bottom: -3px;
+                  bottom: -6px;
                 }
                 .icon:last-child{
                   position: relative;
-                  top: -3px;
+                  top: -6px;
                 }
               }
               .icon {
-                width: 12px; height: 12px;
+                width: 1.3em; height: 1.3em;
                 fill: currentColor;
                 overflow: hidden;
                 &.price_active{

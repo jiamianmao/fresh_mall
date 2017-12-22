@@ -127,8 +127,17 @@
     },
     created () {
       this.sum = this.$route.query.sum
+      // 订单order_sn
       this.orderArr = this.$route.query.arr
+      // 订单order_id
+      this.id = this.$route.query.id
+      if (Array.isArray(this.id)) {
+        this.id = this.id[0]
+      }
       this.api_token = storage.get('api_token')
+      this.timer
+      // 只验证一个
+      this._orderPayStatus()
     },
     methods: {
       active (n) {
@@ -154,30 +163,110 @@
         if (this.select1) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=AliPay&api_token=${this.api_token}`).then(res => {
             let url = res.data.data.pay_sign.url
+            this._orderPayStatus()
             _AP.pay(url)
           })
         } else if (this.select2) {
-          this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {
-            if (res.data.status === 200) {
-              window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
-            }
-          })
+          let ua = navigator.userAgent.toLowerCase()
+          // 微信公众号支付
+          if (ua.indexOf('micromessenger') !== -1) {
+            // 先判断是否拿到openid
+            // 拿到openid之后
+            this.$http.get(`/mobile/?act=member_account&op=get_member_info&api_token=${this.api_token}`).then(res => {
+              if (res.data.status === 200) {
+                if (res.data.data.member_wxopenid) {
+                  this._wechatPay()
+                } else {
+                  // 去授权
+                  let url = `redirect=${encodeURIComponent(window.location.href)}`
+                  this.$router.push(`/auth?${url}`)
+                }
+              }
+            })
+          } else {
+            // 微信H5支付 
+            this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {
+              if (res.data.status === 200) {
+                window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
+              }
+            })
+          }
         } else if (this.select3) {
           this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
-            console.log(res)
             if (res.data.status === 200) {
-              this.$http.post('/union/gateway/api/frontTransReq.do', res.data.data.pay_sign).then(r => {
-                console.log(r)
+              this.$router.push({
+                path: '/union',
+                query: {
+                  pay_sign: res.data.data.pay_sign
+                }
               })
             }
           })
         } else {
-          this.company = true
+          if (!this.company) {
+            this.company = true
+          } else {
+            this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=CashPay&api_token=${this.api_token}`).then(res => {
+              if (res.data.status === 200) {
+                this.$router.replace('/my/order')
+              }
+            })
+          }
         }
       },
       close () {
         this.company = false
+      },
+      _wechatPay () {
+        this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
+          if (res.data.status !== 200) {
+            return
+          }
+          let r = res.data.data.pay_sign
+          function onBridgeReady () {
+            WeixinJSBridge.invoke(
+              'getBrandWCPayRequest', {
+                  'appId': r.appId,
+                  'timeStamp': r.timeStamp,
+                  'nonceStr': r.nonceStr,
+                  'package': r.package,
+                  'signType': r.signType,
+                  'paySign': r.paySign
+              },
+              function (res) {
+                if (res.err_msg === 'get_brand_wcpay_request:ok') {
+                  this.$router.replace('/my/order?status=2')
+                }
+              }
+            )
+          }
+          if (typeof WeixinJSBridge === "undefined") {
+            if (document.addEventListener ) {
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false)
+            } else if (document.attachEvent) {
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady)
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady)
+            }
+          } else {
+            onBridgeReady()
+          }
+        })
+      },
+      _orderPayStatus () {
+        this.timer && clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
+            if (res.data.data.order_info.order_state === '20') {
+              this.$router.replace('/my/order?status=2')
+            } else {
+              this._orderPayStatus()
+            }
+          })
+        }, 1500)
       }
+    },
+    beforeDestroy () {
+      clearTimeout(this.timer)
     },
     components: {
       XTitle

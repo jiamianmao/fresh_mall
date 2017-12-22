@@ -7,7 +7,7 @@
       </div>
       <div class="password vux-1px-t">
         <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' placeholder='密码'>
-        <svg class="icon" aria-hidden="true" @click='seePassword'>
+        <svg class="icon" aria-hidden="true" ref='icon' @click='seePassword'>
           <use xlink:href="#icon-yanjing"></use>
         </svg>
       </div>
@@ -48,8 +48,10 @@
         let pwd = this.$refs.pwd
         if (pwd.getAttribute('type') === 'text') {
           this.$refs.pwd.setAttribute('type', 'password')
+          this.$refs.icon.style.fill = '#5eb29e'
         } else {
           this.$refs.pwd.setAttribute('type', 'text')
+          this.$refs.icon.style.fill = '#333'
         }
       },
       signup () {
@@ -101,15 +103,18 @@
     overflow: hidden;
     .brand{
       height: 32.558vh;
+      min-height: 200px;
       width: 100%;
       background: url('../../assets/login/brand.png') no-repeat 0 0 ~"/"100% 100%;
     }
     main{
       width: 100%;
       height: 19.6vh;
+      min-height: 120px;
       padding-left: 15px;
       >div{
         height: 50%;
+        min-height: 60px;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;

@@ -29,8 +29,8 @@
                 <div class="spec">{{item.goods_unit}}</div>
                 <h3 class="price">{{item.goods_price}}</h3>
                 <div class='wrapper'>
-                  <div class='box minus' @click='minus(item.goods_num, item.cart_id)' ref='minus'>-</div>
-                  <div class='count'>{{item.goods_num}}</div>
+                  <div class='box minus' @click='minus(item.goods_num, item.cart_id)' :class='{"minusNums": item.goods_num > 1}'>-</div>
+                  <input class='count' v-model.number="item.goods_num" @blur='_changeNum(item.goods_num, item.cart_id)'></input>
                   <div class='box add' @click='add(item.goods_num, item.cart_id)'>+</div>
                 </div>
                 <div class="close" @click='del(item.cart_id)'>
@@ -51,11 +51,11 @@
         <img src="../../assets/selectAdd/select.png" v-else>
       </div>
       <span class='all'>全选</span>
-      <p class='num'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p>
+      <p class='num' style='opacity: 0;'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p>
       <p>合计:<strong>¥{{sum}}</strong></p>
       <button @click='submit'>结算</button>
     </div>
-    <alert v-model="alertFlag">{{msg}}</alert>
+    <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
     <confirm v-model="show" title='确认删除吗？' content='再考虑考虑吧' @on-confirm='onConfirm'></confirm>
   </div>
 </template>
@@ -163,11 +163,8 @@
             brandId,
             goodsData: data
           })
-          console.log(index)
           this.ok[index] = true
         } else {
-          console.log(1)
-          console.log(index)
           this.activeArr.splice(idx, 1)
           this.ok[index] = false
         }
@@ -280,10 +277,17 @@
         })
       },
       _changeNum (quantity, cartId) {
+        if (quantity < 1) {
+          quantity = 1
+        }
         this.$http.post(`/mobile/?act=member_cart&op=cart_edit_quantity&api_token=${this.api_token}`, {
           cart_id: cartId,
           quantity
         }).then(res => {
+          if (res.data.status === 400) {
+            this.msg = '库存不足'
+            this.alertFlag = true
+          }
           this._getShopCart()
         })
       },
@@ -342,7 +346,7 @@
                   return y.goods_id === item.goodsId
                 })
                 cartType.push(item.goodsId)
-                sum += parseInt(two.goods_price) * parseInt(two.goods_num)
+                sum += Number(two.goods_price) * Number(two.goods_num)
                 cartCount += parseInt(two.goods_num)
               })
               let xLen = x.goodsData.length
@@ -467,18 +471,24 @@
                 width: 20px;
                 height: 20px;
                 border: 1px solid #999;
-                line-height: 20px;
+                line-height: 19px;
                 text-align: center;
                 font-size: 16px;
                 &.minus{
+                  line-height: 18px;
                   color: #999;
+                }
+                &.minusNums{
+                  color: #000;
                 }
               }
               .count{
                 height: 20px;
+                width: 48px;
                 line-height: 20px;
-                margin: 0 20px;
+                text-align: center;
                 font-size: @font-size-medium;
+                border: 0;
               }
             }
             .close{

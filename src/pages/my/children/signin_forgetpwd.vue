@@ -32,7 +32,7 @@
             <img src="../../../assets/selectAdd/selected.png" v-if='active'>
             <img src="../../../assets/selectAdd/select.png" v-else>
           </div>
-          <p>我已阅读并同意<span>《用户注册协议》</span></p>
+          <p>我已阅读并同意<span @click='seeRule'>《用户注册协议》</span></p>
         </div>
         <button @click='submit'>{{btn}}</button>
       </div>
@@ -95,23 +95,6 @@
     },
     methods: {
       seePassword (idx) {
-        // if (idx === 1) {
-        //   if (this.$refs.pwd1.getAttribute('type') === 'text') {
-        //     this.$refs.pwd1.setAttribute('type', 'password')
-        //     this.$refs.icon1.style.fill = '#5eb29e'
-        //   } else {
-        //     this.$refs.pwd1.setAttribute('type', 'text')
-        //     this.$refs.icon1.style.fill = '#333'
-        //   }
-        // } else {
-        //   if (this.$refs.pwd2.getAttribute('type') === 'text') {
-        //     this.$refs.pwd2.setAttribute('type', 'password')
-        //     this.$refs.icon2.style.fill = '#5eb29e'
-        //   } else {
-        //     this.$refs.pwd2.setAttribute('type', 'text')
-        //     this.$refs.icon2.style.fill = '#333'
-        //   }
-        // }
         let val = this.$refs[`pwd${idx}`].getAttribute('type')
         // 做个字典来进行判断
         let dict = {
@@ -127,14 +110,12 @@
           this.show = true
           return
         } else {
-          this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=3`).then(res => {
+          this.$http.get(`/mobile/?act=member_account&op=modify_mobile_step2&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {
-              if (res.data.data.error === '1') {
-                this.msg = '暂时无法获取验证码'
-                this.show = true
-              } else {
-                this.start = true
-              }
+              this.start = true
+            } else {
+              this.msg = res.data.data.error
+              this.show = true
             }
           })
         }
@@ -222,6 +203,9 @@
       sure () {
         // 统一跳转到首页
         this.success && this.$router.replace('/home')
+      },
+      seeRule () {
+        this.$router.push('/service?type=regist_rule')
       }
     },
     components: {
@@ -271,6 +255,10 @@
         }
         .active{
           position: absolute;
+          top: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
           right: 15px;
           color: @color;
           font-size: @font-size-small;

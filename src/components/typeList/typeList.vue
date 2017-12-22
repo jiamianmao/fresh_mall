@@ -3,7 +3,7 @@
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
       <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
         <img :src="item.img_url">
-        <div class="mask" v-show='index !== swiperOption.idx % goods.goods_list.length'></div>
+        <div class="mask" v-show='index !== swiperOption.idx'></div>
       </swiper-slide>
     </swiper>
     <div class="text">
@@ -26,7 +26,7 @@
   </div>
 </template>
 <script>
-  let index = 0
+  let index = 1
   export default {
     props: {
       goods: {
@@ -43,26 +43,23 @@
           slidesPerView: 'auto',
           centeredSlides: true,
           spaceBetween: 8,
-          loop: true,
           idx: index,
-          initialSlide: 0,
-          onSlideChangeEnd (swiper) {
-            // console.log(swiper.activeIndex)
+          initialSlide: index,
+          onSlideChangeStart (swiper) {
             this.idx = swiper.activeIndex
           }
         }
       }
     },
     created () {
-      // let _this = this
-      // if (this.goods.goods_list.length === 0) {
-      //   this.text = {}
-      // } else if (this.goods.goods_list.length === 1) {
-      //   this.text = this.goods.goods_list[0]
-      // } else {
-      //   this.text = this.goods.goods_list[index]
-      // }
-      this.text = this.goods.goods_list[index]
+      if (this.goods.goods_list.length === 0) {
+        this.text = {}
+      } else if (this.goods.goods_list.length === 1) {
+        this.swiperOption.idx = 0
+        this.text = this.goods.goods_list[0]
+      } else {
+        this.text = this.goods.goods_list[index]
+      }
     },
     methods: {
       goProduct (id) {
@@ -81,7 +78,7 @@
       swiperOption: {
         handler () {
           let list = this.goods.goods_list
-          this.text = list[this.swiperOption.idx % list.length]
+          this.text = list[this.swiperOption.idx]
         },
         deep: true
       }
@@ -92,9 +89,7 @@
   @import '~common/less/variable.less';
   @import '~common/less/mixin.less';
   .item{
-    height: 480px;
     width: 100vw;
-    margin-top: 15px;
     .swiper-wrapper{
       .swiper-slide {
         width: 69.2vw;
@@ -106,7 +101,7 @@
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, .4);
+          background: rgba(255, 255, 255, .4);
         }
         img{
           width: 100%;
@@ -124,7 +119,7 @@
         margin-top: 20px;
         width: 90%;
         text-align: center;
-        font-size: @font-size-medium-x;
+        font-size: 17px;
         font-weight: bold;
         color: #111;
         .no-wrap

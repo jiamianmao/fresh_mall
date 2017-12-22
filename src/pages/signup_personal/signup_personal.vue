@@ -46,6 +46,7 @@
   import { Countdown, Alert } from 'vux'
   import $ from 'jquery'
   export default {
+    name: 'signup_person',
     data () {
       return {
         tel: '',
@@ -135,20 +136,27 @@
     background: #fff;
     main{
       width: 100%;
+      // min-height: 266px;
       padding-left: 15px;
       >div{
         height: 10vh;
+        min-height: 60px;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
         position: relative;
+        // background: red;
         img{
           width: 18px;
           height: 20px;
           margin-right: 10px;
         }
         input{
+          box-sizing: border-box;
+          line-height: 20px;
+          height: 20px;
+          padding: 0;
           border: 0;
         }
         .icon{
@@ -163,10 +171,14 @@
           overflow: hidden;
         }
         .active{
+          height: 10vh;
+          min-height: 60px;
           position: absolute;
           right: 15px;
           color: @color;
           font-size: @font-size-small;
+          display: flex;
+          align-items: center;
         }
       }
     }

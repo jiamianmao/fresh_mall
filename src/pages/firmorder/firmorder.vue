@@ -4,13 +4,14 @@
     <!-- 这里做了个hack方法，因为B端和C端都需要拿到地址信息，C端通过Brand_id来拿到对应的地址，B端因为多个Brand_id,所以直接用defautl来代替好了 -->
     <!-- 还是需要一个brand_id 后边已经写好了 12.11修改 -->
     <div class="address" v-show='!member_c' @click="selectAddress(list[0].brand_id)">
+      <div class='border'></div>
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-zuobiao"></use>
       </svg>
-      <div class='add1' v-if='!address.default'>收货地址</div>
+      <div class='add1' v-if='!B_address'>收货地址</div>
       <div class="add2" v-else>
-        <p><span>{{address.default.true_name}}</span><span>{{address.default.tel_phone}}</span></p>
-        <p>{{address.default.area_info | blank}}{{address.default.address}}</p>
+        <p><span>{{B_address.true_name}}</span><span>{{B_address.tel_phone}}</span></p>
+        <p>{{B_address.area_info | blank}}{{B_address.address}}</p>
       </div>
       <span class='arrow'>
         <x-icon type="ios-arrow-right" size="18"></x-icon>
@@ -20,7 +21,7 @@
     <div class="order_desc" v-for='brand of list'>
       <div class="name vux-1px-b">
         <span>{{brand.brand_name}}</span>
-        <span class='tel' v-show='!member_c'>联系卖家：{{brand.store_phone}}</span>
+        <span class='tel' v-show='!member_c && brand.store_phone'>联系卖家：{{brand.store_phone}}</span>
       </div>
       <div class="goods_box vux-1px-b" v-for='goods of brand.goods'>
         <div class="left">
@@ -39,25 +40,35 @@
       <div class="leave_word vux-1px-b">
         <div class="left">买家留言:</div>
         <div class="right">
-          <textarea v-model='message[`message${brand.brand_id}`]' placeholder='选填（45字以内）' maxlength='45'></textarea>
+          <textarea v-model='message[`message[${brand.brand_id}]`]' placeholder='选填（45字以内）' maxlength='45'></textarea>
         </div>
       </div>
 
       <div class="address memberc vux-1px-b" v-if='member_c' @click='delivery(brand.brand_id)'>
 
-        <div class='add1' v-if='!address[brand.brand_id]'>
+        <div class='add1' v-if='!addressType[brand.brand_id]'>
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-zuobiao"></use>
           </svg>
-          配送方式</div>
+          收货方式</div>
 
         <div class="add3" v-else>
           <div class="left">
-            <p>配送到位:</p>
+            <p v-if='addressType[brand.brand_id].transport === 1'>配送到位:</p>
+            <p v-if='addressType[brand.brand_id].transport === 2'>门店配送:</p>
+            <p v-if='addressType[brand.brand_id].transport === 3'>到店自提:</p>
           </div>
-          <div class="right">
+          <div class="right" v-if='addressType[brand.brand_id].transport === 1'>
             <p>{{address[brand.brand_id].area_info | blank}}{{address[brand.brand_id].address}}</p>
             <p class='people'><span>{{address[brand.brand_id].true_name}}</span> &nbsp; <span>{{address[brand.brand_id].tel_phone}}</span></p>
+          </div>
+          <div class="right" v-if='addressType[brand.brand_id].transport === 2'>
+            <p>{{address[brand.brand_id].area_info | blank}}{{address[brand.brand_id].address}}</p>
+            <p class='people'><span>{{address[brand.brand_id].true_name}}</span> &nbsp; <span>{{address[brand.brand_id].tel_phone}}</span></p>
+          </div>
+          <div class="right" v-if='addressType[brand.brand_id].transport === 3'>
+            <p>{{addressType[brand.brand_id].store_name}}</p>
+            <p>{{addressType[brand.brand_id].store_add}}</p>
           </div>
         </div>
 
@@ -114,22 +125,25 @@
         alertFlag: false, // alert的信号
         msg: '', // alert的提示语
         cartArr: [],
-        message: {} // 留言
+        message: {}, // 留言
+        B_address: ''
       }
     },
     created () {
       // 对用户的身份进行区分
       this.member_class = storage.get('member_class')
+      this.api_token = storage.get('api_token')
       if (parseInt(this.member_class) === 2) {
         this.member_c = false
+        this._getBAddress()
       }
       // 通过购物车那里传来的cart_id取对应数据
       if (Array.isArray(this.$route.query.cartId)) {
         this.cartArr = this.$route.query.cartId
       } else {
+        this.cartArr = []
         this.cartArr.push(this.$route.query.cartId)
       }
-      this.api_token = storage.get('api_token')
       this._getOrderData()
       this.enums = {
         invoice: {
@@ -148,17 +162,24 @@
         this.$router.push('/firmorder/invoice')
       },
       // 配送方式的选择框
-      delivery (id) {
-        this.show = true
+      async delivery (id) {
+        // 先判断 门店代收暂存 是否开启 开启：显示弹窗  关闭：直接跳转到地址列表页
+        let state = await this._getStoreState()
+        if (state === '0') {
+          this.selectAddress(id)
+        } else {
+          this.show = true
         // 之前采用的方案是 弹出框 是多个的   好处是直接可以拿到对应的 brand_id，但是会导致 弹出框弹出时候背景黑色（应该是vux问题） 另外brand_id不准确
         // 现在把弹出框拿到外边 使用this.brand_id 来当储存变量的媒介
-        this.brand_id = id
+          this.brand_id = id
+        }
       },
       selectAddress (id) {
         this.$router.push({
           path: '/my/address',
           query: {
-            id: id || this.brand_id
+            id: id || this.brand_id,
+            transport: Delivery.ptSend
           }
         })
       },
@@ -181,37 +202,20 @@
       orderSubmit () {
         // 来判断用户身份
         if (this.member_c) {
-          // 因为是多订单，且多种收货方式，当前的收货地址的设计方案是
-          // 平台配送关联 address， 商家配送关联 address + addressType ，自提关联 addressType
-          // 现在需要把 平台配送 增加一个 addressType的关联
-          Object.keys(this.address).forEach(item => {
-            if (!Object.keys(this.addressType).includes(item)) {
-              let data = {
-                id: item,
-                transport: Delivery.ptSend,
-                store_id: -1,
-                store_add: 'null'
-              }
-              this.SET_ADDRESS_TYPE(data)
-            }
-          })
-          if (Object.keys(this.addressType).length === this.list.length) {
+          let keyArr = Object.keys(this.addressType)
+          if (this.list.every(item => {
+            return keyArr.includes(`${item.brand_id}`)
+          })) {
             let obj1 = {
               'cart_id': this.cartArr
             }
             // 这里把所有的收货方式都处理成键值对形式
-            let addData = Object.entries(this.addressType)
+            let addData = []
+            this.list.forEach(item => {
+              addData.push([item.brand_id, this.addressType[`${item.brand_id}`]])
+            })
             let obj2 = {}
             addData.forEach(item => {
-              // if (item[0] in this.addressType) {
-              //   type = this.addressType[item[0]].transport
-              //   // 如果是自提的话，那就需要传入store_id
-              //   if (type === Delivery.self) {
-              //     obj2[`address[${item[0]}][delivery_id]`] = this.addressType[item[0]].store_id
-              //   }
-              // } else {
-              //   type = Delivery.ptSend
-              // }
               let str1 = `address[${item[0]}][id]`
               let str2 = `address[${item[0]}][type]`
               let str3 = `address[${item[0]}][delivery_id]`
@@ -227,6 +231,62 @@
               }
             })
             // 后台接口又改了，还需要重新调整发票这块的数据结构
+            let invoicePhp = {}
+            for (let i in this.invoiceType) {
+              if (this.invoiceType.hasOwnProperty(i)) {
+                if (i === 'company_name') {
+                  invoicePhp['invite[invoice_name]'] = this.invoiceType[i]
+                } else if (i === 'email') {
+                  invoicePhp['invite[invoice_email]'] = this.invoiceType[i]
+                } else if (i === 'invoice') {
+                  invoicePhp['invite[invoice_type]'] = this.invoiceInfo.invoice
+                } else if (i === 'person') {
+                  invoicePhp['invite[invoice_title]'] = this.invoiceInfo.person
+                } else if (i === 'tax_num') {
+                  invoicePhp['invite[invoice_txt_number]'] = this.invoiceType[i]
+                }
+              }
+            }
+            this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, invoicePhp, this.message)).then(res => {
+              if (res.data.status === 200) {
+                // 在付款页面 需要维护一个总价，及订单号的Array
+                let arr = []
+                let id = []
+                let sum = 0
+                let orders = res.data.data.order
+                let value = Object.values(orders)
+                value.forEach(item => {
+                  // 这里防止浮点数计算错误
+                  sum += item.order_amount * 100
+                  arr.push(item.order_sn)
+                  id.push(item.order_id)
+                })
+                sum = sum / 100
+                this.$router.replace({
+                  path: '/pay',
+                  query: {
+                    sum,
+                    arr,
+                    id
+                  }
+                })
+              }
+            })
+          } else {
+            this.alertFlag = true
+            this.msg = '您还有商品未设置收货方式'
+          }
+        } else {
+          if (this.B_address) {
+            // todo
+            let obj1 = {
+              'cart_id': this.cartArr
+            }
+            let obj2 = {}
+            this.list.forEach(item => {
+              let str1 = `address[${item.brand_id}][id]`
+              obj2[str1] = this.B_address.address_id
+            })
             let invoicePhp = {}
             for (let i in this.invoiceType) {
               if (this.invoiceType.hasOwnProperty(i)) {
@@ -269,15 +329,24 @@
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
           }
-        } else {
-          // B端只需判断default地址存在就ok
-          if (this.address.default) {
-            // todo
-          } else {
-            this.alertFlag = true
-            this.msg = '您还有商品未设置收货方式'
-          }
         }
+      },
+      // 获取门店代收开启状态
+      async _getStoreState () {
+        let state
+        await this.$http.post(`/mobile/?act=goods&op=is_collect&api_token=${this.api_token}`, {
+          goods_id: '',
+          brand_id: ''
+        })
+        .then(res => {
+          if (res.data.status === 200) {
+            state = res.data.data.site_collect_switch
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        return state
       },
       _getInvoice () {
         // 通过vuex拿到发票信息
@@ -301,20 +370,46 @@
           if (data.length === 0) {
             this.$router.replace('/my/order')
           }
+          let arr = []
           for (let i in data) {
             if (data.hasOwnProperty(i)) {
               if (i === 'price') {
                 this.price = data[i]
               } else {
-                this.list.push(data[i])
+                arr.push(data[i])
               }
             }
+          }
+          this.list = arr
+        })
+      },
+      _getBAddress () {
+        this.$http.get(`/mobile/?act=member_address&op=address_list&api_token=${this.api_token}`).then(res => {
+          if (res.data.status === 200) {
+            let arr = res.data.data.address_list.filter(item => {
+              return item.is_default === '1'
+            })
+            this.B_address = arr[0]
           }
         })
       },
       ...mapMutations([
         'SET_ADDRESS_TYPE'
       ])
+    },
+    activated () {
+      // 通过购物车那里传来的cart_id取对应数据
+      if (Array.isArray(this.$route.query.cartId)) {
+        this.cartArr = this.$route.query.cartId
+      } else {
+        this.cartArr = []
+        this.cartArr.push(this.$route.query.cartId)
+      }
+      if (parseInt(this.member_class) === 2) {
+        this.member_c = false
+        this._getBAddress()
+      }
+      this._getOrderData()
     },
     computed: {
       types () {
@@ -375,15 +470,15 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
-      margin-bottom: 10px;
-      border-top: 0;
-      border-left: 0;
-      border-right: 0;
-      border-image: 5 repeating-linear-gradient(-45deg,
-        #5d85a4 0, #5d85a4 .5em,
-        transparent 0, transparent 1em,
-        #e56d66 0, #e56d66 1.5em,
-        transparent 0, transparent 2em);
+      margin-bottom: 15px;
+      .border{
+        height: 5px;
+        width: 100%;
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        background: url('../../assets/product/border.png');
+      }
       &.memberc{
         margin-bottom: 0;
       }
@@ -414,16 +509,20 @@
         flex-flow: row nowrap;
         padding: 20px 0;
         .left{
-          width: 70px;
+          width: 18.6667vw;
           height: 100%;
         }
         .right{
-          flex: 1;
+          width: 69.3333vw;
           height: 100%;
           padding-right: 10px;
           p{
-            width: 260px;
-            .no-wrap
+            width: 100%;
+            white-space: normal;
+            word-break: break-all;
+            &~p{
+              margin-top: 6px;
+            }
           }
           .people{
             margin-top: 10px;
@@ -498,7 +597,7 @@
             justify-content: space-between;
             .count{
               span{
-                font-size: @font-size-large;
+                font-size: @font-size-medium;
               }
             }
           }

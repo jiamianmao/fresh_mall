@@ -158,6 +158,7 @@
       font-size: @font-size-medium;
       >div{
         height: 10vh;
+        min-height: 60px;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;
@@ -175,8 +176,11 @@
         input{
           flex: 1;
           border: 0;
-          padding-right: 15px;
           text-align: right;
+          padding: 0;
+          padding-right: 15px;
+          line-height: 20px;
+          height: 20px;
           &.pwd{
             padding-right: 24vw;
           }
@@ -197,7 +201,9 @@
         }
         .active{
           position: absolute;
+          top: 50%;
           right: 15px;
+          transform: translate3d(0, -50%, 0);
           color: @color;
           font-size: @font-size-small;
         }
@@ -230,6 +236,7 @@
         margin-top: 22px;
         width: 100%;
         height: 8.30564784vh;
+        min-height: 50px;
         color: #fff;
         background: @color;
         border: 0;

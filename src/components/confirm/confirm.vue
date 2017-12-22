@@ -2,13 +2,15 @@
   <transition name="confirm-fade">
     <div class="confirm" v-show='showFlag' @click.stop>
       <div class="confirm-wrapper">
-        <div class="confirm-content">
-          <p class="text">{{title}}</p>
-          <p class="text">{{text}}</p>
+        <div class="confirm-content" :class='{"title": title}'>
+          <div class="textWrapper">
+            <p class="text" v-if='title'>{{title}}</p>
+            <p class="text" v-if='text'>{{text}}</p>
+          </div>
           <div class="operate">
             <div class="operate-btn vux-1px-t vux-1px-r" @click='cancel'>{{cancelBtnText}}</div>
-            <!-- <div class="operate-btn" @click='confirm'>{{confirmBtnText}}</div> -->
-            <a class="operate-btn vux-1px-t" @click='confirm' :href='telphone'>
+            <div v-if='!tel' class="operate-btn vux-1px-t" @click='confirm'>{{confirmBtnText}}</div>
+            <a v-else class="operate-btn vux-1px-t" @click='confirm' :href='telphone'>
               <span>{{confirmBtnText}}</span>
             </a>
           </div>
@@ -36,6 +38,10 @@
       cancelBtnText: {
         type: String,
         default: '取消'
+      },
+      tel: {
+        type: Boolean,
+        default: true
       }
     },
     data () {
@@ -94,15 +100,21 @@
         width: 270px;
         border-radius: 13px;
         background: #fff;
-        .text{
-          padding: 10px 15px 10px 15px;
-          line-height: 22px;
-          text-align: center;
-          font-size: @font-size-large;
-          color: #000;
-          &:first-child{
+        padding-top: 1px;
+        .textWrapper{
+          height: 96px;
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
+          align-items: center;
+          .text{
+            font-size: @font-size-medium-x;
+            color: #000;
             font-weight: bold;
-            padding-bottom: 0;
+            &:nth-child(2) {
+              margin-top: 20px;
+              font-size: @font-size-medium;
+            }
           }
         }
         .operate{
