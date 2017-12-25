@@ -54,6 +54,10 @@
           this._getImgText(this.id)
         } else if (this.title === '平台详情') {
           this._getPt()
+        } else if (this.title === '保证金制度') {
+          this._getDeposit()
+        } else if (this.title === '申请成为线下门店') {
+          this._getOffline()
         } else {
           this._getEnsure(this.id)
         }
@@ -101,6 +105,30 @@
             let data = res.data.data.value
             this.$refs.descText.innerHTML = data
             this.desc = this.$refs.descText.innerText
+          }
+        })
+      },
+      // 保证金制度
+      _getDeposit () {
+        this.$http.get('/mobile/?act=document&op=get_doc&doc_code=deposit_rule').then(res => {
+          if (res.data.status === 200) {
+            this.flag = false
+            this.title = res.data.data.doc_title
+            let data = res.data.data.doc_content
+            this.$refs.descText.innerHTML = data
+            this.desc = this.$refs.descText.innerHTML
+          }
+        })
+      },
+      // 线下们店
+      _getOffline () {
+        this.$http.get('/mobile/?act=document&op=get_doc&doc_code=exempt_bond').then(res => {
+          if (res.data.status === 200) {
+            this.flag = false
+            this.title = res.data.data.doc_title
+            let data = res.data.data.doc_content
+            this.$refs.descText.innerHTML = data
+            this.desc = this.$refs.descText.innerHTML
           }
         })
       }

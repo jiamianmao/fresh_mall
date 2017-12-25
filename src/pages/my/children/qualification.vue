@@ -196,7 +196,7 @@
         <footer>
           <button @click='submit'>提交审核</button>
           <p>请在48小时内到“我的-资质认证”页面查看审核结果，若审核成功，您还需到此查看是否需要交纳保证金。</p>
-          <p><a>《保证金管理制度》</a></p>
+          <p><a @click='toDesc'>《保证金管理制度》</a></p>
         </footer>
       </div>
 
@@ -223,12 +223,12 @@
           <div class="content">
             <div class="text_wrapper"  v-show='status === 0'>
               <p>您可以继续浏览商品，把心仪的商品先收藏</p>
-              <a href="#">申请成为线下门店面免交保证金</a>
+              <a @click='toDesc(0)'>申请成为线下门店面免交保证金</a>
             </div>
             <div class="text_wrapper"  v-show='status === 1'>
               <p>恭喜您审核成功，缴纳保证金即可购买</p>
               <a href="#" @click='toPromise'>缴纳保证金</a><br>
-              <a href="#">保证金管理制度</a>
+              <a @click='toDesc(1)'>保证金管理制度</a>
             </div>
             <div class="text_wrapper"  v-show='status === 2 && !deposit'>
               <p>经审核，您属于{{store_name}}的经销门店，免交保证金</p>
@@ -239,7 +239,7 @@
             </div>
             <div class="text_wrapper"  v-show='status === 2 && deposit'>
               <p>恭喜您审核成功!</p>
-              <a>保证金管理制度</a>
+              <a @click='toDesc(1)'>保证金管理制度</a>
             </div>
           </div>
         </div>
@@ -294,7 +294,6 @@
     },
     created () {
       // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
-      console.log('reinter')
       this.api_token = storage.get('api_token')
       this._getStatus()
     },
@@ -394,6 +393,15 @@
         }
         this.$router.push(`/service?type=${dict[num]}`)
       },
+      toDesc (id) {
+        let titles = ['申请成为线下门店', '保证金制度']
+        this.$router.push({
+          path: '/desc',
+          query: {
+            title: titles[id]
+          }
+        })
+      },
       submit () {
         if (!this.company_name || !this.business_licence_number || !this.bank_account_name || !this.bank_account || !this.bank_address || !this.bank_subbranch_name || !this.authenticator_truename || !this.authenticator_idnumber || !this.is_yinliu || !this.is_ziti || !this.is_storegoods || !this.is_dispatching || !this.licence_pic.length || !this.shop_pic) {
           this.show = true
@@ -428,7 +436,7 @@
         }
       },
       toPromise () {
-        this.$router.push(`/pay?store_id=${this.store_id}`)
+        this.$router.push('/pay')
       },
       _getStatus () {
         this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
@@ -447,6 +455,7 @@
               this.title = '审核状态'
               this.text = ''
               this.status = data.examine_state | 0
+              // this.status = 1
               this.store_id = data.company_info.store_id
             }
           }

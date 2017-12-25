@@ -126,7 +126,8 @@
       }
     },
     created () {
-      this.sum = this.$route.query.sum
+      // 这里写死为保证金50000
+      this.sum = this.$route.query.sum ? this.$route.query.sum : 50000
       // 订单order_sn
       this.orderArr = this.$route.query.arr
       // 订单order_id
@@ -160,8 +161,14 @@
         }
       },
       pay () {
+        let str
+        if (this.id) {
+          str = `order_sn=${this.orderArr}`
+        } else {
+          str = `type=serve`
+        }
         if (this.select1) {
-          this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=AliPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${str}&payment=AliPay&api_token=${this.api_token}`).then(res => {
             let url = res.data.data.pay_sign.url
             this._orderPayStatus()
             _AP.pay(url)
@@ -185,14 +192,14 @@
             })
           } else {
             // 微信H5支付 
-            this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPay&api_token=${this.api_token}`).then(res => {
+            this.$http.get(`/api/pay/pay?${str}&payment=WxPay&api_token=${this.api_token}`).then(res => {
               if (res.data.status === 200) {
                 window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
               }
             })
           }
         } else if (this.select3) {
-          this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${str}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {
               this.$router.push({
                 path: '/union',
@@ -218,7 +225,7 @@
         this.company = false
       },
       _wechatPay () {
-        this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/pay/pay?${str}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
           if (res.data.status !== 200) {
             return
           }
@@ -253,16 +260,31 @@
         })
       },
       _orderPayStatus () {
-        this.timer && clearTimeout(this.timer)
-        this.timer = setTimeout(() => {
-          this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
-            if (res.data.data.order_info.order_state === '20') {
-              this.$router.replace('/my/order?status=2')
-            } else {
-              this._orderPayStatus()
-            }
-          })
-        }, 1500)
+        // 订单类的跳转
+        if (this.id) {
+          this.timer && clearTimeout(this.timer)
+          this.timer = setTimeout(() => {
+            this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {
+              if (res.data.data.order_info.order_state === '20') {
+                this.$router.replace('/my/order?status=2')
+              } else {
+                this._orderPayStatus()
+              }
+            })
+          }, 1500)
+          // 保证类的跳转
+        } else {
+          this.timer && clearTimeout(this.timer)
+          this.timer = setTimeout(() => {
+            this.$http.get(`/mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
+              if (res.data.data.examine_state === '2' && res.data.data.company_info.deposit !== '0') {
+                this.$router.replace('/my/qualification')
+              } else {
+                this._orderPayStatus()
+              }
+            })
+          }, 1500)
+        }
       }
     },
     beforeDestroy () {

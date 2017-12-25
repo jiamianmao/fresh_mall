@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-      <confirm :tel='false' :text='text' ref='confirm' @confirm='sure' :title='title'></confirm>
+      <confirm :confirmBtnText='confirmBtnText' :cancelBtnText='cancelBtnText' :tel='false' :text='text' ref='confirm' @confirm='sure' :title='title'></confirm>
       <alert v-model='show' title='提示'>取消订单申请已提交<br />等待商家确认后<br />订单金额将退还到您的支付账户</alert>
     </div>
   </transition>
@@ -96,6 +96,7 @@
   const PAY_NO = 1
   const PAY_YES = 2
   const DEL = 3
+  const CONFIRMGOODS = 4
 
   export default {
     props: {
@@ -115,7 +116,9 @@
         flag: false, // 仅仅是增加一个判断是不是重新请求数据的
         text: '',
         title: '',
-        show: false
+        show: false,
+        confirmBtnText: '确定',
+        cancelBtnText: '取消'
       }
     },
     created () {
@@ -133,6 +136,8 @@
         this.order_id = id
         this.type = PAY_NO
         this.text = '您要取消订单吗？'
+        this.confirmBtnText = '确定'
+        this.cancelBtnText = '取消'
         this.$refs.confirm.show()
       },
       // 已付款取消订单
@@ -140,12 +145,16 @@
         this.order_id = id
         this.type = PAY_YES
         this.text = '您要取消订单吗？'
+        this.confirmBtnText = '确定'
+        this.cancelBtnText = '取消'
         this.$refs.confirm.show()
       },
       del (id) {
         this.order_id = id
         this.type = DEL
         this.text = '您要删除订单吗？'
+        this.confirmBtnText = '确定'
+        this.cancelBtnText = '取消'
         this.$refs.confirm.show()
       },
       pay (sn, sum, id) {
@@ -192,16 +201,23 @@
               this._getOrder()
             }
           })
+        } else if (this.type === CONFIRMGOODS) {
+          this.$http.post(`/mobile/?act=member_order&op=order_receive&api_token=${this.api_token}`, {
+            order_id: this.order_id
+          }).then(res => {
+            if (res.data.status === 200) {
+              this._getOrder()
+            }
+          })
         }
       },
       confirmGoods (id) {
-        this.$http.post(`/mobile/?act=member_order&op=order_receive&api_token=${this.api_token}`, {
-          order_id: id
-        }).then(res => {
-          if (res.data.status === 200) {
-            this._getOrder()
-          }
-        })
+        this.order_id = id
+        this.type = CONFIRMGOODS
+        this.text = '您是否已收到该订单商品？'
+        this.confirmBtnText = '已收货'
+        this.cancelBtnText = '未收货'
+        this.$refs.confirm.show()
       },
       seeRate (id) {
         this.$router.push(`/rate?order=${id}`)

@@ -34,7 +34,7 @@
     // name: 'category',
     data () {
       return {
-        img: require('../../assets/category/bg.png'),
+        img: '',
         cate_list: [],
         idx: 0,
         type_list: [],
@@ -64,6 +64,7 @@
             }
             if (this.cate_list) {
               this._getType(this.cate_list[0].gc_id)
+              this.img = this.cate_list[this.idx].gc_pic
             }
           }
         })
@@ -78,8 +79,10 @@
         })
       }
     },
-    beforeDestroy () {
-      console.log('hahahah')
+    watch: {
+      idx (newVal) {
+        this.img = this.cate_list[this.idx].gc_pic
+      }
     },
     components: {
       Search,

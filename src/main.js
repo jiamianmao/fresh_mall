@@ -26,7 +26,7 @@ Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
 
 // axios 默认配置
-axios.defaults.baseURL = 'http://ctx.17link.cc'
+axios.defaults.baseURL = '/apis'
 axios.defaults.timeout = 5000
 
 // request 拦截器 （json -> 表单）

@@ -7,7 +7,7 @@
         v-if='goods_list.length > 0' v-for='(item, index) of goods_list' 
         :key='index' :rateDataOrder='item' :member='userInfo'>
       </rate-item>
-      <div class="not_order" v-if='rateList.length === 0 && goods_list.length === 0'>
+      <div class="not_order" v-if='title === "评价" && goods_list.length === 0'>
         <img src="../../assets/my/not_order.png">
         <p>评价已删除</p>
       </div>

@@ -436,9 +436,6 @@
           if (res.data.status === 200) {
             // 获取购物车最新的数量
             this._getShopCart()
-          } else if (res.data.status === 400) {
-            this.alertFlag = true
-            this.msg = res.data.data.error
           }
         })
       },

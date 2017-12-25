@@ -21,7 +21,7 @@
         <div class="item transport vux-1px-b">
           您可以选择门店配送到家/到店自提: 
           <div class="radio_wrapper">
-            <p @click='peisong'>
+            <p @click='peisong' v-if='activeAddData.is_dispatching === "2" && activeAddData.dispatching_switch === "1"'>
               <img src="../../assets/selectAdd/selected.png" v-if='transport === 2'>
               <img src="../../assets/selectAdd/select.png" v-else>配送
             </p>
@@ -96,7 +96,6 @@
       }
     },
     created () {
-      console.log(this.$route.query)
       this.id = this.$route.query.id
       this.goodsId = this.$route.query.goodsId
       // 因为后端需要从传递一个Arr,当goodsId只有一个时，利用history路由取到的值是一个String,所以做个hack
@@ -387,6 +386,9 @@
                 margin-right: 10px;
               }
             }
+          }
+          a{
+            color: #000;
           }
         }
         .tel{

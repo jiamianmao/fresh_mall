@@ -9,7 +9,7 @@
           </svg>
           {{city}}
         </span>
-        <span class='title'>创合品质</span>
+        <span class='title'>搜索</span>
         <span @click='search' class='search_icons'>
           <svg class="search_icon" aria-hidden="true">
             <use xlink:href="#icon-sousu"></use>

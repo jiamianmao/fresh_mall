@@ -99,7 +99,7 @@
         justify-content: center;
         align-items: center;
         img{
-          width: 24px;
+          width: 27px;
           height: 21px;
         }
         p{

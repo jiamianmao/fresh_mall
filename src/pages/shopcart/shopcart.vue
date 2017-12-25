@@ -56,22 +56,22 @@
       <button @click='submit'>结算</button>
     </div>
     <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
-    <confirm v-model="show" title='确认删除吗？' content='再考虑考虑吧' @on-confirm='onConfirm'></confirm>
+    <confirm ref='confirm' title='确认删除吗？' @confirm='onConfirm'></confirm>
   </div>
 </template>
 <script>
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
+  import Confirm from '@/components/confirm/confirm'
   import Storage from 'good-storage'
-  import { Confirm, Alert } from 'vux'
+  import { Alert } from 'vux'
   import { mapMutations } from 'vuex' 
   export default {
     data () {
       return {
         init: true, // 是否是初次进来，维护初次进来全选
         active: false,  // 控制选中状态
-        show: false,  // modal框
         cartdata: [],
         activeArr: [],
         currentClick: 0, // 维护当前点击要删除的，保存cart_id
@@ -81,7 +81,7 @@
         all: false,
         alertFlag: false,
         msg: '您还没有添加商品呢',
-        ok: []
+        ok: [] // 维护品牌
       }
     },
     created () {
@@ -99,7 +99,7 @@
         this._changeNum(parseInt(quantity) + 1, cartId)
       },
       del (currentClick) {
-        this.show = true
+        this.$refs.confirm.show()
         this.currentClick = currentClick
       },
       toBrand (id, name) {
@@ -324,6 +324,43 @@
         this.sum = sum.toFixed(2)
         this.cartCount = cartCount
         this.SET_CART_COUNT(cartCount)
+
+        // activeArr
+        let cartType = []
+        let flag = true
+        this.activeArr.forEach((x, idx, arr) => {
+          let one = this.cartdata.find(y => {
+            return y.brand_id === x.brandId
+          })
+          // 用来维护ok数组
+          let index = this.cartdata.findIndex(z => {
+            return z.brand_id === x.brandId
+          })
+          // 通过商品的id来拿到商品的数量和单价来维护总价
+          x.goodsData.forEach(item => {
+            let two = one.goods.find(y => {
+              return y.goods_id === item.goodsId
+            })
+            cartType.push(item.goodsId)
+          })
+          let xLen = x.goodsData.length
+          let oneLen = one.goods.length
+          if (xLen === oneLen) {
+            this.ok.splice(index, 1, true)
+            // 如果品牌里商品列表为空，则去掉这个品牌
+          } else if (xLen === 0) {
+            this.ok.splice(index, 1, false)
+            arr.splice(idx, 1)
+            flag = false
+          } else {
+            this.ok.splice(index, 1, false)
+            flag = false
+          }
+          if (this.activeArr.length !== this.cartdata.length) {
+            flag = false
+          }
+        })
+        this.all = flag
       },
       activeArr: {
         handler (newVal) {
