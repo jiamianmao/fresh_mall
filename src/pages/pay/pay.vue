@@ -137,8 +137,9 @@
       }
       this.api_token = storage.get('api_token')
       this.timer
+      this.str
       // 只验证一个
-      this._orderPayStatus()
+      // this._orderPayStatus()
     },
     methods: {
       active (n) {
@@ -161,14 +162,13 @@
         }
       },
       pay () {
-        let str
         if (this.id) {
-          str = `order_sn=${this.orderArr}`
+          this.str = `order_sn=${this.orderArr}`
         } else {
-          str = `type=serve`
+          this.str = `type=serve`
         }
         if (this.select1) {
-          this.$http.get(`/api/pay/pay?${str}&payment=AliPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${this.str}&payment=AliPay&api_token=${this.api_token}`).then(res => {
             let url = res.data.data.pay_sign.url
             this._orderPayStatus()
             _AP.pay(url)
@@ -192,14 +192,14 @@
             })
           } else {
             // 微信H5支付 
-            this.$http.get(`/api/pay/pay?${str}&payment=WxPay&api_token=${this.api_token}`).then(res => {
+            this.$http.get(`/api/pay/pay?${this.str}&payment=WxPay&api_token=${this.api_token}`).then(res => {
               if (res.data.status === 200) {
                 window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
               }
             })
           }
         } else if (this.select3) {
-          this.$http.get(`/api/pay/pay?${str}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${this.str}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {
               this.$router.push({
                 path: '/union',
@@ -225,7 +225,7 @@
         this.company = false
       },
       _wechatPay () {
-        this.$http.get(`/api/pay/pay?${str}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/pay/pay?${this.str}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
           if (res.data.status !== 200) {
             return
           }

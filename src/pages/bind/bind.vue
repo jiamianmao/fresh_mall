@@ -4,7 +4,7 @@
       <x-title>绑定手机号</x-title>
       <main class='vux-1px-b'>
         <div class="username">
-          <img src="../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
+          <img src="../../assets/login/tel.png"><input type="tel" v-model.trim='tel' placeholder='手机号' maxlength='11'>
         </div>
         <div class="code vux-1px-t">
           <img src="../../assets/login/code.png"><input type="tel" v-model='code' placeholder='验证码' maxlength='6'>
@@ -15,13 +15,15 @@
         </div>
       </main>
       <div class="bottom">
-        <button>完成</button>
+        <button @click='success'>完成</button>
       </div>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import getCookie from '@/common/js/main/main'
+  import storage from 'good-storage'
   export default {
     data () {
       return {
@@ -33,11 +35,31 @@
     },
     methods: {
       getCode () {
-        this.start = true
+        let regTel = /^1[34578]{1}\d{9}$/
+        if (!regTel.test(this.tel.trim())) {
+          this.show = true
+          this.msg = '请正确输入您的手机号'
+          return
+        }
+        this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=18317829937&type=1`).then(res => {
+          if (res.data.status !== 200) {
+            this.show = true
+            this.msg = res.data.data.error
+          } else {
+            this.start = true
+          }
+        })
       },
       finish () {
         this.start = false
         this.time = 60
+      },
+      success () {
+        let token = getCookie('api_token')
+        storage.set('api_token', token)
+        this.$router.push({
+          path: storage.get('currentUrl')
+        })
       }
     },
     components: {
@@ -71,6 +93,8 @@
         }
         input{
           border: 0;
+          min-height: 66px;
+          height: 10vh;
         }
         .icon{
           position: absolute;

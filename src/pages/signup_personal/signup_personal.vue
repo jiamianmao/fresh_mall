@@ -37,7 +37,7 @@
         </div>
         <button @click='personal'>注册</button>
       </div>
-      <alert v-model="show" title="请注意">{{msg}}</alert>
+      <alert v-model="show" title="提示">{{msg}}</alert>
     </div>
   </transition>
 </template>
@@ -110,7 +110,12 @@
           password_confirm: passwordConfirm
         }).then(res => {
           if (res.data.status === 200) {
-            this.$router.go(-2)
+            this.show = true
+            this.msg = '注册成功!'
+            setTimeout(() => {
+              this.show = false
+              this.$router.go(-2)
+            }, 1000)
           } else {
             this.show = true
             this.msg = res.data.data.error

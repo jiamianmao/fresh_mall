@@ -4,7 +4,7 @@
       <img v-lazy="img">
     </div>
 
-    <search class='search' ref='serach'></search>
+    <search class='search' ref='serach' @click.native='search'></search>
 
     <loading v-show='loading' position='absolute'></loading>
 
@@ -28,10 +28,10 @@
 <script>
   import Search from '@/components/search/search'
   import Scroll from '@/components/scroll/scroll'
+  import storage from 'good-storage'
   import { Loading } from 'vux'
   export default {
-    // 这里不要把该组件加入到keep-alive中，因为还需要使用销毁钩子
-    // name: 'category',
+    name: 'category',
     data () {
       return {
         img: '',
@@ -42,6 +42,7 @@
       }
     },
     created () {
+      this.api_token = storage.get('api_token')
       this._getCategory()
     },
     mounted () {
@@ -54,6 +55,9 @@
       },
       selectType (id) {
         this.$router.push(`/goodslist?gc_id=${id}`)
+      },
+      search () {
+        this.$router.push('/search')
       },
       _getCategory () {
         this.$http.get('/mobile/?act=goods_class&op=goods_list').then(res => {

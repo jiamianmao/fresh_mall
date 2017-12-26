@@ -86,7 +86,7 @@
       },
       loginByWechat () {
         // todo
-        console.log('wechat logined')
+        this.$router.push('/auth')
       }
     },
     components: {

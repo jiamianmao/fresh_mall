@@ -15,8 +15,13 @@
     },
     methods: {
       _getAuth () {
-        let url = `http://ctx.17link.cc/api/wx/user?api_token=${this.api_token}&redirect_url=${encodeURIComponent(this.url)}`
-        window.location.href = url
+        let redirect
+        if (this.url) {
+          redirect = `http://ctx.17link.cc/api/wx/user?api_token=${this.api_token}&redirect_url=${encodeURIComponent(this.url)}`
+        } else {
+          redirect = `http://ctx.17link.cc/api/wx/user?api_token=${this.api_token}`
+        }
+        window.location.href = redirect
       }
     }
   }

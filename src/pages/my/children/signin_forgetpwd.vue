@@ -110,7 +110,8 @@
           this.show = true
           return
         } else {
-          this.$http.get(`/mobile/?act=member_account&op=modify_mobile_step2&api_token=${this.api_token}`).then(res => {
+          let url = this.api_token ? `/mobile/?act=member_account&op=modify_mobile_step2&api_token=${this.api_token}` : `/mobile/?act=connect&op=get_sms_captcha&phone=${this.tel}&type=3`
+          this.$http.get(url).then(res => {
             if (res.data.status === 200) {
               this.start = true
             } else {

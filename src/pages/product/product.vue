@@ -272,7 +272,7 @@
 
     <!-- 购物车 -->
     <transition name='slide' v-if='product_obj.goods_image'>
-      <div class="shopcart" v-show='addFlag'>
+      <div class="shopcart" ref='shopcart' v-show='addFlag'>
         <div class="close_icon" @click='addFlag = !addFlag'>
           <x-icon type="ios-close-empty" size="30"></x-icon>
         </div>
@@ -290,7 +290,7 @@
           <p>数量</p>
           <div class='wrapper'>
             <div class='box minus' @click='minus' ref='minus'>-</div>
-            <input class='count' v-model.number="count" @blur='_changeNum()'></input>
+            <span class='count' @click='jianpanEvent'>{{ count }}</span>
             <div class='box add' @click='add'>+</div>
             <div class="cue" v-show='goods_storage'>库存不足</div>
           </div>
@@ -299,6 +299,14 @@
         <!-- <input type='button' @click='submit' value='加入购物车' /> -->
       </div>
     </transition>
+    <van-number-keyboard
+      :show="jianpan"
+      theme="custom"
+      extra-key="完成"
+      @blur="jianpan = false"
+      @input="onInput"
+      @delete="onDelete"
+    />
     <tab @add='addCart' @tel='tel'></tab>
     <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
     <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
@@ -378,7 +386,8 @@
         telephone: '',
         alertFlag: false,
         msg: '该店铺还未添加手机号',
-        goods_storage: false
+        goods_storage: false,
+        jianpan: false
       }
     },
     created () {
@@ -396,6 +405,22 @@
       this.goods_storage = false
     },
     methods: {
+      onInput (value) {
+        if (value === '完成') {
+          this.jianpan = false
+        } else {
+          this.count = Number(this.count + '' + value)
+        }
+      },
+      onDelete () {
+        this.count = Number(`${this.count}`.substring(0, `${this.count}`.length - 1))
+        if (!this.count) {
+          this.count = 1
+        }
+      },
+      jianpanEvent () {
+        this.jianpan = true
+      },
       // 商品收藏
       favoriteToggle () {
         this.goodsFlag = !this.goodsFlag
@@ -445,13 +470,10 @@
           return
         }
         this.count--
-        this.goods_storage = false
       },
       add () {
         if (this.count < this.product_obj.goods_storage) {
           this.count++
-        } else {
-          this.goods_storage = true
         }
       },
       _changeNum () {
@@ -718,6 +740,11 @@
         } else {
           this.$refs.minus.style.color = '#000'
         }
+        if (this.count > this.product_obj.goods_storage) {
+          this.goods_storage = true
+        } else {
+          this.goods_storage = false
+        }
       },
       scrollY () {
         if (this.scrollY > 30) {
@@ -748,6 +775,13 @@
           this.api_token = storage.get('api_token')
           this.member_c = storage.get('member_class') === '2' ? '' : '1'
           this.goods_storage = false
+        }
+      },
+      jianpan (newVal) {
+        if (newVal) {
+          this.$refs.shopcart.style.bottom = '216px'
+        } else {
+          this.$refs.shopcart.style.bottom = '0'
         }
       }
     },
