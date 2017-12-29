@@ -1,9 +1,10 @@
 <template>
   <div id="app">
-    <keep-alive include='firmorder,maps,mapziti,product,qualification,home,signup_person,category'>
+    <keep-alive include='firmorder,maps,mapziti,product,qualification,home,category,signup'>
       <router-view @position='_getPosition'></router-view>
     </keep-alive>
     <tab></tab>
+    <loading v-model='isLoading'></loading>
   </div>
 </template>
 
@@ -12,7 +13,8 @@
   /* eslint-disable no-undef */
   import Tab from '@/components/tab/tab'
   import storage from 'good-storage'
-  import { mapMutations } from 'vuex'
+  import { Loading } from 'vux'
+  import { mapMutations, mapGetters } from 'vuex'
   export default {
     data () {
       return {
@@ -60,8 +62,14 @@
         'SET_POSITION'
       ])
     },
+    computed: {
+      ...mapGetters([
+        'isLoading'
+      ])
+    },
     components: {
-      Tab
+      Tab,
+      Loading
     }
   }
 </script>

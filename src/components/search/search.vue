@@ -49,6 +49,9 @@
         $('input').css('color', '#eee')
         this.$refs.left.style.color = '#eee'
         this.$refs.left.style.backgroundColor = 'rgba(255, 255, 255, .15)'
+      },
+      active () {
+        this.$refs.input.focus()
       }
     },
     watch: {
@@ -110,6 +113,7 @@
       padding-right: 12px;
       box-sizing: border-box;
       text-align: center;
+      color: @color;
     }
   }
   .hotarea{

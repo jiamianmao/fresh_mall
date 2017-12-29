@@ -13,7 +13,7 @@
         </div>
       </div>
       <button @click='clear'>退出当前账户</button>
-      <confirm @confirm='confirm' ref='confirm' title='确定退出账户吗？'></confirm>
+      <confirm @confirm='confirm' ref='confirm' title='确定退出账户吗？' :tel='false'></confirm>
       <router-view :correct='correct' :title='title' :tels='tels' :text='text'></router-view>
     </div>
   </transition>

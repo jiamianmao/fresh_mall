@@ -15,7 +15,7 @@
           <div class="left">收货地址</div>
           <div class="right area">
             <input type="text" class='ipt' v-model='address1' placeholder='省市地区选项' @click='selectArea'>
-            <x-address style="display:none;" title="" v-model="address" :list="addressData" placeholder="请选择地址" :show.sync="showAddress"></x-address>
+            <x-address style='display: none;' title="" v-model="address" :list="addressData" placeholder="请选择地址" :show.sync="showAddress"></x-address>
           </div>
           <x-icon type="ios-arrow-right" size="24"></x-icon>
         </div>
@@ -56,12 +56,13 @@
       this.api_token = Storage.get('api_token')
       this.id = this.$route.query.id
       this.is_default = this.$route.query.status
+      // this.flag = true
       if (this.id) {
         this.$http.post(`/mobile/?act=member_address&op=address_info&api_token=${this.api_token}`, {
           address_id: this.id
         }).then(res => {
           if (res.data.status === 200) {
-            this.flag = false
+            // this.flag = false
             let info = res.data.data.address_info
             this.address1 = info.area_info
             this.name = info.true_name
@@ -156,19 +157,20 @@
     watch: {
       // 用的vux 初始得到的地区id 然后拿到对应的真实地区
       address (value) {
-        if (!this.flag) {
-          this.flag = true
-          return
-        }
+        // console.log(1)
+        // if (!this.flag) {
+        //   this.flag = true
+        //   return
+        // }
         this.getName(value)
       },
       // 拿到真实地区后 来换取后端需要的地区id  麻烦不？？？？？
       address1 (newVal) {
         // 用来防止修改地址的时候，会触发address1的改变，会报错
-        if (!this.flag) {
-          this.flag = true
-          return
-        }
+        // if (!this.flag) {
+        //   this.flag = true
+        //   return
+        // }
         let arr = newVal.split(' ')
         this.$http.get('/api/area/area').then(res => {
           let json = res.data

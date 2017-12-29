@@ -2,13 +2,13 @@
   <div class="container">
     <x-title>{{title}}</x-title>
     <main>
-      <h3 class="name" v-show='flag'>{{name}}</h3>
+      <!-- <h3 class="name" v-show='flag'>{{name}}</h3> -->
       <div class="text">
         <iframe v-if='src' frameborder="0" :src="src" allowfullscreen></iframe>
         <div v-html='desc'></div>
         <p style='display: none;' ref='descText'></p>
         <!-- 终于碰到了sticky-footer的使用场景 wrapper设置min-height top设置flex:1 bottom设置flex: 0 -->
-        <img v-show='imgFlag' src="../../assets/product/icon.png">
+        <!-- <img v-show='imgFlag' src="../../assets/product/icon.png"> -->
       </div>
     </main>
   </div>
@@ -16,6 +16,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import storage from 'good-storage'
+  import $ from 'jquery'
   export default {
     data () {
       return {
@@ -40,6 +41,7 @@
       this.title = this.$route.query.title
       this.id = this.$route.query.id
       this.api_token = storage.get('api_token')
+      this.adv_id = this.$route.query.adv_id
       let flag
       init.forEach(item => {
         if (item.title === this.title) {
@@ -52,16 +54,23 @@
       if (!flag) {
         if (this.title === '图文查看') {
           this._getImgText(this.id)
-        } else if (this.title === '平台详情') {
+        } else if (this.title === '平台规则') {
           this._getPt()
         } else if (this.title === '保证金制度') {
           this._getDeposit()
         } else if (this.title === '申请成为线下门店') {
           this._getOffline()
+        } else if (!this.title && this.adv_id) {
+          this._getBannerRule()
         } else {
           this._getEnsure(this.id)
         }
       }
+    },
+    updated () {
+      this.$nextTick(() => {
+        $('img').css('width', '100vw')
+      })
     },
     methods: {
       // 店铺类的详情
@@ -131,6 +140,21 @@
             this.desc = this.$refs.descText.innerHTML
           }
         })
+      },
+      // banner图规则
+      _getBannerRule () {
+        this.$http.post(`/mobile/?act=adv&op=adv_info`, {
+          adv_id: this.adv_id
+        }).then(res => {
+          if (res.data.status === 200) {
+            let result = res.data.data
+            this.flag = false
+            this.title = result.adv_title
+            let data = result.adv_detail
+            this.$refs.descText.innerHTML = data
+            this.desc = this.$refs.descText.innerText
+          }
+        })
       }
     },
     components: {
@@ -149,38 +173,34 @@
       width: calc(~"100vw - 24px");
       height: calc(~"56.25vw - 11.25px");
     }
-    .name{
-      position: relative;
-      padding-left: 18px;
-      height: 20px;
-      line-height: 20px;
-      letter-spacing: 1px;
-      font-size: @font-size-large;
-      &:before{
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 20px;
-        width: 7px;
-        background: @color;
-      }
-    }
+    // .name{
+    //   position: relative;
+    //   padding-left: 18px;
+    //   height: 20px;
+    //   line-height: 20px;
+    //   letter-spacing: 1px;
+    //   font-size: @font-size-large;
+    //   &:before{
+    //     content: '';
+    //     display: block;
+    //     position: absolute;
+    //     top: 0;
+    //     left: 0;
+    //     height: 20px;
+    //     width: 7px;
+    //     background: @color;
+    //   }
+    // }
     .text{
       width: 100%;
       min-height: calc(~"100vh - 85px");
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      align-items: center;
       div{
         flex: 1;
       }
-      img{
-        width: 100%;
-        flex: 0;
-      }
     }
-    
   }
 </style>

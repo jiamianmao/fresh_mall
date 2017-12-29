@@ -42,6 +42,7 @@
       }
     },
     created () {
+      this.url = storage.get('currentUrl') || '/'
     },
     methods: {
       seePassword () {
@@ -76,7 +77,7 @@
             storage.set('member_class', res.data.data.member_class)
             storage.set('mobile', res.data.data.member_mobile)
             this.$router.push({
-              path: storage.get('currentUrl')
+              path: this.url
             })
           } else {
             this.msg = res.data.data.error

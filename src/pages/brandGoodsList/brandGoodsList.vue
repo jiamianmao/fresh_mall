@@ -9,7 +9,7 @@
         <div class="desc">
           <h3>{{item.goods_name}}</h3>
           <span v-html='item.goods_jingle'></span>
-          <strong>¥{{item.goods_price}}</strong>
+          <strong>¥{{item.goods_price}}<span v-if='item.goods_unit'>/{{item.goods_unit}}</span></strong>
         </div>
       </div>
     </div>

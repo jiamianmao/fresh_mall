@@ -36,6 +36,9 @@ const mutations = {
   },
   [types.SET_USERINFO] (state, info) {
     state.userInfo = info
+  },
+  [types.SET_IS_LOADING] (state, flag) {
+    state.isLoading = flag
   }
 }
 

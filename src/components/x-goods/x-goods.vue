@@ -52,7 +52,10 @@
       width: 33.6vw;
       height: inherit;
       margin-right: 15px;
+      background: red;
+      overflow: hidden;
       img{
+        // object-fit: cover;
         width: 100%;
         height: 100%;
       }

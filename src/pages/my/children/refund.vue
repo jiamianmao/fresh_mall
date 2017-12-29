@@ -58,6 +58,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { XTextarea, Group } from 'vux'
   import storage from 'good-storage'
+  import alerts from '@/common/js/alert'
   import Alert from '@/components/alert/alert'
   export default {
     data () {
@@ -110,19 +111,23 @@
       submit () {
         // 只要原因和图片不全为空即可
         if (this.imgs.length === 0 && !this.reason) {
-          this.show = true
+          alerts('请填写对应信息')
           return
         }
-        // this.$refs.alert.show()
-        // this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
-        //   order_id: this.id,
-        //   refund_pic: this.imgs,
-        //   buyer_message: this.reason,
-        //   refund_amount: this.obj.order_amount,
-        //   type: 2
-        // }).then(res => {
-        //   console.log(res)
-        // })
+        this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
+          order_id: this.id,
+          refund_pic: this.imgs,
+          buyer_message: this.reason,
+          refund_amount: this.obj.order_amount,
+          type: 2
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.show = true
+            setTimeout(() => {
+              this.$router.go(-1)
+            }, 500)
+          }
+        })
       },
       _getData () {
         this.$http.get(`/mobile/?act=member_order&op=order_info&api_token=${this.api_token}&order_id=${this.id}`).then(res => {

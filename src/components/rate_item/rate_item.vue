@@ -3,7 +3,7 @@
     <div class="rate" v-if='rateData.geval_id'>
       <div class="top">
         <div class="brand">
-          <img :src="rateData.member_avatar">
+          <img v-lazy="rateData.member_avatar">
         </div>
         <p class='name'>{{ rateData.geval_frommembername }}</p>
         <p class='icon'>

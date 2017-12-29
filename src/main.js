@@ -22,11 +22,16 @@ import Storage from 'good-storage'
 /* eslint-disable */
 // let vConsole = new VConsole()
 
+// 有赞，Vue-Swiper中间件
 Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
 
+// 动态baseURL
+const origin = window.location.origin
+Storage.session.set('origin', origin)
+
 // axios 默认配置
-axios.defaults.baseURL = 'http://ctx.17link.cc'
+axios.defaults.baseURL = origin
 axios.defaults.timeout = 5000
 
 // request 拦截器 （json -> 表单）
@@ -54,6 +59,7 @@ axios.interceptors.response.use(
 
 Vue.prototype.$http = axios
 
+// 图片懒加载
 Vue.use(Vuelazyload, {
   loading: require('common/images/default.jpg')
 })
@@ -85,9 +91,15 @@ router.beforeEach((to, from, next) => {
     Storage.set('currentUrl', from.fullPath)
   } else if (to.path === '/signin' && Storage.get('api_token')) {
     next('/')
-  } else {
-    next()
   }
+  // 路由之间的loadding状态
+  store.commit('SET_IS_LOADING', true)
+  next()
+})
+
+// 路由之间的loadding状态
+router.afterEach((to) => {
+  store.commit('SET_IS_LOADING', false)
 })
 
 /* eslint-disable no-new */

@@ -17,12 +17,14 @@
       <div class="bottom">
         <button @click='success'>完成</button>
       </div>
+      <alert title='提示' v-model='show'>{{ msg }}</alert>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import getCookie from '@/common/js/main/main'
+  import { Alert, Countdown } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -30,8 +32,14 @@
         tel: '',
         code: '',
         time: 60,
-        start: false
+        start: false,
+        show: false,
+        msg: ''
       }
+    },
+    created () {
+      this.api_token = getCookie('api_token')
+      storage.set('api_token', this.api_token)
     },
     methods: {
       getCode () {
@@ -41,7 +49,9 @@
           this.msg = '请正确输入您的手机号'
           return
         }
-        this.$http.get(`/mobile/?act=connect&op=get_sms_captcha&phone=18317829937&type=1`).then(res => {
+        this.$http.post(`/mobile/?act=member_account&op=bind_mobile_step1&api_token=${this.api_token}`, {
+          mobile: this.tel
+        }).then(res => {
           if (res.data.status !== 200) {
             this.show = true
             this.msg = res.data.data.error
@@ -55,15 +65,30 @@
         this.time = 60
       },
       success () {
-        let token = getCookie('api_token')
-        storage.set('api_token', token)
-        this.$router.push({
-          path: storage.get('currentUrl')
+        this.$http.post(`/mobile/?act=member_account&op=edit_phonetwo&api_token=${this.api_token}`, {
+          mobile: this.tel,
+          auth_code: this.code
+        }).then(res => {
+          if (res.data.status !== 200) {
+            this.show = true
+            this.msg = res.data.data.error
+          } else {
+            this.show = true
+            this.msg = '恭喜您，绑定成功!'
+            setTimeout(() => {
+              this.show = false
+              this.$router.push({
+                path: storage.get('currentUrl')
+              })
+            }, 1000)
+          }
         })
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Alert,
+      Countdown
     }
   }
 </script>

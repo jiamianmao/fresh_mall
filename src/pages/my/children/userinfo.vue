@@ -15,7 +15,7 @@
           <div class="uploader-container right">
             <div class="box">
               <van-uploader class='upload_item img_wrapper' :after-read="store">
-                <img :src="url">
+                <img v-lazy="url">
               </van-uploader>
             </div>
           </div>

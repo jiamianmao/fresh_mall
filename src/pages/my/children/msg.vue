@@ -3,7 +3,7 @@
     <div class="container">
       <x-title>消息中心</x-title>
       <div class="content">
-        <div class="item" v-for='(item, index) of arr' :class='{"vux-1px-t": index > 0}' :key='index' @click='selectOne(item.message_id)'>
+        <div class="item vux-1px-b" v-for='(item, index) of arr' :key='index' @click='selectOne(item.message_id, item.about_order_id)'>
           <div class="left">
             <img v-if='~~item.read_state === 0' src="../../../assets/my/unread.png">
             <img v-else src="../../../assets//my/readed.png">
@@ -13,7 +13,7 @@
               <span>{{ item.message_type | type }}</span>
               <span>{{ item.message_time | time }}</span>
             </p>
-            <p v-html='item.message_body'></p>
+            <p>{{ item.message_body | reg }}</p>
           </div>
         </div>
       </div>
@@ -58,14 +58,18 @@
       }
     },
     methods: {
-      selectOne (id) {
+      selectOne (id, flag) {
         this.$http.post(`/mobile/?act=member_message&op=msg_info&api_token=${this.api_token}`, {
           message_id: id
         }).then(res => {
           if (res.data.status === 200) {
             this.arr.filter(item => {
               if (item.message_id === id) {
+                // 减少http请求
                 item.read_state = '1'
+                if (flag) {
+                  this.$router.push('/my/order')
+                }
               }
             })
           }
@@ -98,9 +102,8 @@
     .content{
       width: 100vw;
       .item{
-        height: 80px;
         width: 100%;
-        padding: 0 15px 0 12px;
+        padding: 20px 15px 20px 12px;
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
@@ -132,7 +135,8 @@
           }
           p:last-child{
             margin-top: 12px;
-            .no-wrap
+            line-height: 20px;
+            // .no-wrap
           }
         }
       }

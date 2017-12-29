@@ -46,7 +46,6 @@
   import { Countdown, Alert } from 'vux'
   import $ from 'jquery'
   export default {
-    name: 'signup_person',
     data () {
       return {
         tel: '',
@@ -59,6 +58,9 @@
         msg: '',
         show: false
       }
+    },
+    created () {
+      console.log(1)
     },
     methods: {
       seePassword (n) {

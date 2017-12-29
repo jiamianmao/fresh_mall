@@ -8,7 +8,8 @@ const state = {
   addressType: {},
   cartCount: 0,
   position: {},
-  userInfo: {}
+  userInfo: {},
+  isLoading: false
 }
 
 export default state

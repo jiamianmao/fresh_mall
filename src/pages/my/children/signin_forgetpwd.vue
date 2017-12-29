@@ -206,6 +206,7 @@
         this.success && this.$router.replace('/home')
       },
       seeRule () {
+        console.log(1)
         this.$router.push('/service?type=regist_rule')
       }
     },

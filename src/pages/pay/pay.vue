@@ -136,10 +136,11 @@
         this.id = this.id[0]
       }
       this.api_token = storage.get('api_token')
+      this.origin = storage.session.get('origin')
       this.timer
       this.str
       // 只验证一个
-      // this._orderPayStatus()
+      this._orderPayStatus()
     },
     methods: {
       active (n) {
@@ -194,7 +195,7 @@
             // 微信H5支付 
             this.$http.get(`/api/pay/pay?${this.str}&payment=WxPay&api_token=${this.api_token}`).then(res => {
               if (res.data.status === 200) {
-                window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent('http://ctx.17link.cc/my/order')}`
+                window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent(this.origin)}`
               }
             })
           }

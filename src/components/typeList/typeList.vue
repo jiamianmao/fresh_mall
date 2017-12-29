@@ -2,7 +2,7 @@
   <div class='item' v-if='goods.goods_list.length'>
     <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
       <swiper-slide v-for='(item, index) of goods.goods_list' :key='index' @click.native='goProduct(item.goods_id)'>
-        <img :src="item.img_url">
+        <img v-lazy="item.img_url">
         <div class="mask" v-show='index !== swiperOption.idx'></div>
       </swiper-slide>
     </swiper>
@@ -119,7 +119,7 @@
         margin-top: 20px;
         width: 90%;
         text-align: center;
-        font-size: 17px;
+        font-size: 18px;
         font-weight: bold;
         color: #111;
         .no-wrap

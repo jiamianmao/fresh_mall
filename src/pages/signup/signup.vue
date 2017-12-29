@@ -23,6 +23,7 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   export default {
+    name: 'signup',
     data () {
       return {
       }

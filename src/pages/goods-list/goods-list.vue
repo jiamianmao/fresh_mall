@@ -26,7 +26,7 @@
 
       <!-- 排序选择下拉框 -->
       <transition name='slide'>
-        <scroll :data='descData' class='box vux-1px-b vux-1px-t' v-show='descFlag' ref='scroll'>
+        <scroll :data='descData' class='box vux-1px-b' v-show='descFlag' ref='scroll'>
           <div class="descWrapper">
             <div class="desc" :class='{active_desc: attrDest.indexOf(item.attr_value_id) !== -1}' v-for='item of descData' @click='selectDesc(item.attr_value_id)'>
               {{item.attr_value_name}}
@@ -133,7 +133,14 @@
       },
       // 重置操作
       reset () {
-        this.attrDest = []
+        // 之前是直接清空，现在是只清空当前列表（品牌，品种）中的的属性
+        this.descData.forEach(item => {
+          let idx = this.attrDest.indexOf(item.attr_value_id)
+          if (idx > -1) {
+            this.attrDest.splice(idx, 1)
+          }
+        })
+        // this.attrDest = []
       },
       sure () {
         this.descFlag = false
@@ -191,7 +198,6 @@
       descFlag () {
         // 因为下拉框做了个scroll 所以数据更新后要refresh
         this.$nextTick(() => {
-          this.attrDest = []
           this.$refs.scroll.refresh()
         })
       },
@@ -293,7 +299,6 @@
       .box{
         position: absolute;
         z-index: 2;
-        height: 300px;
         left: 0;
         width: 100%;
         height: 200px;
@@ -366,11 +371,10 @@
       position: relative;
       display: flex;
       flex-flow: column nowrap;
+      padding-bottom: 50px;
       .x-goods{
         position: relative;
-        &~.x-goods{
-          margin-top: 6px;
-        }
+        margin-top: 6px;
       }
     }
   }

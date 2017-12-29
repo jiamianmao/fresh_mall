@@ -46,7 +46,7 @@
 
       <div class="address memberc vux-1px-b" v-if='member_c' @click='delivery(brand.brand_id)'>
 
-        <div class='add1' v-if='!addressType[brand.brand_id]'>
+        <div class='add1' v-if='!address[brand.brand_id]'>
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-zuobiao"></use>
           </svg>
@@ -54,19 +54,19 @@
 
         <div class="add3" v-else>
           <div class="left">
-            <p v-if='addressType[brand.brand_id].transport === 1'>配送到位:</p>
-            <p v-if='addressType[brand.brand_id].transport === 2'>门店配送:</p>
-            <p v-if='addressType[brand.brand_id].transport === 3'>到店自提:</p>
+            <p v-if='addressType[brand.brand_id].transport === 1 && address[brand.brand_id]'>配送到位:</p>
+            <p v-if='addressType[brand.brand_id].transport === 2 && address[brand.brand_id]'>门店配送:</p>
+            <p v-if='addressType[brand.brand_id].transport === 3 && address[brand.brand_id]'>到店自提:</p>
           </div>
-          <div class="right" v-if='addressType[brand.brand_id].transport === 1'>
+          <div class="right" v-if='addressType[brand.brand_id].transport === 1 && address[brand.brand_id]'>
             <p>{{address[brand.brand_id].area_info | blank}}{{address[brand.brand_id].address}}</p>
             <p class='people'><span>{{address[brand.brand_id].true_name}}</span> &nbsp; <span>{{address[brand.brand_id].tel_phone}}</span></p>
           </div>
-          <div class="right" v-if='addressType[brand.brand_id].transport === 2'>
+          <div class="right" v-if='addressType[brand.brand_id].transport === 2 && address[brand.brand_id]'>
             <p>{{address[brand.brand_id].area_info | blank}}{{address[brand.brand_id].address}}</p>
             <p class='people'><span>{{address[brand.brand_id].true_name}}</span> &nbsp; <span>{{address[brand.brand_id].tel_phone}}</span></p>
           </div>
-          <div class="right" v-if='addressType[brand.brand_id].transport === 3'>
+          <div class="right" v-if='addressType[brand.brand_id].transport === 3 && address[brand.brand_id]'>
             <p>{{addressType[brand.brand_id].store_name}}</p>
             <p>{{addressType[brand.brand_id].store_add}}</p>
           </div>
@@ -270,6 +270,9 @@
                     id
                   }
                 })
+              } else {
+                this.alertFlag = true
+                this.msg = res.data.data.error
               }
             })
           } else {
@@ -323,6 +326,9 @@
                     arr
                   }
                 })
+              } else {
+                this.alertFlag = true
+                this.msg = res.data.data.error
               }
             })
           } else {
@@ -333,14 +339,13 @@
       },
       // 获取门店代收开启状态
       async _getStoreState () {
-        let state
-        await this.$http.post(`/mobile/?act=goods&op=is_collect&api_token=${this.api_token}`, {
+        let state = await this.$http.post(`/mobile/?act=goods&op=is_collect&api_token=${this.api_token}`, {
           goods_id: '',
           brand_id: ''
         })
         .then(res => {
           if (res.data.status === 200) {
-            state = res.data.data.site_collect_switch
+            return res.data.data.site_collect_switch
           }
         })
         .catch((err) => {

@@ -1,6 +1,6 @@
 <template>
   <div class='container'>
-    <search @close='close' @toSearch='toSearch' :rightContent='rightContent'></search>
+    <search ref='search' @close='close' @toSearch='toSearch' :rightContent='rightContent'></search>
     <div class="main">
       <div class="item" v-for='item of result' @click='select(item.goods_id)'>
         <div class="img_box">
@@ -33,6 +33,9 @@
     },
     created () {
       this.api_token = Storage.get('api_token')
+    },
+    mounted () {
+      this.$refs.search.focus()
     },
     methods: {
       close () {

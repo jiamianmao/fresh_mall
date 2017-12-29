@@ -46,17 +46,17 @@
     </scroll>
 
     <div class="total vux-1px-t">
-      <div class='icon' @click='whole'>
+      <div class='btm' @click='whole'>
         <img src="../../assets/selectAdd/selected.png" v-if='all'>
         <img src="../../assets/selectAdd/select.png" v-else>
+        <p class='all'>全选</p>
       </div>
-      <span class='all'>全选</span>
-      <p class='num' style='opacity: 0;'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p>
+      <!-- <p class='num' style='opacity: 0;'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p> -->
       <p>合计:<strong>¥{{sum}}</strong></p>
       <button @click='submit'>结算</button>
     </div>
     <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
-    <confirm ref='confirm' title='确认删除吗？' @confirm='onConfirm'></confirm>
+    <confirm ref='confirm' :tel='false' title='确认删除吗？' @confirm='onConfirm'></confirm>
   </div>
 </template>
 <script>
@@ -558,13 +558,19 @@
     align-items: center;
     font-size: @font-size-medium;
     justify-content: space-between;
-    .icon{
-      margin-right: 0;
-    }
-    .all{
-      color: #666;
-      position: relative;
-      left: -5px;
+    .btm{
+      height: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      .all{
+        margin-left: 15px;
+        color: #666;
+      }
+      img{
+        width: 18px;
+        height: 18px;
+      }
     }
     button{
       width: 104px;

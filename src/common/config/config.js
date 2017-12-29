@@ -10,3 +10,5 @@ export const Invoice = {
   paper: 1,
   elec: 2
 }
+
+// export const BASE_URL = 'http://ctx.17link.cc'

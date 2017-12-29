@@ -4,7 +4,7 @@
     <div id="container" class='map'></div>
     <div class="modal" v-if='active && activeAddData.member_id'>
       <div class="top vux-1px-b">
-        <div class="left"><img :src="activeAddData.shop_pic"></div>
+        <div class="left"><img v-lazy="activeAddData.shop_pic"></div>
         <div class="right">
           <h3>{{ activeAddData.company_name }}</h3>
           <p class='add'>{{ activeAddData.location }}</p>

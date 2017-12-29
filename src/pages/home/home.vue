@@ -1,20 +1,21 @@
 <template>
     <div class='container' ref='container'>
 
-      <!-- search搜索框 z-index: 9 -->
-      <div class="search" ref='search'>
-        <span @click='selectCity'>
+      <div class="search">
+        <div class='citybox' @click='selectCity'>
           <svg class="search_icon" aria-hidden="true">
             <use xlink:href="#icon-cc-marker"></use>
           </svg>
           {{city}}
-        </span>
-        <span class='title'>搜索</span>
-        <span @click='search' class='search_icons'>
-          <svg class="search_icon" aria-hidden="true">
-            <use xlink:href="#icon-sousu"></use>
-          </svg>
-        </span>
+        </div>
+        <div class="center" @click='search'>
+          <span class='search_icons'>
+            <svg class="search_icon" aria-hidden="true">
+              <use xlink:href="#icon-sousu"></use>
+            </svg>
+          </span>
+          <span class='title'>搜索</span>
+        </div>
       </div>
 
       <!-- swiper启动页的轮播 z-index: 8 -->
@@ -34,7 +35,7 @@
       <transition name='slide_nav'>
         <nav ref='nav'>
           <div class="left" ref='navLeft'>
-            <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(index, item.gc_id)' ref='navItem'>{{item.gc_name}}</span>
+            <span v-for='(item, index) of cate_list' :class='{active: activeIdx === index}' @click='selectCate(item, index)' ref='navItem'>{{item.gc_name}}</span>
           </div>
           <!-- <div class='arrow_box'>
             <svg class="arrow" aria-hidden="true" ref='arrow'>
@@ -110,46 +111,6 @@
       swiper_change (index) {
         this.curIndx = index
       },
-      // 三个touch事件 启动页轮播的上滑
-      // touchStart (e) {
-      //   this.touch = {}
-      //   this.touch.init = true
-      //   this.touch.moved = false
-      //   this.touch.startY = e.touches[0].pageY
-      // },
-      // touchMove (e) {
-      //   if (!this.touch.init) return
-      //   if (!this.touch.moved) {
-      //     this.touch.moved = true
-      //   }
-      //   this.touch.moveY = e.touches[0].pageY
-      // },
-      // touchEnd () {
-      //   let pos = this.touch.moveY - this.touch.startY
-      //   pos < -100 && this.startPageChange(false)
-      //   this.touch.init = false
-      // },
-      // touchPageStart (e) {
-      //   this.touchPage = {}
-      //   if (this.startPage) {
-      //     return
-      //   }
-      //   this.touchPage.init = true
-      //   this.touchPage.moved = false
-      //   this.touchPage.startY = e.touches[0].pageY
-      // },
-      // touchPageMove (e) {
-      //   if (!this.touchPage.init) return
-      //   if (!this.touchPage.moved) {
-      //     this.touchPage.moved = true
-      //   }
-      //   this.touchPage.moveY = e.touches[0].pageY
-      // },
-      // touchPageEnd () {
-      //   let pos = this.touchPage.moveY - this.touchPage.startY
-      //   pos > 10 && this.startPageChange(true)
-      //   this.touchPage.init = false
-      // },
       startPageChange () {
         console.log(1)
       },
@@ -165,38 +126,18 @@
       selectDots (n) {
         this.curIndx = n - 1
       },
-      // nav组件的箭头按钮切换
-      // arrowToggle () {
-      //   this.slideDown = !this.slideDown
-      //   let navLeft = this.$refs.navLeft
-      //   if (this.slideDown) {
-      //     let num = Math.ceil(this.cate_list.length / 4)
-      //     navLeft.style.height = this.navHeight * num + 'px'
-      //     navLeft.style.flexWrap = 'wrap'
-      //     navLeft.style.overflowX = 'visible'
-      //   } else {
-      //     navLeft.style.height = `${this.navHeight}px`
-      //     navLeft.style.flexWrap = 'nowrap'
-      //     navLeft.style.overflowX = 'scroll'
-      //   }
-        // this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
-      // },
-      selectCate (key, gcId) {
+      selectCate (val, key) {
         this.activeIdx = key
         if (this.slideDown) {
           this.arrowToggle()
         } else {
           this.slideDown = false
         }
-        if (key === 0) return
-        // let navLeft = this.$refs.navLeft
-        // let step = navLeft.clientWidth / 4 * key
-        // $(navLeft).animate({scrollLeft: step}, 500)
-        // let gcId = this.cate_list[key].gc_id
+        if (val.gc_name === '首页') return
         this.$router.push({
           path: '/goodslist',
           query: {
-            'gc_id': gcId
+            'gc_id': val.gc_id
           }
         })
       },
@@ -222,17 +163,23 @@
         ctx.stroke()
       },
       _getBanner () {
-        this.$http.get('/api/advert/banner').then(res => {
+        this.$http.get('/mobile/?act=adv&op=banner').then(res => {
           if (res.data.status === 200) {
-            // this.swiperUrlList = res.data.data
-            res.data.data.forEach(item => {
-              this.swiperUrlList.push({
-                url: item.pic_url,
-                img: item.pic_img
+            if (Array.isArray(res.data.data)) {
+              res.data.data.forEach((item, index) => {
+                if (index === 0) {
+                  this.swiperUrlList.push({
+                    img: item.pic_img,
+                    url: item.pic_url
+                  })
+                } else {
+                  this.swiperUrlList.push({
+                    img: item.pic_img,
+                    url: `${storage.session.get('origin')}/desc?adv_id=${item.adv_id}`
+                  })
+                }
               })
-              // 第一个固定跳转到创合平台
-              this.swiperUrlList[0].url = '/desc?id&title=%E5%B9%B3%E5%8F%B0%E8%AF%A6%E6%83%85'
-            })
+            }
           }
         })
       },
@@ -251,25 +198,6 @@
           }
         })
       }
-      // _changeStyle () {
-        // let search = this.$refs.search
-        // let container = this.$refs.container
-        // if (!this.startPage) {
-        //   search.classList.add('startOut')
-        //   search.classList.add('vux-1px-b')
-        //   container.style.paddingTop = `${this.navHeight + 45}px`
-        // } else {
-        //   search.classList.remove('startOut')
-        //   search.classList.remove('vux-1px-b')
-        //   setTimeout(() => {
-        //     container.style.paddingTop = '45px'
-        //     container.style.transition = 'all .2s'
-        //   }, 1000)
-        // }
-      // }
-      // ...mapMutations({
-      //   'set_start_page': 'SET_START_PAGE'
-      // })
     },
     components: {
       Swiper,
@@ -277,16 +205,10 @@
     },
     computed: {
       ...mapGetters([
-        // 'startPage',
         'position'
       ])
     },
     watch: {
-      // startPage () {
-      //   this.$nextTick(() => {
-      //     this._changeStyle()
-      //   })
-      // },
       position (newVal) {
         this.city = newVal.city
       }
@@ -313,41 +235,42 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      background-color: rgba(180, 180, 180, .8);
+      background-color: rgba(0, 0, 0, .3);
       color: #fff;
       font-size: @font-size-small;
-      span{
-        flex: 1;
-        text-align: left;
-      }
-      .title{
-        font-size: @font-size-large;
-        text-align: center;
-      }
-      .search_icons{
-        text-align: right;
-      }
       .search_icon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         vertical-align: middle;
         fill: currentColor;
         overflow: hidden;
       }
-      &.startOut{
-        z-index: 2;
-        background-color: #fff;
-        color: #000;
+      .search_icons{
+        .search_icon{
+          width: 18px;
+          height: 18px;
+        }
+      }
+      .citybox{
+        width: 20vw;
+      }
+      .center{
+        flex: 1;
+        height: 60%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .8);
+        color: #999;
+        font-size: 14px;
       }
     }
     .swiper-wrapper{
       width: 100%;
-      // height: calc(~"100vh - 49px");
       height: 100vh;
       position: relative;
-      // position: fixed;
-      // top: 0;
-      // left: 0;
       z-index: 8;
       .swiper{
         width: 100%;

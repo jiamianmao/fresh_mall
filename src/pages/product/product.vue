@@ -22,7 +22,7 @@
           <div class="content">
             <h6 class="name">{{product_obj.goods_name}}</h6>
             <div class="sell_point" v-html='product_obj.goods_jingle'></div>
-            <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}<span>/<span style='font-size: 12px;'>{{product_obj.goods_unit}}</span></span></strong>
+            <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}<span v-if='product_obj.goods_unit'>/<span style='font-size: 12px;'>{{product_obj.goods_unit}}</span></span></strong>
             <strong v-else>¥ 0</strong>
           </div>
         </div>
@@ -112,7 +112,7 @@
           <swiper class="wrapper" :options='swiperOption2'>
             <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
               <div class="goods">
-                <img :src="item.combo_goods.goods_image">
+                <img v-lazy="item.combo_goods.goods_image">
                 <div class="text">
                   <div class="name">{{ item.combo_goods.goods_name }}</div>
                   <div class="jingle">{{ item.combo_goods.goods_unit }}</div>
@@ -126,7 +126,10 @@
         <placeholder></placeholder>
 
         <div class="goods_info" v-if='product_obj.goods_video'>
-          <p class='see_text vux-1px-b'>以下资料如果您不方便观看视频，请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</p>
+          <p class='see_text vux-1px-b'>
+          <span>以下资料如果您不方便观看视频</span><br />
+          <span>请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</span>
+          </p>
 
           <!-- 固定视频 -->
           <div class="item" v-if='product_obj.goods_video.video' v-for='(item, index) of product_obj.goods_video.video'>
@@ -169,7 +172,7 @@
             <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
               <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
                 <div class='img'>
-                  <img :src='item.image' @click='toDesc(item.id, 6)'></img>
+                  <img v-lazy='item.image' @click='toDesc(item.id, 6)'></img>
                   <div class="zhezhao" v-show='idx !== swiperOption1.idx % product_obj.goods_video.recommend.length'></div>
                 </div>
                 <div class='text'>{{ item.title }}</div>
@@ -197,7 +200,9 @@
           </div>
 
           <div class="image">
-            <div class="company" @click='toDesc(null, 5)'></div>
+            <div class="company" @click='toDesc(null, 5)'>
+              <img src="../../assets/product/company.png">
+            </div>
             <img src="../../assets/product/icon.png">
             <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
               <h3>品控保证</h3>
@@ -214,7 +219,7 @@
 
         <div class="company_card" v-if='product_obj.store' @click='toDesc(product_obj.store_id, 1)'>
           <div class="brand">
-            <img :src="product_obj.store.store_label">
+            <img v-lazy="product_obj.store.store_label">
           </div>
           <div class="pv">
             <h3>企业名片</h3>
@@ -278,7 +283,7 @@
         </div>
         <div class="main">
           <div class="left">
-            <img :src="product_obj.goods_image[0]">
+            <img v-lazy="product_obj.goods_image[0]">
           </div>
           <div class="right">
             <h3>{{ product_obj.goods_name }}</h3>
@@ -353,7 +358,6 @@
           spaceBetween: 10,
           initialSlide: INIT,
           idx: INIT,
-          loop: true,
           onSlideChangeStart (swiper) {
             this.idx = swiper.activeIndex
           }
@@ -414,9 +418,6 @@
       },
       onDelete () {
         this.count = Number(`${this.count}`.substring(0, `${this.count}`.length - 1))
-        if (!this.count) {
-          this.count = 1
-        }
       },
       jianpanEvent () {
         this.jianpan = true
@@ -461,6 +462,11 @@
           if (res.data.status === 200) {
             // 获取购物车最新的数量
             this._getShopCart()
+          } else {
+            if (res.data.data.error !== '请登录') {
+              this.msg = res.data.data.error
+              this.alertFlag = true
+            }
           }
         })
       },
@@ -539,7 +545,7 @@
       },
       toDesc (id, idx) {
         if (idx > -1) {
-          let arr = ['快速加入品牌', '企业名片', '品控保证', '图文查看', '图文详情', '平台详情', '建议吃法']
+          let arr = ['快速加入品牌', '企业名片', '品控保证', '图文查看', '图文详情', '平台规则', '建议吃法']
           this.$router.push({
             path: '/desc',
             query: {
@@ -648,13 +654,18 @@
         }).then(res => {
           if (~~res.data.status === 200) {
             this.product_obj = res.data.data
-            this.telephone = res.data.data.store.store_phone
+            if (res.data.data.store) {
+              this.telephone = res.data.data.store.store_phone
+            }
             // 对swiper的长度进行判断
             if (this.product_obj.goods_image.length === 1) {
               this.swiperOption.idx = 0
             }
             if (this.product_obj.goods_video.recommend && this.product_obj.goods_video.recommend.length === 1) {
               this.swiperOption1.idx = 0
+            }
+            if (this.product_obj.goods_storage === 0) {
+              this.goods_storage = true
             }
             this._getCollect()
             this._getAddressStatus()
@@ -769,12 +780,12 @@
           // 这里写的有点粗糙，对应的是三种购买方式
           this.product_obj = {}
           this.id = this.$route.params.id
-          this._getProductDesc(this.id)
-          this._getShopCart()
           // 登录后拿到登录状态值
           this.api_token = storage.get('api_token')
           this.member_c = storage.get('member_class') === '2' ? '' : '1'
           this.goods_storage = false
+          this._getProductDesc(this.id)
+          this._getShopCart()
         }
       },
       jianpan (newVal) {
@@ -782,6 +793,7 @@
           this.$refs.shopcart.style.bottom = '216px'
         } else {
           this.$refs.shopcart.style.bottom = '0'
+          this.count = this.count || 1
         }
       }
     },
@@ -1077,7 +1089,8 @@
           padding: 0 15px;
           width: 100vw;
           .see_text{
-            line-height: 50px;
+            line-height: 26px;
+            padding: 6px 0;
             font-size: @font-size-small;
             text-align: center;
             font-weight: bold;
@@ -1086,15 +1099,14 @@
           .item{
             width: 100%;
             &~.item{
-              margin-top: 6px;
+              margin-top: 30px;
             }
             .title{
-              margin-top: 18px;
+              margin-top: 8px;
               padding-left: 16px;
               position: relative;
-              height: 20px;
-              line-height: 20px;
-              margin-bottom: 20px;
+              line-height: 24px;
+              margin-bottom: 15px;
               &:before{
                 position: absolute;
                 content: '';
@@ -1102,7 +1114,7 @@
                 width: 7px;
                 height: 20px;
                 left: 0;
-                top: 0;
+                top: 2px;
                 background: #5fb29e;
               }
               .name{
@@ -1158,12 +1170,11 @@
               width: 100%;
             }
             .company{
-              height: 104px;
               width: 100%;
-              background-image: url('../../assets/product/company.png');
-              background-position: 0 0;
-              background-size: 100% 100%;
               margin-bottom: 20px;
+              img{
+                width: 100%;
+              }
             }
             .quality{
               width: 100%;
@@ -1196,10 +1207,11 @@
             margin-bottom: 40px;
             .eat_way{
               height: 20px;
-              width: 100%;
+              // width: 100%;
+              max-width: 345px;
               background: url('../../assets/product/eat_way.png') no-repeat 0 0;
               background-size: 100% 100%;
-              margin-bottom: 22px;
+              margin: 0 auto 22px;
             }
             .swiper-wrapper{
               .swiper-slide {
