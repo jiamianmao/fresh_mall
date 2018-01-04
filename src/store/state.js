@@ -9,7 +9,8 @@ const state = {
   cartCount: 0,
   position: {},
   userInfo: {},
-  isLoading: false
+  isLoading: false,
+  makeOrder: false
 }
 
 export default state

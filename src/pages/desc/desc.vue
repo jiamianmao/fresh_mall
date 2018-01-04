@@ -8,7 +8,7 @@
         <div v-html='desc'></div>
         <p style='display: none;' ref='descText'></p>
         <!-- 终于碰到了sticky-footer的使用场景 wrapper设置min-height top设置flex:1 bottom设置flex: 0 -->
-        <!-- <img v-show='imgFlag' src="../../assets/product/icon.png"> -->
+        <!-- <img v-show='imgFlag' src="../../assets/product/icon.jpg"> -->
       </div>
     </main>
   </div>
@@ -69,7 +69,9 @@
     },
     updated () {
       this.$nextTick(() => {
-        $('img').css('width', '100vw')
+        $('img').removeAttr('style').removeAttr('height').removeAttr('width').css({
+          'width': 'calc(100vw - 24px)'
+        })
       })
     },
     methods: {
@@ -92,6 +94,7 @@
             this.desc = this.$refs.descText.innerHTML
             this.name = data.title
             this.src = data.src
+            this.title = data.title
           }
         })
       },
@@ -197,10 +200,10 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      align-items: center;
-      div{
-        flex: 1;
-      }
+      // align-items: center;
+      // div{
+      //   flex: 1;
+      // }
     }
   }
 </style>

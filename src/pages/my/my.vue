@@ -3,7 +3,7 @@
     <header ref='bg'>
       <div class="avatar">
         <div @click='userinfo' class="img_wrapper">
-          <img v-if='info && info.avatar_url' :src='info.avatar_url'>
+          <img v-if='info && info.avatar_url' v-lazy='info.avatar_url'>
           <img v-else src="../../assets/my/avatar.png">
         </div>
         <span class="name" v-if='info'>{{ info.member_name }}</span>
@@ -198,7 +198,7 @@
     header{
       width: 100%;
       height: 84px;
-      background: url('../../assets/my/bg.png') 0 0 ~"/" 100% 100%;
+      background: url('../../assets/my/bg.jpg') 0 0 ~"/" 100% 100%;
       position: relative;
       z-index: 1;
       .avatar{

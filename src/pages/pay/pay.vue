@@ -163,15 +163,22 @@
         }
       },
       pay () {
+        this.str = ''
         if (this.id) {
-          this.str = `order_sn=${this.orderArr}`
+          if (!Array.isArray(this.orderArr)) {
+            let x = []
+            x.push(this.orderArr)
+            this.orderArr = x
+          }
+          for (let i = 0; i < this.orderArr.length; i++) {
+            this.str += `order_sn[]=${this.orderArr[i]}&`
+          }
         } else {
           this.str = `type=serve`
         }
         if (this.select1) {
-          this.$http.get(`/api/pay/pay?${this.str}&payment=AliPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${this.str}payment=AliPay&api_token=${this.api_token}`).then(res => {
             let url = res.data.data.pay_sign.url
-            this._orderPayStatus()
             _AP.pay(url)
           })
         } else if (this.select2) {
@@ -193,14 +200,14 @@
             })
           } else {
             // 微信H5支付 
-            this.$http.get(`/api/pay/pay?${this.str}&payment=WxPay&api_token=${this.api_token}`).then(res => {
+            this.$http.get(`/api/pay/pay?${this.str}payment=WxPay&api_token=${this.api_token}`).then(res => {
               if (res.data.status === 200) {
                 window.location.href = `${res.data.data.pay_sign.url}&redirect_url=${encodeURIComponent(this.origin)}`
               }
             })
           }
         } else if (this.select3) {
-          this.$http.get(`/api/pay/pay?${this.str}&payment=UnionPay&api_token=${this.api_token}`).then(res => {
+          this.$http.get(`/api/pay/pay?${this.str}payment=UnionPay&api_token=${this.api_token}`).then(res => {
             if (res.data.status === 200) {
               this.$router.push({
                 path: '/union',
@@ -214,7 +221,7 @@
           if (!this.company) {
             this.company = true
           } else {
-            this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}&payment=CashPay&api_token=${this.api_token}`).then(res => {
+            this.$http.get(`/api/pay/pay?order_sn=${this.orderArr}payment=CashPay&api_token=${this.api_token}`).then(res => {
               if (res.data.status === 200) {
                 this.$router.replace('/my/order')
               }
@@ -226,7 +233,7 @@
         this.company = false
       },
       _wechatPay () {
-        this.$http.get(`/api/pay/pay?${this.str}&payment=WxPayJs&api_token=${this.api_token}`).then(res => {
+        this.$http.get(`/api/pay/pay?${this.str}payment=WxPayJs&api_token=${this.api_token}`).then(res => {
           if (res.data.status !== 200) {
             return
           }

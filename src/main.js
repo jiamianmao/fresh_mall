@@ -31,7 +31,7 @@ const origin = window.location.origin
 Storage.session.set('origin', origin)
 
 // axios 默认配置
-axios.defaults.baseURL = origin
+axios.defaults.baseURL = '/apis'
 axios.defaults.timeout = 5000
 
 // request 拦截器 （json -> 表单）

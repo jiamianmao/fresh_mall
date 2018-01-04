@@ -39,6 +39,9 @@ const mutations = {
   },
   [types.SET_IS_LOADING] (state, flag) {
     state.isLoading = flag
+  },
+  [types.SET_MAKE_ORDER] (state, flag) {
+    state.makeOrder = flag
   }
 }
 

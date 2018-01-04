@@ -160,18 +160,24 @@
         .item-wrapper{
           display: flex;
           flex-flow: row wrap;
-          padding: 0 35px;
+          padding: 0 9.33vw;
           width: 100%;
-          box-sizing: border-box;
-          justify-content: space-between;
+          justify-content: center;
+          align-items: center;
           .right_item{
             height: 30px;
-            width: 88px;
+            width: 23.4667vw;
             line-height: 30px;
             text-align: center;
             border: 1px solid #fff;
-            margin-bottom: 20px;
             border-radius: 5px;
+            margin-top: 5.333vw;
+          }
+          .right_item:nth-child(1), .right_item:nth-child(2){
+            margin-top: 0;
+          }
+          .right_item:nth-child(even){
+            margin-left: 5.333vw;
           }
         }
       }

@@ -10,7 +10,7 @@
           <img src="../../../assets/my/not_order.png">
           <p>您还没有订单</p>
         </div>
-        <div class="order" v-for='order of orderList'>
+        <div class="order" v-for='order of orderList' :id='order.order_sn'>
           <div class="order_desc">
             <div class="order_num vux-1px-b">
               <div class="num">订单编号: <span>{{order.order_sn}}</span></div>
@@ -92,6 +92,7 @@
   import Confirm from '@/components/confirm/confirm'
   import { Tab, TabItem, Alert } from 'vux'
   import storage from 'good-storage'
+  import $ from 'jquery'
   
   const PAY_NO = 1
   const PAY_YES = 2
@@ -123,12 +124,21 @@
     },
     created () {
       this.api_token = storage.get('api_token')
+      this.hash = this.$route.query.hash
       this._getOrder()
     },
     mounted () {
       this.$nextTick(() => {
         this.index = this.$route.query.status ? this.$route.query.status : this.status
       })
+    },
+    updated () {
+      if (this.hash && !this.index) {
+        $('html, body').animate({
+          scrollTop: $(`#${this.hash}`).offset().top
+        }, 1000)
+        this.hash = null
+      }
     },
     methods: {
       // 未付款取消订单

@@ -10,3 +10,4 @@ export const cartCount = state => state.cartCount
 export const position = state => state.position
 export const userInfo = state => state.userInfo
 export const isLoading = state => state.isLoading
+export const makeOrder = state => state.makeOrder

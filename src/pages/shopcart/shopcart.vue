@@ -25,7 +25,7 @@
                 <img v-lazy='item.goods_image'>
               </div>
               <div class="desc">
-                <div class="name">{{item.goods_name}}</div>
+                <h3 class="name">{{item.goods_name}}</h3>
                 <div class="spec">{{item.goods_unit}}</div>
                 <h3 class="price">{{item.goods_price}}</h3>
                 <div class='wrapper'>
@@ -66,7 +66,7 @@
   import Confirm from '@/components/confirm/confirm'
   import Storage from 'good-storage'
   import { Alert } from 'vux'
-  import { mapMutations } from 'vuex' 
+  import { mapMutations, mapGetters } from 'vuex' 
   export default {
     data () {
       return {
@@ -87,6 +87,14 @@
     created () {
       this.api_token = Storage.get('api_token')
       this._getShopCart()
+      if (this.makeOrder) {
+        this.alertFlag = true
+        this.msg = '订单已生成,请在30分钟内付款'
+        this.SET_MAKE_ORDER(false)
+        setTimeout(() => {
+          this.alertFlag = false
+        }, 2000)
+      }
     },
     methods: {
       minus (quantity, cartId) {
@@ -292,7 +300,8 @@
         })
       },
       ...mapMutations([
-        'SET_CART_COUNT'
+        'SET_CART_COUNT',
+        'SET_MAKE_ORDER'
       ])
     },
     watch: {
@@ -417,6 +426,11 @@
         },
         deep: true
       }
+    },
+    computed: {
+      ...mapGetters([
+        'makeOrder'
+      ])
     },
     components: {
       XTitle,

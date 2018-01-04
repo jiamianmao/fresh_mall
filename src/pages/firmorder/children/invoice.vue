@@ -8,6 +8,7 @@
           <p @click='selectInvoice' class='allType'>
             <span :class='{"active": invoice === 1}' data-id='1'>纸质发票</span>
             <span :class='{"active": invoice === 2}' data-id='2'>电子发票</span>
+            <span :class='{"active": invoice === 3}' data-id='3'>不要发票</span>
           </p>
         </div>
         <div class="email vux-1px-b" v-show='invoice === 2'>
@@ -18,7 +19,7 @@
             <input type="text" placeholder='您的邮箱地址' v-model='email'>
           </div>
         </div>
-        <div class="invoice_title">
+        <div class="invoice_title" v-show='invoice < 3'>
           <p class='top'>发票抬头</p>
           <p>
             <span class='s1' @click='selectTitle'>
@@ -33,7 +34,7 @@
             </span>
           </p>
         </div>
-        <div class="info_box" v-show='person === 2'>
+        <div class="info_box" v-show='person === 2 && invoice < 3'>
           <div class="company_name">
             <input type="text" v-model='company_name' placeholder='请输入单位名称'>
           </div>
@@ -68,11 +69,12 @@
         tax_num: '',
         show: false,
         msg: '',
-        invoice: Invoice.paper  // 1代表纸质，2代表电子
+        invoice: Invoice.paper  // 1代表纸质，2代表电子 3代表不要发票
       }
     },
     created () {
       Object.assign(this, this.invoiceVuex)
+      this.person = Invoice.person
     },
     methods: {
       selectInvoice (e) {
@@ -89,6 +91,15 @@
         let data
         let re = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
         // 个人
+        if (this.invoice === 3) {
+          let data = {
+            invoice: 3,
+            person: 3
+          }
+          this.set_invoice(data)
+          this.$router.go(-1)
+          return
+        }
         if (this.person === Invoice.person) {
           // 如果是电子发票 就加一层拦截
           if (this.invoice === Invoice.elec) {
@@ -192,8 +203,8 @@
           border: 1px solid #333;
           line-height: 28px;
           text-align: center;
-          &:first-child{
-           margin-right: 10px; 
+          &:nth-child(2){
+           margin: 0 10px; 
           }
           &.active{
             border: 1px solid @color;

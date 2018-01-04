@@ -284,14 +284,23 @@
         bottom: 101px;
         left: 50%;
         transform: translate3d(-50%, 0, 0);
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-between;
-        align-content: space-between;
+        // display: flex;
+        // flex-flow: row wrap;
+        // justify-content: space-between;
+        // align-content: space-between;
         .dots{
           width: 27px;
           height: 27px;
           background: rgba(255, 255, 255, .4);
+          &:nth-child(1), &:nth-child(4){
+            float: left;
+          }
+          &:nth-child(3), &:nth-child(2){
+            float: right;
+          }
+          &:nth-child(3), &:nth-child(4) {
+            margin-top: 10px;
+          }
         }
         .active{
           background: #fff;

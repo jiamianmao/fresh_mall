@@ -22,6 +22,7 @@
         } else {
           redirect = `${this.origin}/api/auth/wx`
         }
+        // console.log(redirect)
         window.location.href = redirect
       }
     }

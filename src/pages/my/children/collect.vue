@@ -275,6 +275,7 @@
           p{
             width: 100%;
             color: #414141;
+            font-family: '宋体';
             .no-wrap
           }
           >span{

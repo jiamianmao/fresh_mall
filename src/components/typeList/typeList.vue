@@ -7,7 +7,7 @@
       </swiper-slide>
     </swiper>
     <div class="text">
-      <p class='title'>{{text.goods_name}}</p>
+      <h3 class='title'>{{text.goods_name}}</h3>
       <p v-html='text.goods_jingle'></p>
       <strong>
         <span class='price'>¥{{text.goods_price}}</span>
@@ -119,7 +119,7 @@
         margin-top: 20px;
         width: 90%;
         text-align: center;
-        font-size: 18px;
+        font-size: @font-size-medium-x;
         font-weight: bold;
         color: #111;
         .no-wrap

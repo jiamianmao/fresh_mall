@@ -3,8 +3,8 @@
     <x-title>注册</x-title>
     <main>
       <div class="btn">
-        <button @click='personal'>个人用户注册</button>
-        <button @click='company'>企业用户注册</button>
+        <button @click='personal'>个人用户注册 <span>(消费者)</span></button>
+        <button @click='company'>企业用户注册 <span>(经销商)</span></button>
       </div>
       <p>提示：企业用户注册后可以浏览产品，如需购买，请先到“我的－资 质认证”完善企业用户信息</p>
       <div class="desc">
@@ -17,15 +17,18 @@
         </ul>
       </div>
     </main>
+    <alert v-model="show" title="提示">暂未开放，请耐心等待!</alert>
     <router-view></router-view>
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
+  import { Alert } from 'vux'
   export default {
     name: 'signup',
     data () {
       return {
+        show: false
       }
     },
     methods: {
@@ -33,11 +36,13 @@
         this.$router.push('/signup/personal')
       },
       company () {
-        this.$router.push('/signup/company')
+        this.show = true
+        // this.$router.push('/signup/company')
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Alert
     }
   }
 </script>
@@ -62,6 +67,9 @@
           text-align: center;
           line-height: 8.30564784vh;
           margin-top: 11.6279vh;
+          span{
+            letter-spacing: 0;
+          }
         }
       }
       p{

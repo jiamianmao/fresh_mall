@@ -111,7 +111,7 @@
   import { Divider, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
   import { mapGetters, mapMutations } from 'vuex'
-  import { Delivery } from '../../common/config/config.js'
+  import { Delivery, Invoice } from '../../common/config/config.js'
   export default {
     name: 'firmorder',
     data () {
@@ -249,6 +249,8 @@
             }
             this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, invoicePhp, this.message)).then(res => {
               if (res.data.status === 200) {
+                // 这里需要增加一个生成订单的vuex
+                this.SET_MAKE_ORDER(true)
                 // 在付款页面 需要维护一个总价，及订单号的Array
                 let arr = []
                 let id = []
@@ -308,6 +310,8 @@
             }
             this.$http.post(`/mobile/?act=member_buy&op=buy_step2&api_token=${this.api_token}`, Object.assign({}, obj1, obj2, invoicePhp, this.message)).then(res => {
               if (res.data.status === 200) {
+                // 这里需要增加一个生成订单的vuex
+                this.SET_MAKE_ORDER(true)
                 // 在付款页面 需要维护一个总价，及订单号的Array
                 let arr = []
                 let sum = 0
@@ -355,12 +359,13 @@
       },
       _getInvoice () {
         // 通过vuex拿到发票信息
-        if (this.invoiceType.invoice) {
+        if (this.invoiceType.invoice === Invoice.person || this.invoiceType.invoice === Invoice.company) {
           this.invoiceFlag = true
           this.invoiceInfo.invoice = this.enums.invoice[this.invoiceType.invoice]
           this.invoiceInfo.person = this.enums.person[this.invoiceType.person]
         } else {
           this.invoiceFlag = false
+          this.invoiceInfo = {}
         }
       },
       _getOrderData () {
@@ -399,7 +404,8 @@
         })
       },
       ...mapMutations([
-        'SET_ADDRESS_TYPE'
+        'SET_ADDRESS_TYPE',
+        'SET_MAKE_ORDER'
       ])
     },
     activated () {

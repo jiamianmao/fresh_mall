@@ -50,12 +50,10 @@
     flex-flow: row nowrap;
     .image{
       width: 33.6vw;
-      height: inherit;
+      height: 33.6vw;
       margin-right: 15px;
-      background: red;
       overflow: hidden;
       img{
-        // object-fit: cover;
         width: 100%;
         height: 100%;
       }
@@ -66,10 +64,14 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      padding-bottom: 20px;
+      justify-content: space-between;
       h3{
-        margin: 10px 0;
-        font-size: @font-size-medium;
+        margin: 8px 0;
+        font-size: @font-size-medium-x;
         width: 100%;
+        // height: @font-size-medium-x;
+        // line-height: @font-size-medium-x;
         .no-wrap
       }
       .desc{
@@ -80,13 +82,13 @@
       }
       .sellInfo{
         position: absolute;
-        bottom: 4px;
+        bottom: 3px;
         left: 0;
         width: 100%;
         display: flex;
         flex-flow: row nowrap;
         justify-content: space-between;
-        line-height: 16px;
+        line-height: 14px;
         .price{
           font-size: @font-size-small;
           strong{
@@ -100,7 +102,10 @@
       }
       .wrapper{
         display: flex;
-        flex-flow: column wrap;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        height: 15vw;
+        padding: 1.6vw 0 2.7vw 0;
         .iconWrapper{
           display: flex;
           flex-flow: row wrap;
@@ -119,12 +124,7 @@
           }
         }
         .typeWrapper{
-          font-size: 30px;
-          span{
-            margin-bottom: 8px;
-            margin-top: 8px;
-            font-size: @font-size-medium;
-          }
+          font-size: @font-size-medium;
         }
         span~span{
           margin-left: 6px;

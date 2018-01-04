@@ -51,19 +51,22 @@
         </div>
       </main>
       <button @click='submit'>保存</button>
+      <Loading v-model='show'></Loading>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import storage from 'good-storage'
+  import { Loading } from 'vux'
   export default {
     data () {
       return {
         sex: null,
         nickname: '',
         email: '',
-        url: ''
+        url: '',
+        show: false
       }
     },
     created () {
@@ -78,6 +81,7 @@
       submit () {
         let url = ''
         if (this.url.indexOf('http') === -1) url = this.url
+        this.show = true
         this.$http.post(`/mobile/?act=member_index&op=save_memberinfo&api_token=${this.api_token}`, {
           member_name: this.nickname,
           member_sex: this.sex,
@@ -85,6 +89,7 @@
           member_avatar: url
         }).then(res => {
           if (res.data.status === 200) {
+            this.show = false
             this.$router.go(-1)
           }
         })
@@ -102,7 +107,8 @@
       }
     },
     components: {
-      XTitle
+      XTitle,
+      Loading
     }
   }
 </script>

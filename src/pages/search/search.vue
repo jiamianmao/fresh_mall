@@ -9,7 +9,13 @@
         <div class="down">
           <h1 class='title'>{{item.goods_name}}</h1>
           <p class='desc' v-html='item.goods_jingle'></p>
-          <p class='price'>¥{{item.goods_price}}</p>
+          <strong>
+            <span class='price'>¥{{item.goods_price}}</span>
+            <span class='box' v-if='item.goods_unit'>
+              <span class='fen'>/</span>
+              <span class='unit'>{{item.goods_unit}}</span>
+            </span>
+          </strong>
         </div>
       </div>
       <div class="nothing" v-show='nothing'>
@@ -33,9 +39,6 @@
     },
     created () {
       this.api_token = Storage.get('api_token')
-    },
-    mounted () {
-      this.$refs.search.focus()
     },
     methods: {
       close () {
@@ -89,7 +92,6 @@
           width: 100%;
           height: 0;
           padding-top: 125%;
-          background: red;
           position: relative;
           img{
             position: absolute;
@@ -118,9 +120,21 @@
             height: 29px;
             .no-wrap
           }
-          .price{
-            font-size: @font-size-small;
-            font-weight: bold;
+          strong{
+            // margin: 12px 0;
+            font-size: 0;
+            .price{
+              font-size: @font-size-medium;
+              font-weight: bold;
+            }
+            .box{
+              .fen{
+                font-size: @font-size-medium-x;
+              }
+              .unit{
+                font-size: @font-size-small-s !important;
+              }
+            }
           }
         }
       }

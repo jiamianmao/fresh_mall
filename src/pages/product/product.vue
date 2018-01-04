@@ -5,7 +5,7 @@
       <!-- 轮播图 增加一个外容器设置高度，以免重绘 -->
       <div class="placeholder">
         <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-          <swiper-slide v-for='(item, index) of product_obj.goods_image' :key='item.name'>
+          <swiper-slide v-for='(item, index) of goods_image' :key='index'>
             <img v-lazy="item">
             <div class="mask" v-show='index !== swiperOption.idx'></div>
           </swiper-slide>
@@ -27,39 +27,40 @@
           </div>
         </div>
         <!-- B端 如何加入经销商 -->
-        <div class="find vux-1px-t" @click='toDesc(product_obj.brand.brand_id, 0)' v-if='!member_c && product_obj.brand'>
+        <!-- <div class="find vux-1px-t" @click='toDesc(product_obj.brand.brand_id, 0)' v-if='!member_c && product_obj.brand'>
           <div class="left"><img src="../../assets/product/find.png"></div>
           <div class="center">查看如何成为{{product_obj.brand.brand_name}}经销商</div>
           <span class='right'>
             <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
           </span>
-        </div>
+        </div> -->
         <placeholder></placeholder>
 
         <!-- C端 支付方式（名字，价格信息等）-->
         <ul class="pay_way" v-if='member_c && product_obj.brand'>
-          <li class='title'>两种购买方式供您选择</li>
-          <li @click='goZiti(product_obj.brand.brand_id)'>
+          <li class='title' v-if='offline_switch === "1"'>两种购买方式供您选择</li>
+          <li v-if='offline_switch === "1"' @click='goZiti(product_obj.brand.brand_id)'>
             <span class='left'>到店购买:</span>
             <div class='center'>
               <p>请查看附近的<a class='mark'>在售门店</a></p>
-              <p v-if='offline_switch === "1"'>线下零售店价格可能有所波动</p>
-              <p v-else>线下销售门店正在完善中，敬请期待</p>
+              <p>线下零售店价格可能有所波动</p>
+              <!-- <p v-else>线下销售门店正在完善中，敬请期待</p> -->
             </div>
             <span class='right'>
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-          <li class='vux-1px-t line'>
+          <li class='vux-1px-t vux-1px-b line' v-if='offline_switch === "1" || collect_switch === "1"'>
             <span class='left'>线上购买:</span>
             <div class='center'>
               <p>请选择收货方式</p>
             </div>
           </li>
-          <li class="vux-1px-t strong" @click='goHome(product_obj.brand.brand_id)'>
+          <li class="strong" @click='goHome(product_obj.brand.brand_id)'>
             <span class='left'></span>
             <div class='center' v-if='!address_1'>
-              <p>1.直接配送到家</p>
+              <p v-if='offline_switch === "1" || collect_switch === "1"'>1.直接配送到家</p>
+              <p v-else>直接配送到家</p>
               <p>
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-cc-marker"></use>
@@ -74,7 +75,7 @@
               <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
             </span>
           </li>
-          <li class='vux-1px-t strong' @click='goStore(product_obj.brand.brand_id)'>
+          <li class='vux-1px-t strong' v-if='collect_switch === "1"' @click='goStore(product_obj.brand.brand_id)'>
             <span class='left'></span>
             <div class='center' v-if='!address_2 && !address_3'>
               <p>2.由合作门店提供代收和短时贮藏服务</p>
@@ -82,8 +83,8 @@
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-cc-marker"></use>
                 </svg>
-                <span v-if='collect_switch === "1"'>选择门店</span>
-                <span v-else>代收货门店正在完善中，敬请期待</span>
+                <span>选择门店</span>
+                <!-- <span v-else>代收货门店正在完善中，敬请期待</span> -->
               </p>
             </div>
             <div class="center" v-if='address_2'>
@@ -127,26 +128,40 @@
 
         <div class="goods_info" v-if='product_obj.goods_video'>
           <p class='see_text vux-1px-b'>
-          <span>以下资料如果您不方便观看视频</span><br />
-          <span>请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</span>
+            <span>以下资料如果您不方便观看视频</span><br />
+            <span>请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</span>
           </p>
 
           <!-- 固定视频 -->
-          <div class="item" v-if='product_obj.goods_video.video' v-for='(item, index) of product_obj.goods_video.video'>
-            <div class="title" v-if='index === 0'>
+          <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[1]'>
+            <div class="title">
               <span class='name'>生长环境</span>
-              {{ item.Video.title }}
+              {{ product_obj.goods_video.video[1].Video.title }}
             </div>
-            <div class="title" v-else-if='index === 1'>
+            <div class="video">
+              <iframe v-if='product_obj.goods_video.video[1].Video && product_obj.goods_video.video[1].Video.src' frameborder="0" :src="product_obj.goods_video.video[1].Video.src" allowfullscreen></iframe>
+              <img v-else  @click='toDesc(product_obj.goods_video.video[1].Video.id, 4)' v-lazy='product_obj.goods_video.video[1].Video.image' />
+            </div>
+            <div class="text" v-if='product_obj.goods_video.video[1].Live'>
+              <p class='live_tv' @click='toLive(product_obj.goods_video.video[1].Live.src)'>
+                查看24小时监控直播
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yuanjiantou"></use>
+                </svg>
+              </p>
+            </div>
+          </div>
+          <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[2]'>
+            <div class="title">
               <span class='name'>加工过程</span>
-              {{ item.Video.title }}
+              {{ product_obj.goods_video.video[2].Video.title }}
             </div>
-            <div class="video" v-if='index < 2'>
-              <iframe v-if='item.Video && item.Video.src' frameborder="0" :src="item.Video.src" allowfullscreen></iframe>
-              <img @click='toDesc(item.Video.id, 4)' v-else v-lazy='item.Video.image' />
+            <div class="video">
+              <iframe v-if='product_obj.goods_video.video[2].Video && product_obj.goods_video.video[2].Video.src' frameborder="0" :src="product_obj.goods_video.video[2].Video.src" allowfullscreen></iframe>
+              <img v-else @click='toDesc(product_obj.goods_video.video[2].Video.id, 4)' v-lazy='product_obj.goods_video.video[2].Video.image' />
             </div>
-            <div class="text" v-if='item.Live && index < 2'>
-              <p class='live_tv' @click='toLive(item.Live.src)'>
+            <div class="text" v-if='product_obj.goods_video.video[2].Live'>
+              <p class='live_tv' @click='toLive(product_obj.goods_video.video[2].Live.src)'>
                 查看24小时监控直播
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-yuanjiantou"></use>
@@ -181,16 +196,16 @@
           </div>
 
           <!-- 不定视频 -->
-          <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video.length > 2 && product_obj.goods_video.video[2].Video'>
+          <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[3]'>
             <div class="title">
-              {{ product_obj.goods_video.video[2].Video.title }}
+              {{ product_obj.goods_video.video[3].Video.title }}
             </div>
             <div class="video">
-              <iframe v-if='product_obj.goods_video.video[2].Video' frameborder="0" :src="product_obj.goods_video.video[2].Video.src" allowfullscreen></iframe>
-              <img @click='toDesc(product_obj.goods_video.video[2].Video.id, 4)' v-else v-lazy='product_obj.goods_video.video[2].Video.image' />
+              <iframe v-if='product_obj.goods_video.video[3].Video && product_obj.goods_video.video[3].Video.src' frameborder="0" :src="product_obj.goods_video.video[3].Video.src" allowfullscreen></iframe>
+              <img v-else @click='toDesc(product_obj.goods_video.video[3].Video.id, 4)' v-lazy='product_obj.goods_video.video[3].Video.image' />
             </div>
-            <div class="text" v-if='product_obj.goods_video.video[2].Live'>
-              <p class='live_tv' @click='toLive(product_obj.goods_video.video[2].Live.src)'>
+            <div class="text" v-if='product_obj.goods_video.video[3].Live'>
+              <p class='live_tv' @click='toLive(product_obj.goods_video.video[3].Live.src)'>
                 查看24小时监控直播
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-yuanjiantou"></use>
@@ -203,14 +218,12 @@
             <div class="company" @click='toDesc(null, 5)'>
               <img src="../../assets/product/company.png">
             </div>
-            <img src="../../assets/product/icon.png">
+            <img src="../../assets/product/icon.jpg">
             <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
               <h3>品控保证</h3>
               <div class="desc" v-if='product_obj.goods_video.quality'>
                 <a v-for='(item, index) of product_obj.goods_video.quality' @click='toDesc(item.id, item.title)'>
-                  <span v-show='index === 0'>SGS</span>
-                  <span v-show='index === 1'>检测<br />报告</span>
-                  <span v-show='index === 2'>品质<br />承诺</span>
+                  <span>{{ item.title }}</span>
                 </a>
               </div>
             </div>
@@ -338,6 +351,7 @@
         product_obj: {},
         videoArr: ['http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA1', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/A%E7%BB%84VA2', 'http://outpmmta5.bkt.clouddn.com/MIXRT'],
         notNextTick: true,
+        goods_image: [],
         // 顶部产品图片的swiper组件
         swiperOption: {
           pagination: '.swiper-pagination',
@@ -407,6 +421,11 @@
       this._getShopCart()
       this.submitFlag = false
       this.goods_storage = false
+    },
+    updated () {
+      this.$nextTick(() => {
+        this.$refs.scrollCom.refresh()
+      })
     },
     methods: {
       onInput (value) {
@@ -667,6 +686,12 @@
             if (this.product_obj.goods_storage === 0) {
               this.goods_storage = true
             }
+            this.goods_image = this.product_obj.goods_image.slice()
+            if (this.goods_image.length >= 2) {
+              let x = this.goods_image[0]
+              this.goods_image[0] = this.goods_image[1]
+              this.goods_image[1] = x
+            }
             this._getCollect()
             this._getAddressStatus()
             cb && cb()
@@ -784,6 +809,9 @@
           this.api_token = storage.get('api_token')
           this.member_c = storage.get('member_class') === '2' ? '' : '1'
           this.goods_storage = false
+          this.returnFlag = false
+          this.goods_image = []
+          this.swiper.slideTo(1)
           this._getProductDesc(this.id)
           this._getShopCart()
         }
@@ -1098,9 +1126,7 @@
           }
           .item{
             width: 100%;
-            &~.item{
-              margin-top: 30px;
-            }
+            margin-top: 20px;
             .title{
               margin-top: 8px;
               padding-left: 16px;
@@ -1190,6 +1216,7 @@
                   height: 54px;
                   width: 54px;
                   border: 1px solid @color;
+                  padding: 0 10px;
                   border-radius: 50%;
                   display: flex;
                   justify-content: center;

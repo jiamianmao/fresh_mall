@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <div class="brand"></div>
+    <div class="brand">
+      <img src="../../assets/login/avatar.jpg">
+    </div>
     <main class='vux-1px-b vux-1px-t'>
       <div class="username">
         <img src="../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
@@ -31,6 +33,7 @@
 </template>
 <script>
   import { Divider, Alert } from 'vux'
+  import getCookie from '@/common/js/main/main'
   import storage from 'good-storage'
   export default {
     data () {
@@ -43,6 +46,15 @@
     },
     created () {
       this.url = storage.get('currentUrl') || '/'
+      this.api_token = getCookie('api_token')
+      // console.log('cookie,api_token')
+      // console.log(this.api_token)
+      storage.set('api_token', this.api_token)
+      // console.log('storage,api_token')
+      // console.log(this.api_token)
+      if (this.api_token) {
+        this.$router.replace(this.url)
+      }
     },
     methods: {
       seePassword () {
@@ -86,8 +98,15 @@
         })
       },
       loginByWechat () {
-        // todo
-        this.$router.push('/auth')
+        let ua = navigator.userAgent.toLowerCase()
+        // 是微信登录
+        if (ua.indexOf('micromessenger') !== -1) {
+          let url = `redirect=${encodeURIComponent(window.location.href)}`
+          this.$router.push(`/auth?${url}`)
+        } else {
+          // 不是微信登录
+          this.$router.push('/auth')
+        }
       }
     },
     components: {
@@ -106,7 +125,13 @@
       height: 32.558vh;
       min-height: 200px;
       width: 100%;
-      background: url('../../assets/login/brand.png') no-repeat 0 0 ~"/"100% 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      img{
+        width: 100px;
+        height: 100px;
+      }
     }
     main{
       width: 100%;

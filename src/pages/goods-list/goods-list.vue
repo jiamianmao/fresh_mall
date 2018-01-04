@@ -160,7 +160,7 @@
       },
       _getSort () {
         this.$http.get(`/api/good_class/attr?api_token=${this.api_token}&id=${this.gc_id}`).then(res => {
-          this.sortArr = res.data ? res.data.data : []
+          this.sortArr = res.data ? res.data.data : [{attr_name: '热门', init: true}]
           this.sortArr.splice(1, 0, {
             attr_name: '综合'
           }, {
@@ -241,6 +241,7 @@
         .sort-item{
           height: 50px;
           line-height: 50px;
+          padding-right: 3vw;
           &.money{
             padding-right: 10px;
           }
@@ -264,10 +265,12 @@
           }
           span{
             position: relative;
+            display: inline-block;
+            max-width: 100%;
             .icon-wrapper{
               position: absolute;
               top: 50%;
-              right: -12px;
+              right: -10px;
               transform: translate3d(0, -50%, 0);
               width: 10px;
               display: flex;
@@ -292,8 +295,10 @@
                   fill: #666;
                 }
               }
+              // .no-wrap
             }
           }
+          .no-wrap
         }
       }
       .box{
@@ -319,7 +324,6 @@
             &.active_desc{
               color: red;
             }
-            .no-wrap
           }
         }
         .button{

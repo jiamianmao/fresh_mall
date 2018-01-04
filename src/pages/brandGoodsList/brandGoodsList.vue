@@ -79,6 +79,7 @@
             width: 100%;
             padding: 0 4px;
             font-size: @font-size-medium;
+            font-family: '宋体';
             .no-wrap
           }
           span{
@@ -86,6 +87,12 @@
             color: #999;
             height: 30px;
             .no-wrap
+          }
+          strong{
+            font-size: @font-size-medium;
+            span{
+              font-size: @font-size-small;
+            }
           }
         }
       }

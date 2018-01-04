@@ -63,12 +63,13 @@
           message_id: id
         }).then(res => {
           if (res.data.status === 200) {
+            let orderSn = res.data.data.message_body.match(/20[0-9]{16}/)[0]
             this.arr.filter(item => {
               if (item.message_id === id) {
                 // 减少http请求
                 item.read_state = '1'
                 if (flag) {
-                  this.$router.push('/my/order')
+                  this.$router.push(`/my/order?hash=${orderSn}`)
                 }
               }
             })
