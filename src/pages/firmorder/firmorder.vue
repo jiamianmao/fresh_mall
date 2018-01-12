@@ -79,7 +79,7 @@
 
       <div class="prices vux-1px-b" v-else>
         <span></span>
-        <span>小计<strong>:{{brand.price}}</strong></span>
+        <span>小计<strong>:{{brand.price | format}}</strong></span>
       </div>
 
     </div>
@@ -98,11 +98,11 @@
     <div class="sure_order vux-1px-t">
       <div class="left">
         <p><strong>{{types}}</strong> 种共 <strong>{{count}}</strong> 件</p>
-        <p>合计：<strong>¥{{price}}</strong></p>
+        <p>合计：<strong>¥{{price | format}}</strong></p>
       </div>
       <button @click='orderSubmit'>确认订单</button>
     </div>
-    <alert v-model="alertFlag">{{msg}}</alert>
+    <alert v-model="alertFlag" :title='title'>{{msg}}</alert>
     <router-view></router-view>
   </div>
 </template>
@@ -123,6 +123,7 @@
         invoiceInfo: {},
         show: false,  // modal的信号
         alertFlag: false, // alert的信号
+        title: '',
         msg: '', // alert的提示语
         cartArr: [],
         message: {}, // 留言
@@ -200,6 +201,32 @@
         })
       },
       orderSubmit () {
+        // // 销售区域判断
+        // let area
+        // if (this.member_c) {
+        // } else {
+        //   area = this.B_address.area_info.substring(0, 2)
+        //   let areaGoods = []
+        //   this.list.forEach(item => {
+        //     item.goods.forEach(goods => {
+        //       if (!goods.transport_area.includes(area)) {
+        //         areaGoods.push(goods.goods_name)
+        //       }
+        //     })
+        //   })
+        //   if (areaGoods.length > 0) {
+        //     this.title = '以下商品不在配送范围'
+        //     this.msg = `${areaGoods}`
+        //     this.alertFlag = true
+        //     return
+        //   }
+        // }
+        // if (area === '内蒙') {
+        //   area = '内蒙古'
+        // } else if (area === '黑龙江') {
+        //   area = '黑龙江'
+        // }
+
         // 来判断用户身份
         if (this.member_c) {
           let keyArr = Object.keys(this.addressType)
@@ -273,11 +300,13 @@
                   }
                 })
               } else {
+                this.title = '提示'
                 this.alertFlag = true
                 this.msg = res.data.data.error
               }
             })
           } else {
+            this.title = '提示'
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
           }
@@ -314,6 +343,7 @@
                 this.SET_MAKE_ORDER(true)
                 // 在付款页面 需要维护一个总价，及订单号的Array
                 let arr = []
+                let id = []
                 let sum = 0
                 let orders = res.data.data.order
                 let value = Object.values(orders)
@@ -321,21 +351,25 @@
                   // 这里防止浮点数计算错误
                   sum += item.order_amount * 100
                   arr.push(item.order_sn)
+                  id.push(item.order_id)
                 })
                 sum = sum / 100
                 this.$router.replace({
                   path: '/pay',
                   query: {
                     sum,
-                    arr
+                    arr,
+                    id
                   }
                 })
               } else {
+                this.title = '提示'
                 this.alertFlag = true
                 this.msg = res.data.data.error
               }
             })
           } else {
+            this.title = '提示'
             this.alertFlag = true
             this.msg = '您还有商品未设置收货方式'
           }
@@ -448,6 +482,9 @@
     filters: {
       blank (value) {
         return value.replace(/\s/g, '')
+      },
+      format (num) {
+        return (100 * num).toFixed(0) / 100
       }
     },
     components: {

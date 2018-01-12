@@ -23,8 +23,7 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import getCookie from '@/common/js/main/main'
-  import { Alert, Countdown } from 'vux'
+  import { Alert, Countdown, cookie } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -38,7 +37,7 @@
       }
     },
     created () {
-      this.api_token = getCookie('api_token')
+      this.api_token = cookie.get('api_token')
       storage.set('api_token', this.api_token)
     },
     methods: {

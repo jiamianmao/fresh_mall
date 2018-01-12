@@ -102,14 +102,14 @@
         </ul>
 
         <!-- B端 产品组合推荐及配送规则 -->
-        <div class="recommend" v-if='!member_c && product_obj.goods_combo && product_obj.goods_combo.length > 0'>
+        <div class="recommend" v-if='!member_c'>
           <p class='title'>
-            以下产品{{ product_obj.brand.brand_name }}可一起配送，节省物流费
+            运输方式及费用详细说明
             <svg class="icon" aria-hidden="true" ref='arrow' @click='toggleRecommend'>
               <use xlink:href="#icon-arrow-up"></use>
             </svg>
           </p>
-          <p class='rule' v-show='slideDown'>配送规则： <span>{{product_obj.store.delivery_rule}}</span></p>
+          <p class='rule' v-show='slideDown'>配送规则： <span v-if='product_obj.store'>{{ product_obj.store.delivery_rule }}</span></p>
           <swiper class="wrapper" :options='swiperOption2'>
             <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
               <div class="goods">
@@ -216,7 +216,7 @@
 
           <div class="image">
             <div class="company" @click='toDesc(null, 5)'>
-              <img src="../../assets/product/company.png">
+              <img src="../../assets/product/company.jpg">
             </div>
             <img src="../../assets/product/icon.jpg">
             <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>

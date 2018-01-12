@@ -170,7 +170,7 @@
                 if (index === 0) {
                   this.swiperUrlList.push({
                     img: item.pic_img,
-                    url: item.pic_url
+                    url: `${storage.session.get('origin')}/${item.pic_url}`
                   })
                 } else {
                   this.swiperUrlList.push({

@@ -85,12 +85,10 @@ const router = new VueRouter({
 // 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
-  if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
+  if ((to.path !== '/signin') && !Storage.get('api_token')) {
     next('/signin')
     // let url = to.fullPath.includes('/my/') ? '/my' : to.fullPath
-    Storage.set('currentUrl', from.fullPath)
-  } else if (to.path === '/signin' && Storage.get('api_token')) {
-    next('/')
+    // Storage.set('currentUrl', from.fullPath)
   }
   // 路由之间的loadding状态
   store.commit('SET_IS_LOADING', true)

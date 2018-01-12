@@ -52,7 +52,7 @@
         <p class='all'>全选</p>
       </div>
       <!-- <p class='num' style='opacity: 0;'><strong>{{cartType.length}}</strong>种共<strong>{{cartCount}}</strong>件</p> -->
-      <p>合计:<strong>¥{{sum}}</strong></p>
+      <p>合计:<strong>¥{{sum | format}}</strong></p>
       <button @click='submit'>结算</button>
     </div>
     <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
@@ -431,6 +431,11 @@
       ...mapGetters([
         'makeOrder'
       ])
+    },
+    filters: {
+      format (num) {
+        return (100*num).toFixed(0)/100
+      }
     },
     components: {
       XTitle,

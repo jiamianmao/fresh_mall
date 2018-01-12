@@ -1,6 +1,6 @@
 <template>
   <div class='container'>
-    这是一个404页面
+    404
   </div>
 </template>
 <script>

@@ -1,48 +1,35 @@
 <template>
-  <form action="https://gateway.test.95516.com/gateway/api/frontTransReq.do" method='POST'>
-    <input type="hidden" name="version" value="5.0.0" />
-    <input type="hidden" name="encoding" value="utf-8" />
-    <input type="hidden" name="certId" value="40220995861346480087409489142384722381" />
-    <input type="hidden" name="txnType" value="01" />
-    <input type="hidden" name="txnSubType" value="01" />
-    <input type="hidden" name="bizType" value="000201" />
-    <input type="hidden" name="frontUrl" :value="frontUrl" />
-    <input type="hidden" name="backUrl" :value="backUrl" />
-    <input type="hidden" name="signMethod" value="01" />
-    <input type="hidden" name="channelType" value="08" />
-    <input type="hidden" name="accessType" value="0" />
-    <input type="hidden" name="merId" value="777290058153110" />
-    <input type="hidden" name="orderId" :value="orderId" />
-    <input type="hidden" name="txnTime" :value="txnTime" />
-    <input type="hidden" name="txnAmt" :value="txnAmt" />
-    <input type="hidden" name="currencyCode" value="156" />
-    <input type="hidden" name="defaultPayType" value="0001" />
-    <input type="hidden" name="orderDesc" :value="orderDesc" />
-    <input type="hidden" name="signature" :value="signature" />
+  <form :action="paySign.pay_form" method='POST'>
+    <input type="hidden" name="version" :value="paySign.version" />
+    <input type="hidden" name="encoding" :value="paySign.encoding" />
+    <input type="hidden" name="certId" :value="paySign.certId" />
+    <input type="hidden" name="txnType" :value="paySign.txnType" />
+    <input type="hidden" name="txnSubType" :value="paySign.txnSubType" />
+    <input type="hidden" name="bizType" :value="paySign.bizType" />
+    <input type="hidden" name="frontUrl" :value="paySign.frontUrl" />
+    <input type="hidden" name="backUrl" :value="paySign.backUrl" />
+    <input type="hidden" name="signMethod" :value="paySign.signMethod" />
+    <input type="hidden" name="channelType" :value="paySign.channelType" />
+    <input type="hidden" name="accessType" :value="paySign.accessType" />
+    <input type="hidden" name="merId" :value="paySign.merId" />
+    <input type="hidden" name="orderId" :value="paySign.orderId" />
+    <input type="hidden" name="txnTime" :value="paySign.txnTime" />
+    <input type="hidden" name="txnAmt" :value="paySign.txnAmt" />
+    <input type="hidden" name="currencyCode" :value="paySign.currencyCode" />
+    <input type="hidden" name="defaultPayType" :value="paySign.defaultPayType" />
+    <input type="hidden" name="orderDesc" :value="paySign.orderDesc" />
+    <input type="hidden" name="signature" :value="paySign.signature" />
   </form>
 </template>
 <script>
   export default {
     data () {
       return {
-        orderId: '',
-        txnTime: '',
-        txnAmt: '',
-        orderDesc: '',
-        signature: '',
-        backUrl: '',
-        frontUrl: ''
+        paySign: ''
       }
     },
     created () {
-      const paySign = this.$route.query.pay_sign
-      this.orderId = paySign.orderId
-      this.txnTime = paySign.txnTime
-      this.txnAmt = paySign.txnAmt
-      this.orderDesc = paySign.orderDesc
-      this.signature = paySign.signature
-      this.backUrl = paySign.backUrl
-      this.frontUrl = paySign.frontUrl
+      this.paySign = this.$route.query.pay_sign
     },
     mounted () {
       setTimeout(() => {
@@ -51,5 +38,3 @@
     }
   }
 </script>
-<style lang="less" scoped>
-</style>

@@ -8,32 +8,32 @@
         <img src="../../assets/login/tel.png"><input type="tel" v-model='tel' placeholder='手机号' maxlength='11'>
       </div>
       <div class="password vux-1px-t">
-        <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' placeholder='密码'>
+        <img src="../../assets/login/pwd.png"><input type="password" ref='pwd' v-model='pwd' @keyup.enter='login' placeholder='密码'>
         <svg class="icon" aria-hidden="true" ref='icon' @click='seePassword'>
           <use xlink:href="#icon-yanjing"></use>
         </svg>
       </div>
     </main>
     <div class="bottom">
+      <span style='color: red; display: inline-block; margin-bottom: 20px; font-size: 12px;'>内部流通，暂不对外开放，敬请稍后!</span>
       <button @click='login'>登录</button>
-      <div class="fun">
+      <!--<div class="fun">
         <div class="sign" @click='signup'>立即注册</div>
         <div class="forget" @click='forget'>忘记密码？</div>
-      </div>
+      </div> -->
     </div>
-    <div class="types">
+    <!-- <div class="types">
       <divider>你还可以用以下方式登录</divider>
       <div class="wrapper">
         <img @click='loginByWechat' src="../../assets/login/wechat.png">
       </div>
-    </div>
+    </div> -->
     <alert v-model="show" title="提示">{{msg}}</alert>
     <router-view></router-view>
   </div>
 </template>
 <script>
-  import { Divider, Alert } from 'vux'
-  import getCookie from '@/common/js/main/main'
+  import { Divider, Alert, cookie } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -46,12 +46,8 @@
     },
     created () {
       this.url = storage.get('currentUrl') || '/'
-      this.api_token = getCookie('api_token')
-      // console.log('cookie,api_token')
-      // console.log(this.api_token)
+      this.api_token = cookie.get('api_token')
       storage.set('api_token', this.api_token)
-      // console.log('storage,api_token')
-      // console.log(this.api_token)
       if (this.api_token) {
         this.$router.replace(this.url)
       }

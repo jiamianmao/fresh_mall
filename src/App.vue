@@ -21,10 +21,13 @@
       }
     },
     created () {
+      storage.remove('currentUrl')
       this.api_token = storage.get('api_token')
       // 初始化的时候请求
       // 获取购物车信息
       this.api_token && this._getShopCart()
+      // 缓存openid
+      this.$http.get(`/api/wx/snsapi_base`)
     },
     methods: {
       _getPosition () {
@@ -70,6 +73,13 @@
     components: {
       Tab,
       Loading
+    },
+    watch: {
+      $route (newVal) {
+        if (newVal.path !== '/signin' && !storage.get('api_token')) {
+          this.$router.push('/signin')
+        }
+      }
     }
   }
 </script>
