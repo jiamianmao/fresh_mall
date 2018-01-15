@@ -103,6 +103,24 @@
       <button @click='orderSubmit'>确认订单</button>
     </div>
     <alert v-model="alertFlag" :title='title'>{{msg}}</alert>
+    <div class="mask" v-show='modal' @click='modalFadeout'></div>
+    <div class="modal" v-show='modal'>
+      <div class="title vux-1px-b">以下商品不在配送范围</div>
+      <div class="content">
+        <div class="item vux-1px-b" v-for='(item, index) of areaGoods'>
+          <p class='name' @click='selectGoodsArea(index)'>
+            {{ item.name }}
+            <svg class="icon" :class='{"tran": index === selectGoods}' aria-hidden="true">
+              <use xlink:href="#icon-arrowdropdown"></use>
+            </svg>
+          </p>
+          <p class='area' v-if='index === selectGoods'>
+            <span class='info'>配送区域:</span>
+            <br /><span v-for='(area, idx) of item.area'>{{ area }}<i v-if='idx !== item.area.length - 1'>,</i></span>
+          </p>
+        </div>
+      </div>
+    </div>
     <router-view></router-view>
   </div>
 </template>
@@ -127,7 +145,10 @@
         msg: '', // alert的提示语
         cartArr: [],
         message: {}, // 留言
-        B_address: ''
+        B_address: '',
+        modal: false,
+        areaGoods: [],
+        selectGoods: -1
       }
     },
     created () {
@@ -201,31 +222,62 @@
         })
       },
       orderSubmit () {
-        // // 销售区域判断
-        // let area
-        // if (this.member_c) {
-        // } else {
-        //   area = this.B_address.area_info.substring(0, 2)
-        //   let areaGoods = []
-        //   this.list.forEach(item => {
-        //     item.goods.forEach(goods => {
-        //       if (!goods.transport_area.includes(area)) {
-        //         areaGoods.push(goods.goods_name)
-        //       }
-        //     })
-        //   })
-        //   if (areaGoods.length > 0) {
-        //     this.title = '以下商品不在配送范围'
-        //     this.msg = `${areaGoods}`
-        //     this.alertFlag = true
-        //     return
-        //   }
-        // }
-        // if (area === '内蒙') {
-        //   area = '内蒙古'
-        // } else if (area === '黑龙江') {
-        //   area = '黑龙江'
-        // }
+        // 销售区域判断
+        let area
+        if (this.member_c) {
+          // C端多地址 先拿到brand_id
+          let areaGoods = []
+          this.list.forEach(item => {
+            // 拿到该品牌所写的收货地址
+            console.log(this.address)
+            area = this.address[item.brand_id].area_info.substring(0, 2)
+            if (area === '内蒙') {
+              area = '内蒙古'
+            } else if (area === '黑龙江') {
+              area = '黑龙江'
+            }
+            // 找到所对应的收货范围
+            let brandArea = this.list.find(x => {
+              return x.brand_id === item.brand_id
+            })
+            brandArea.goods.forEach(goods => {
+              if (!goods.transport_area.includes(area)) {
+                areaGoods.push({
+                  'name': goods.goods_name,
+                  'area': goods.transport_area
+                })
+              }
+            })
+            if (areaGoods.length > 0) {
+              this.modal = true
+              this.areaGoods = areaGoods
+              return
+            }
+          })
+        } else {
+          area = this.B_address.area_info.substring(0, 2)
+          if (area === '内蒙') {
+            area = '内蒙古'
+          } else if (area === '黑龙江') {
+            area = '黑龙江'
+          }
+          let areaGoods = []
+          this.list.forEach(item => {
+            item.goods.forEach(goods => {
+              if (!goods.transport_area.includes(area)) {
+                areaGoods.push({
+                  'name': goods.goods_name,
+                  'area': goods.transport_area
+                })
+              }
+            })
+          })
+          if (areaGoods.length > 0) {
+            this.modal = true
+            this.areaGoods = areaGoods
+            return
+          }
+        }
 
         // 来判断用户身份
         if (this.member_c) {
@@ -390,6 +442,17 @@
           console.log(err)
         })
         return state
+      },
+      selectGoodsArea (index) {
+        if (this.selectGoods !== index) {
+          this.selectGoods = index
+        } else {
+          this.selectGoods = -1
+        }
+      },
+      modalFadeout () {
+        this.modal = false
+        this.selectGoods = -1
       },
       _getInvoice () {
         // 通过vuex拿到发票信息
@@ -743,6 +806,55 @@
     }
     .divider{
       margin-top: 4px;
+    }
+    .modal{
+      width: 70vw;
+      // min-height: 40vh;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      background: #fff;
+      text-align: center;
+      border-radius: 10px;
+      z-index: 2;
+      overflow: hidden;
+      .title{
+        line-height: 40px;
+      }
+      .item{
+        padding-bottom: 6px;
+        .name{
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: center;
+          height: 30px;
+          align-items: center;
+        }
+        .area{
+          span{
+            color: #666;
+            line-height: 20px;
+          }
+        }
+      }
+      .icon {
+        width: 1.3em; height: 1.3em;
+        fill: #333;
+        overflow: hidden;
+        &.tran{
+          transform: rotate(180deg)
+        }
+      }
+    }
+    .mask{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 1;
     }
   }
 </style>
