@@ -224,12 +224,11 @@
       orderSubmit () {
         // 销售区域判断
         let area
+        let areaGoods = []
         if (this.member_c) {
           // C端多地址 先拿到brand_id
-          let areaGoods = []
           this.list.forEach(item => {
             // 拿到该品牌所写的收货地址
-            console.log(this.address)
             area = this.address[item.brand_id].area_info.substring(0, 2)
             if (area === '内蒙') {
               area = '内蒙古'
@@ -251,7 +250,6 @@
             if (areaGoods.length > 0) {
               this.modal = true
               this.areaGoods = areaGoods
-              return
             }
           })
         } else {
@@ -261,7 +259,6 @@
           } else if (area === '黑龙江') {
             area = '黑龙江'
           }
-          let areaGoods = []
           this.list.forEach(item => {
             item.goods.forEach(goods => {
               if (!goods.transport_area.includes(area)) {
@@ -272,11 +269,12 @@
               }
             })
           })
-          if (areaGoods.length > 0) {
-            this.modal = true
-            this.areaGoods = areaGoods
-            return
-          }
+        }
+
+        if (areaGoods.length > 0) {
+          this.modal = true
+          this.areaGoods = areaGoods
+          return
         }
 
         // 来判断用户身份
