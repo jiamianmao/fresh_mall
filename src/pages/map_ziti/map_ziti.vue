@@ -43,7 +43,10 @@
     created () {
       this.id = ~~this.$route.query.id
       this.api_token = storage.get('api_token')
+<<<<<<< HEAD
       this.init = false
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     },
     mounted () {
       if (!this.position.lat) {
@@ -89,17 +92,23 @@
                 // 取其坐标值移动到该marker
                 // map.panTo(new qq.maps.LatLng(39.916527,116.397128))
                 this.activePoint = `${e.latLng.lat},${e.latLng.lng}`
+<<<<<<< HEAD
                 this.init = false
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
               })
             })
           }
         })
       },
       _getMap () {
+<<<<<<< HEAD
         if (this.init) {
           return
         }
         this.init = true
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         let center = new qq.maps.LatLng(this.position.lat, this.position.lng)
         this.map = new qq.maps.Map(document.getElementById('container'), {
           // 地图的中心地理坐标
@@ -124,12 +133,15 @@
         this._getData()
       }
     },
+<<<<<<< HEAD
     activated () {
       this.init = false
       this.id = ~~this.$route.query.id
       this.api_token = storage.get('api_token')
       this._getMap()
     },
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     watch: {
       activePoint (newVal) {
         let x = this.addList.find(item => {

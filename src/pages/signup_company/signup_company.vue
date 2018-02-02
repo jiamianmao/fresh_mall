@@ -150,7 +150,10 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+<<<<<<< HEAD
     min-height: 603px;
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     background: #F4F4F4;
     main{
       width: 100%;

@@ -80,11 +80,16 @@
       },
       submit () {
         let url = ''
+<<<<<<< HEAD
         if (this.url.indexOf('http://top.chhpz.com') === -1) {
           url = this.url
         }
         this.show = true
         console.log(url)
+=======
+        if (this.url.indexOf('http') === -1) url = this.url
+        this.show = true
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         this.$http.post(`/mobile/?act=member_index&op=save_memberinfo&api_token=${this.api_token}`, {
           member_name: this.nickname,
           member_sex: this.sex,
@@ -112,11 +117,14 @@
     components: {
       XTitle,
       Loading
+<<<<<<< HEAD
     },
     watch: {
       url () {
         console.log(this.url)
       }
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     }
   }
 </script>

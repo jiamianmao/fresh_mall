@@ -73,6 +73,7 @@
     components: {
       Tab,
       Loading
+<<<<<<< HEAD
     }
     // watch: {
       // $route (newVal) {
@@ -81,6 +82,16 @@
       //   }
       // }
     // }
+=======
+    },
+    watch: {
+      $route (newVal) {
+        if (newVal.path !== '/signin' && !storage.get('api_token')) {
+          this.$router.push('/signin')
+        }
+      }
+    }
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
   }
 </script>
 

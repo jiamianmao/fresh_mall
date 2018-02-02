@@ -18,6 +18,10 @@
     </div>
   </transition>
 </template>
+<<<<<<< HEAD
+=======
+
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
 <script>
   export default {
     props: {

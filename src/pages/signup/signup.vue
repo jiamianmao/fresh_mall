@@ -36,8 +36,13 @@
         this.$router.push('/signup/personal')
       },
       company () {
+<<<<<<< HEAD
         // this.show = true
         this.$router.push('/signup/company')
+=======
+        this.show = true
+        // this.$router.push('/signup/company')
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       }
     },
     components: {

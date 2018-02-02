@@ -134,8 +134,11 @@
     },
     updated () {
       if (this.hash && !this.index) {
+<<<<<<< HEAD
         console.log(this.hash)
         console.log($(`#${this.hash}`))
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         $('html, body').animate({
           scrollTop: $(`#${this.hash}`).offset().top
         }, 1000)

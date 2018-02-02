@@ -106,10 +106,15 @@
         this.goodsId = arr
       }
       // 不是父子路由，用go(-1)还是要重新加载路由的，通过判断this.address的值来判断是否已经选好了地址
+<<<<<<< HEAD
       if (this.address[this.id] !== 1) {
         this.active = true
       } else {
         this.active = false
+=======
+      if (Object.keys(this.address).includes(this.id)) {
+        this.active = true
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       }
       this.api_token = storage.get('api_token')
     },
@@ -129,6 +134,7 @@
         this.goodsId = arr
       }
       // 不是父子路由，用go(-1)还是要重新加载路由的，通过判断this.address的值来判断是否已经选好了地址
+<<<<<<< HEAD
       if (this.address[this.id] && this.address[this.id].area_info) {
         this.active = true
       } else {
@@ -136,6 +142,11 @@
         this.active = false
       }
       this._getMap()
+=======
+      if (Object.keys(this.address).includes(this.id)) {
+        this.active = true
+      }
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     },
     methods: {
       peisong () {
@@ -176,12 +187,15 @@
         }
         // 不管是商家配送和还是自提都是关联 addressType 
         this.addressType(data)
+<<<<<<< HEAD
         if (this.transport === Delivery.self) {
           this.SET_ADDRESS({
             'brand_id': this.id,
             'address': 1
           })
         }
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         this.active = false
         storage.set('type', this.transport)
         this.$router.go(-1)
@@ -250,8 +264,12 @@
         this._getData()
       },
       ...mapMutations({
+<<<<<<< HEAD
         'addressType': 'SET_ADDRESS_TYPE',
         'SET_ADDRESS': 'SET_ADDRESS'
+=======
+        'addressType': 'SET_ADDRESS_TYPE'
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       })
     },
     computed: {

@@ -53,7 +53,10 @@
       confirm () {
         storage.clear()
         cookie.remove('api_token')
+<<<<<<< HEAD
         console.log(1)
+=======
+>>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         this.$router.replace('/signin')
         window.location.reload()
       }
