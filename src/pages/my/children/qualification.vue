@@ -117,11 +117,7 @@
               </div>
             </li>
           </ul>
-<<<<<<< HEAD
           <h3 class="titlename vux-1px-b">增值服务信息 <span style='font-size: 12px; color: red;'>(此项服务暂不开放)</span></h3>
-=======
-          <h3 class="titlename vux-1px-b">增值服务信息</h3>
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
           <div class="select_wrapper">
             <div class="select_item">
               <div class="title vux-1px-b">
@@ -200,11 +196,7 @@
         <footer>
           <button @click='submit'>提交审核</button>
           <p>请在48小时内到“我的-资质认证”页面查看审核结果，若审核成功，您还需到此查看是否需要交纳保证金。</p>
-<<<<<<< HEAD
           <p><a @click='toDesc'>《保证金管理制度》</a><span style='color: red;font-size: 12px;'>试运行期暂不执行，执行时间另行通知</span></p>
-=======
-          <p><a @click='toDesc'>《保证金管理制度》</a></p>
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         </footer>
       </div>
 
@@ -231,42 +223,28 @@
           <div class="content">
             <div class="text_wrapper"  v-show='status === 0'>
               <p>您可以继续浏览商品，把心仪的商品先收藏</p>
-<<<<<<< HEAD
               <!--<a @click='toDesc(0)'>申请成为线下门店面免交保证金</a>-->
-=======
-              <a @click='toDesc(0)'>申请成为线下门店面免交保证金</a>
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
             </div>
             <div class="text_wrapper"  v-show='status === 1'>
               <p>恭喜您审核成功，缴纳保证金即可购买</p>
               <a href="#" @click='toPromise'>缴纳保证金</a><br>
               <a @click='toDesc(1)'>保证金管理制度</a>
             </div>
-<<<<<<< HEAD
             <!-- <div class="text_wrapper"  v-show='status === 2 && !deposit'>
               <p>经审核，您属于{{store_name}}的经销门店，免交保证金</p>
             </div> -->
             <div class="text_wrapper"  v-show='status === 2 && !authority_method'>
-=======
-            <div class="text_wrapper"  v-show='status === 2 && !deposit'>
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
               <p>经审核，您属于{{store_name}}的经销门店，免交保证金</p>
             </div>
             <div class="text_wrapper"  v-show='status === 3'>
               <p>请您仔细阅读资质认证的信息填写要求</p>
               <p>修改并重新提交申请，如有疑问，请联系平台客服</p>
             </div>
-<<<<<<< HEAD
             <div class="text_wrapper"  v-show='status === 2 && authority_method'>
               <p>您已通过押金授权，可以购买商品。</p>
             </div>
             <div class='resubmit' v-show='status === 3'>
               <button @click='resubmit'>重新申请</button>
-=======
-            <div class="text_wrapper"  v-show='status === 2 && deposit'>
-              <p>恭喜您审核成功!</p>
-              <a @click='toDesc(1)'>保证金管理制度</a>
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
             </div>
           </div>
         </div>
@@ -314,7 +292,6 @@
         shop_pic: '',
         store_condition: '',
         store_condition_pic: [],
-<<<<<<< HEAD
         // deposit: false,  // 是否交保证金
         store_name: '',
         store_id: null,
@@ -324,15 +301,6 @@
     created () {
       // examine_state     -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
       // authority_method  1供应商授权  2押金授权
-=======
-        deposit: false,  // 是否交保证金
-        store_name: '',
-        store_id: null
-      }
-    },
-    created () {
-      // -1：没认证  0未审核 1审核通过 未交保证金 2审核通过  3 审核不通过
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       this.api_token = storage.get('api_token')
       this._getStatus()
     },
@@ -450,11 +418,7 @@
           this.msg = '请上传生鲜存储资质'
         } else if (!this.authenticator_idnumber.match(/^(\d{15}|\d{17}[\dxX])$/)) {
           this.show = true
-<<<<<<< HEAD
           this.msg = '请输入正确的身份证号'
-=======
-          this.msg = '请输入争取的身份证号'
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         } else {
           // 提交审核也是保存，采用vuex，上边的save()采用缓存
           this.set_qualification({
@@ -481,12 +445,9 @@
       toPromise () {
         this.$router.push('/pay')
       },
-<<<<<<< HEAD
       resubmit () {
         this.complete = false
       },
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       _getStatus () {
         this.$http.get(`mobile/?act=member_index&op=authority_state&api_token=${this.api_token}`).then(res => {
           if (res.data.status === 200) {
@@ -494,29 +455,18 @@
             if (~~data.examine_state === -1) {
               Object.assign(this, storage.get('upload'))
             } else {
-<<<<<<< HEAD
               if (parseInt(data.company_info.authority_method) === 1) {
                 this.authority_method = false
               } else {
                 this.authority_method = true
-=======
-              if (parseInt(data.company_info.deposit) === 0) {
-                this.deposit = false
-              } else {
-                this.deposit = true
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
               }
               this.store_name = data.company_info.store_name
               this.complete = true
               this.title = '审核状态'
               this.text = ''
               this.status = data.examine_state | 0
-<<<<<<< HEAD
               // this.complete = false
               // this.status = 3
-=======
-              // this.status = 1
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
               this.store_id = data.company_info.store_id
             }
           }
@@ -546,11 +496,7 @@
     top: 0;
     left: 0;
     right: 0;
-<<<<<<< HEAD
     min-height: 603px;
-=======
-    min-height: 100vh;
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     background: #fff;
     z-index: 1;
     .main_wwrapper{
@@ -597,11 +543,7 @@
               input{
                 width: 100%;
                 text-align: right;
-<<<<<<< HEAD
                 height: 45px%;
-=======
-                height: 90%;
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
                 border: 0;
                 vertical-align: middle;
               }
@@ -843,7 +785,6 @@
               margin: 0;
             }
           }
-<<<<<<< HEAD
           .resubmit{
             margin-top: 20px;
             button {
@@ -853,8 +794,6 @@
               color: #fff;
             }
           }
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         }
       }
     }

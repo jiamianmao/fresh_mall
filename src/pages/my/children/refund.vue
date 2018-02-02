@@ -52,19 +52,12 @@
       <button @click='submit'>提交</button>
     </div>
     <alert v-show='show' :clo='false'>您的退款申请已提交，系统正在审核，请耐心等待</alert>
-<<<<<<< HEAD
     <loading v-show='loading' position='absolute'></loading>
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
   </div>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-<<<<<<< HEAD
   import { XTextarea, Group, Loading } from 'vux'
-=======
-  import { XTextarea, Group } from 'vux'
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
   import storage from 'good-storage'
   import alerts from '@/common/js/alert'
   import Alert from '@/components/alert/alert'
@@ -77,12 +70,8 @@
         img2: false,
         obj: '',
         imgs: [],
-<<<<<<< HEAD
         show: false,
         loading: false
-=======
-        show: false
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       }
     },
     created () {
@@ -127,10 +116,7 @@
           alerts('请填写对应信息')
           return
         }
-<<<<<<< HEAD
         this.loading = true
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         this.$http.post(`/mobile/?act=member_refund&op=refund_all_post&api_token=${this.api_token}`, {
           order_id: this.id,
           refund_pic: this.imgs,
@@ -139,10 +125,7 @@
           type: 2
         }).then(res => {
           if (res.data.status === 200) {
-<<<<<<< HEAD
             this.loading = false
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
             this.show = true
             setTimeout(() => {
               this.$router.go(-1)
@@ -170,12 +153,8 @@
       XTitle,
       XTextarea,
       Group,
-<<<<<<< HEAD
       Alert,
       Loading
-=======
-      Alert
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     }
   }
 </script>

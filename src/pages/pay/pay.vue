@@ -127,14 +127,10 @@
     },
     created () {
       // 这里写死为保证金50000
-<<<<<<< HEAD
       this.$http.get('https://www.easy-mock.com/mock/59e978ad9fb6d12f24ddbc4e/ctx/price').then(res => {
         let price = res.data.price || 1
         this.sum = this.$route.query.sum ? this.$route.query.sum : price
       })
-=======
-      this.sum = this.$route.query.sum ? this.$route.query.sum : 50000
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       // 订单order_sn
       this.orderArr = this.$route.query.arr
       // 订单order_id

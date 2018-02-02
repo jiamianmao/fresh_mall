@@ -15,21 +15,12 @@
       </div>
     </main>
     <div class="bottom">
-<<<<<<< HEAD
       <!-- <span style='color: red; display: inline-block; margin-bottom: 20px; font-size: 12px;'>内部流通，暂不对外开放，敬请稍后!</span>-->
       <button @click='login'>登录</button>
       <div class="fun">
         <div class="sign" @click='signup'>立即注册</div>
         <div class="forget" @click='forget'>忘记密码？</div>
       </div>
-=======
-      <span style='color: red; display: inline-block; margin-bottom: 20px; font-size: 12px;'>内部流通，暂不对外开放，敬请稍后!</span>
-      <button @click='login'>登录</button>
-      <!--<div class="fun">
-        <div class="sign" @click='signup'>立即注册</div>
-        <div class="forget" @click='forget'>忘记密码？</div>
-      </div> -->
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
     </div>
     <!-- <div class="types">
       <divider>你还可以用以下方式登录</divider>
@@ -58,12 +49,8 @@
       this.api_token = cookie.get('api_token')
       storage.set('api_token', this.api_token)
       if (this.api_token) {
-<<<<<<< HEAD
         console.log('???')
         // this.$router.replace(this.url)
-=======
-        this.$router.replace(this.url)
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       }
     },
     methods: {

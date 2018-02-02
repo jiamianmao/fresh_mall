@@ -48,16 +48,12 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   res => {
     if (res.data.login === '0') {
-<<<<<<< HEAD
       // console.log(router.currentRoute.fullPath)
       let url = router.currentRoute.fullPath
       if (router.currentRoute.fullPath.includes('/my/')) {
         url = '/my'
       }
       Storage.set('currentUrl', url)
-=======
-      Storage.set('currentUrl', router.currentRoute.fullPath)
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
       router.replace({
         path: '/signin'
       })
@@ -94,7 +90,6 @@ const router = new VueRouter({
 // 路由登录的拦截
 router.beforeEach((to, from, next) => {
   // 官方做法是meta，但该项目都是子路由，较多，采用模糊匹配
-<<<<<<< HEAD
   if ((to.path.indexOf('/my/') !== -1) && !Storage.get('api_token')) {
     let url = to.fullPath.includes('/my/') ? '/my' : to.fullPath
     Storage.set('currentUrl', url)
@@ -104,16 +99,6 @@ router.beforeEach((to, from, next) => {
     store.commit('SET_IS_LOADING', true)
     next()
   }
-=======
-  if ((to.path !== '/signin') && !Storage.get('api_token')) {
-    next('/signin')
-    // let url = to.fullPath.includes('/my/') ? '/my' : to.fullPath
-    // Storage.set('currentUrl', from.fullPath)
-  }
-  // 路由之间的loadding状态
-  store.commit('SET_IS_LOADING', true)
-  next()
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
 })
 
 // 路由之间的loadding状态

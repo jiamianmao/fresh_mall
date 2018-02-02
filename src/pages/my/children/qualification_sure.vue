@@ -140,12 +140,8 @@
         let obj = {}
         if (this.storeCondition) {
           obj.store_condition = this.storeCondition
-<<<<<<< HEAD
         }
         if (this.storeConditionPic.length > 0) {
-=======
-        } else if (this.storeConditionPic) {
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
           obj.store_condition_pic = this.storeConditionPic
         }
         this.$http.post(`/mobile/?act=member_index&op=company_authority&api_token=${this.api_token}`, Object.assign({

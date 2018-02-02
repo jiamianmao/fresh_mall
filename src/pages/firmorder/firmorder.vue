@@ -206,7 +206,6 @@
         })
       },
       selectStore (id) {
-<<<<<<< HEAD
         // 拿过去一个goods数组 该品牌下的
         let goodsId = []
         this.list.forEach(item => {
@@ -215,14 +214,6 @@
               goodsId.push(x.goods_id)
             })
           }
-=======
-        // 拿过去一个goods数组
-        let goodsId = []
-        this.list.forEach(item => {
-          item.goods.forEach(x => {
-            goodsId.push(x.goods_id)
-          })
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         })
         this.$router.push({
           path: '/map',
@@ -233,7 +224,6 @@
         })
       },
       orderSubmit () {
-<<<<<<< HEAD
         // 来判断用户身份
         if (this.member_c) {
           let keyArr = Object.keys(this.addressType)
@@ -278,69 +268,6 @@
               return
             }
 
-=======
-        // 销售区域判断
-        let area
-        let areaGoods = []
-        if (this.member_c) {
-          // C端多地址 先拿到brand_id
-          this.list.forEach(item => {
-            // 拿到该品牌所写的收货地址
-            area = this.address[item.brand_id].area_info.substring(0, 2)
-            if (area === '内蒙') {
-              area = '内蒙古'
-            } else if (area === '黑龙江') {
-              area = '黑龙江'
-            }
-            // 找到所对应的收货范围
-            let brandArea = this.list.find(x => {
-              return x.brand_id === item.brand_id
-            })
-            brandArea.goods.forEach(goods => {
-              if (!goods.transport_area.includes(area)) {
-                areaGoods.push({
-                  'name': goods.goods_name,
-                  'area': goods.transport_area
-                })
-              }
-            })
-            if (areaGoods.length > 0) {
-              this.modal = true
-              this.areaGoods = areaGoods
-            }
-          })
-        } else {
-          area = this.B_address.area_info.substring(0, 2)
-          if (area === '内蒙') {
-            area = '内蒙古'
-          } else if (area === '黑龙江') {
-            area = '黑龙江'
-          }
-          this.list.forEach(item => {
-            item.goods.forEach(goods => {
-              if (!goods.transport_area.includes(area)) {
-                areaGoods.push({
-                  'name': goods.goods_name,
-                  'area': goods.transport_area
-                })
-              }
-            })
-          })
-        }
-
-        if (areaGoods.length > 0) {
-          this.modal = true
-          this.areaGoods = areaGoods
-          return
-        }
-
-        // 来判断用户身份
-        if (this.member_c) {
-          let keyArr = Object.keys(this.addressType)
-          if (this.list.every(item => {
-            return keyArr.includes(`${item.brand_id}`)
-          })) {
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
             let obj1 = {
               'cart_id': this.cartArr
             }
@@ -600,10 +527,7 @@
     },
     filters: {
       blank (value) {
-<<<<<<< HEAD
         console.log(value)
-=======
->>>>>>> f3dd61fd7afdf900a9708e8a760a58ceb00ca9dd
         return value.replace(/\s/g, '')
       },
       format (num) {
