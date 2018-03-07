@@ -5,9 +5,9 @@
 
 ## 如果是你来维护项目，请仔细阅读以下内容：
 [创天下项目总结](http://blog.csdn.net/qq_35534823/article/details/79300237)
+</ br>
 [axios用法心得](http://blog.csdn.net/qq_35534823/article/details/79297931)
 
-## 说明
 > 权限控制
 项目采用`JWT`来鉴权的，通常做法是在header中增加token字段，但该一开始并非所有接口都需要token，所以采用在单独接口上加token，这里最后基本上把所有接口都加了token，所以你可以从全局进行一个配置，或者重新生成一个axios实例来进行优化。该项目的权限总结在 `创天下项目总结` 中有写，如果对`JWT`的前后端实现有兴趣，可以关注我的[Node & Vue](https://github.com/jiamianmao/node-vue)项目.
 
