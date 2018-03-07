@@ -66,6 +66,7 @@
   import storage from 'good-storage'
   import compress from '@/common/js/compress'
   import { Loading } from 'vux'
+  import { Uploader } from 'vant'
   export default {
     data () {
       return {
@@ -165,7 +166,8 @@
     },
     components: {
       XTitle,
-      Loading
+      Loading,
+      [Uploader.name]: Uploader
     }
   }
 </script>

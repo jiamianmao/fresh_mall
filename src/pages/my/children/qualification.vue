@@ -508,7 +508,7 @@
     },
     components: {
       XTitle,
-      Uploader,
+      [Uploader.name]: Uploader,
       Alert
     }
   }

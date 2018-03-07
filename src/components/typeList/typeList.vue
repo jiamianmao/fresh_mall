@@ -26,6 +26,9 @@
   </div>
 </template>
 <script>
+  
+  import 'swiper/dist/css/swiper.css'
+  import { swiper, swiperSlide } from 'vue-awesome-swiper'
   let index = 1
   export default {
     props: {
@@ -82,6 +85,10 @@
         },
         deep: true
       }
+    },
+    components: {
+      swiper,
+      swiperSlide
     }
   }
 </script>

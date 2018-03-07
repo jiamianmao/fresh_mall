@@ -38,6 +38,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { Rater } from 'vux'
   import storage from 'good-storage'
+  import { Uploader } from 'vant'
   export default {
     data () {
       return {
@@ -113,7 +114,8 @@
     },
     components: {
       XTitle,
-      Rater
+      Rater,
+      [Uploader.name]: Uploader
     }
   }
 </script>

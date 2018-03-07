@@ -1,6 +1,7 @@
 ## 基于Vux开发的商城平台
 
 > 项目地址： top.chhpz.com
+<br />
 > 测试地址： ctx.17link.cc
 
 ## 如果是你来维护项目，请仔细阅读以下内容：
@@ -33,12 +34,11 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
     1，一些if判断处理得不够优雅，耦合性较高
     2，一些组件里对代码设计缺乏了一些思考，较好的设计在 `collect.vue` 和 ` tab.vue ` 中
   ```
-- 优化层面
+- 打包层面
   ```
     1，webpack3 update webpack4  把 commonChunksPlugin 换为 SplitChunksPlugin
     2，把公共包和业务代码拆分开（vue-router , vue, vuex, jquery ）
     3，开启Gzip压缩（待商榷）
-    4，减少公共包的引用，或开启模块化引用(例如，vant模块的引用)
   ```
 
 ## 项目目录
@@ -146,7 +146,7 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │          reset.less
 │          variable.less
 │
-├─components
+├─components  // 基础组件
 │  ├─alert
 │  │      alert.vue
 │  │

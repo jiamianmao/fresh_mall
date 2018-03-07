@@ -345,6 +345,7 @@
   import Confirms from '@/components/confirm/confirm'
   import { mapGetters, mapMutations } from 'vuex'
   import { Delivery } from '../../common/config/config.js'
+  import { NumberKeyboard } from 'vant'
   
   const INIT = 1
   /* eslint-disable */
@@ -881,7 +882,8 @@
       Spinner,
       Confirms,
       Confirm,
-      Alert
+      Alert,
+      [NumberKeyboard.name]: NumberKeyboard
     }
   }
 </script>

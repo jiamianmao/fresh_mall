@@ -61,6 +61,7 @@
   import storage from 'good-storage'
   import alerts from '@/common/js/alert'
   import Alert from '@/components/alert/alert'
+  import { Uploader } from 'vant'
   export default {
     data () {
       return {
@@ -154,7 +155,8 @@
       XTextarea,
       Group,
       Alert,
-      Loading
+      Loading,
+      [Uploader.name]: Uploader
     }
   }
 </script>

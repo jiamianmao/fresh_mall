@@ -13,9 +13,9 @@ import axios from 'axios'
 import 'common/less/index.less'
 import 'swiper/dist/css/swiper.css'
 import 'common/js/iconfont/iconfont'
-import VueAwesomeSwiper from 'vue-awesome-swiper'
-import Vant from 'vant'
-import 'vant/lib/vant-css/index.css'
+// import VueAwesomeSwiper from 'vue-awesome-swiper'
+// import Vant from 'vant'
+// import 'vant/lib/vant-css/index.css'
 import Storage from 'good-storage'
 // import VConsole from 'vconsole'
 
@@ -23,15 +23,15 @@ import Storage from 'good-storage'
 // let vConsole = new VConsole()
 
 // 有赞，Vue-Swiper中间件
-Vue.use(Vant)
-Vue.use(VueAwesomeSwiper)
+// Vue.use(Vant)
+// Vue.use(VueAwesomeSwiper)
 
 // 动态baseURL 还需要在auth/pay地方使用
 const origin = window.location.origin
 Storage.session.set('origin', origin)
 
 // axios 默认配置
-axios.defaults.baseURL = '/apis'
+axios.defaults.baseURL = origin
 axios.defaults.timeout = 5000
 
 // request 拦截器 （json -> 表单）

@@ -84,7 +84,7 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { CellSwipe } from 'vant'
+  import { CellSwipe, CellGroup } from 'vant'
   import storage from 'good-storage'
   export default {
     data () {
@@ -230,7 +230,8 @@
     },
     components: {
       XTitle,
-      CellSwipe
+      [CellSwipe.name]: CellSwipe,
+      [CellGroup.name]: CellGroup
     }
   }
 </script>

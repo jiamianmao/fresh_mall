@@ -38,6 +38,7 @@
   import XTitle from '@/components/x-title/x-title'
   import { mapActions, mapGetters } from 'vuex'
   import { Alert } from 'vux'
+  import { Uploader } from 'vant'
   export default {
     data () {
       return {
@@ -71,7 +72,8 @@
     },
     components: {
       XTitle,
-      Alert
+      Alert,
+      [Uploader.name]: Uploader
     },
     methods: {
       logContent1 (file) {

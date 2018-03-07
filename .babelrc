@@ -3,7 +3,9 @@
     ["env", { "modules": false }],
     "stage-2"
   ],
-  "plugins": ["transform-runtime"],
+  "plugins": [
+    ["import", { "libraryName": "vant", "style": true }]
+  ],
   "comments": false,
   "env": {
     "test": {
