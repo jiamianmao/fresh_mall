@@ -20,10 +20,10 @@
 > 开发 & 生产
 <br />
 main.js的配置 <br />
-开发环境下<br />
-`axios.defaults.baseURL = '/apis'`
-生产环境下<br />
-`axios.defaults.baseURL = origin`  // 这里也可以置为''
+开发环境下
+```axios.defaults.baseURL = '/apis'```
+生产环境下
+```axios.defaults.baseURL = origin  // 这里也可以置为'' ```  
 
 > 优化点
 
