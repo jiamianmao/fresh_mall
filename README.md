@@ -18,12 +18,13 @@
 - 地图(map 和 map_ziti)的交互，这里我拆成两个组件，思考一下为什么要拆分，看能否合成一个组件
 
 > 开发 & 生产
-<br />
-main.js的配置 <br />
+```
+main.js的配置
 开发环境下
-```axios.defaults.baseURL = '/apis'```
+axios.defaults.baseURL = '/apis'
 生产环境下
-```axios.defaults.baseURL = origin  // 这里也可以置为'' ```  
+axios.defaults.baseURL = origin  // 这里也可以置为'' 
+```
 
 > 优化点
 
