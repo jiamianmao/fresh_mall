@@ -108,13 +108,14 @@
         <button @click='submit'>确认提交</button>
       </footer>
       <alert v-model="show" title="提示" @on-hide='success'>恭喜您，提交成功</alert>
+      <loading :show="loading" text="上传中，请稍候"></loading>
     </div>
   </transition>
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { mapGetters } from 'vuex'
-  import { Alert } from 'vux'
+  import { Alert, Loading } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -122,7 +123,8 @@
         text: '收起',
         slideDown: true,
         placeholder: '请具体介绍门店的存储设备、可为平台业务提供的设备容量、设备温度区间等',
-        show: false
+        show: false,
+        loading: false
       }
     },
     created () {
@@ -137,6 +139,7 @@
         this.$refs.arrow.style.transform = this.slideDown ? 'rotate(0.5turn)' : 'rotate(0)'
       },
       submit () {
+        this.loading = true
         let obj = {}
         if (this.storeCondition) {
           obj.store_condition = this.storeCondition
@@ -160,6 +163,7 @@
           is_dispatching: this.qualification.is_dispatching,
           company_name: this.qualification.company_name
         }, obj)).then(res => {
+          this.loading = false
           if (res.data.status === 200) {
             // 清理掉之前保存的storage
             storage.remove('upload')
@@ -210,7 +214,8 @@
     },
     components: {
       XTitle,
-      Alert
+      Alert,
+      Loading
     },
     watch: {
       slideDown () {

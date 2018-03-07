@@ -123,8 +123,12 @@
           tax_number: taxNumber
         }).then(res => {
           if (res.data.status === 200) {
-            // 跳转到登录页面
-            this.$router.go(-2)
+            this.show = true
+            this.msg = '注册成功!'
+            setTimeout(() => {
+              this.show = false
+              this.$router.go(-2)
+            }, 1000)
           } else {
             this.show = true
             this.msg = res.data.data.error

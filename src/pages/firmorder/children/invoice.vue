@@ -11,7 +11,7 @@
             <span :class='{"active": invoice === 3}' data-id='3'>不要发票</span>
           </p>
         </div>
-        <div class="email vux-1px-b" v-show='invoice === 2'>
+        <div class="email vux-1px-b" v-if='invoice === 2'>
           <div class="left">
             请输入您的邮箱
           </div>
@@ -19,7 +19,7 @@
             <input type="text" placeholder='您的邮箱地址' v-model='email'>
           </div>
         </div>
-        <div class="invoice_title" v-show='invoice < 3'>
+        <div class="invoice_title" v-if='invoice < 3'>
           <p class='top'>发票抬头</p>
           <p>
             <span class='s1' @click='selectTitle'>
@@ -34,7 +34,7 @@
             </span>
           </p>
         </div>
-        <div class="info_box" v-show='person === 2 && invoice < 3'>
+        <div class="info_box" v-if='person === 2 && invoice < 3'>
           <div class="company_name">
             <input type="text" v-model='company_name' placeholder='请输入单位名称'>
           </div>
@@ -42,7 +42,6 @@
             <input type="text" v-model='tax_num' placeholder='请输入统一社会信用代码'>
           </div>
         </div>
-
         <div class="info_box">
           <div class="info vux-1px-b">发票信息</div>
           <div class="desc">
@@ -172,14 +171,15 @@
     }
   }
 </script>
+
 <style lang="less" scoped>
   @import '~common/less/variable.less';
   .invoice_wrapper{
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     z-index: 5;
     background: #fff;
     .main{
@@ -269,8 +269,6 @@
           input{
             width: 100%;
             height: 45px;
-            // caret-color: red;
-            // -webkit-user-select: auto;
           }
         }
         .num{

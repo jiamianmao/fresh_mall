@@ -1,212 +1,244 @@
 <template>
   <!-- <scroll class='outBox' ref='scrollCom' :data='Object.values(product_obj)' :probeType='3' :pulldown='true' :listenScroll='true' @scroll='scroll' @pullDown='pullEnd'> -->
-    <div class="outBox">
-      <div class='product_wrapper' ref='productWrapper'>
-        <!-- 轮播图 增加一个外容器设置高度，以免重绘 -->
-        <div class="placeholder">
-          <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
-            <swiper-slide v-for='(item, index) of goods_image' :key='index'>
-              <img v-lazy="item">
-              <div class="mask" v-show='index !== swiperOption.idx'></div>
-            </swiper-slide>
-          </swiper>
-        </div>
-
-        <main id='hash'>
-          <!-- 名字，价格信息等 -->
-          <div class="desc">
-            <div class="sells_volume">
-              <div class="brand" @click='brand' :class='{active_brand: brandFlag}'>{{brandText}}</div>
-              <div class="sells"><span>库存: {{product_obj.goods_storage}}件</span><span>销量: {{product_obj.goods_salenum}}件</span></div>
-            </div>
-            <div class="content">
-              <h6 class="name">{{product_obj.goods_name}}</h6>
-              <div class="sell_point" v-html='product_obj.goods_jingle'></div>
-              <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}<span v-if='product_obj.goods_unit'>/<span style='font-size: 12px;'>{{product_obj.goods_unit}}</span></span></strong>
-              <strong v-else>¥ 0</strong>
-            </div>
-          </div>
-          <!-- B端 如何加入经销商 -->
-          <!-- <div class="find vux-1px-t" @click='toDesc(product_obj.brand.brand_id, 0)' v-if='!member_c && product_obj.brand'>
-            <div class="left"><img src="../../assets/product/find.png"></div>
-            <div class="center">查看如何成为{{product_obj.brand.brand_name}}经销商</div>
-            <span class='right'>
-              <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
-            </span>
-          </div> -->
-          <placeholder></placeholder>
-
-          <!-- C端 支付方式（名字，价格信息等）-->
-          <ul class="pay_way" v-if='member_c && product_obj.brand'>
-            <li class='title' v-if='offline_switch === "1"'>两种购买方式供您选择</li>
-            <li v-if='offline_switch === "1"' @click='goZiti(product_obj.brand.brand_id)'>
-              <span class='left'>到店购买:</span>
-              <div class='center'>
-                <p>请查看附近的<a class='mark'>在售门店</a></p>
-                <p>线下零售店价格可能有所波动</p>
-                <!-- <p v-else>线下销售门店正在完善中，敬请期待</p> -->
-              </div>
-              <span class='right'>
-                <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
-              </span>
-            </li>
-            <li class='vux-1px-t vux-1px-b line' v-if='offline_switch === "1" || collect_switch === "1"'>
-              <span class='left'>线上购买:</span>
-              <div class='center'>
-                <p>请选择收货方式</p>
-              </div>
-            </li>
-            <li class="strong" @click='goHome(product_obj.brand.brand_id)'>
-              <span class='left'></span>
-              <div class='center' v-if='!address_1'>
-                <p v-if='offline_switch === "1" || collect_switch === "1"'>1.直接配送到家</p>
-                <p v-else>直接配送到家</p>
-                <p>
-                  <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-cc-marker"></use>
-                  </svg>填写地址
-                </p>
-              </div>
-              <div class="center" v-else>
-                <p>{{address_1.area_info | blank}}{{address_1.address}}</p>
-                <p class='people'><span>{{address_1.true_name}}</span> &nbsp; <span>{{address_1.tel_phone}}</span></p>
-              </div>
-              <span class='right'>
-                <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
-              </span>
-            </li>
-            <li class='vux-1px-t strong' v-if='collect_switch === "1"' @click='goStore(product_obj.brand.brand_id)'>
-              <span class='left'></span>
-              <div class='center' v-if='!address_2 && !address_3'>
-                <p>2.由合作门店提供代收和短时贮藏服务</p>
-                <p>
-                  <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-cc-marker"></use>
-                  </svg>
-                  <span>选择门店</span>
-                  <!-- <span v-else>代收货门店正在完善中，敬请期待</span> -->
-                </p>
-              </div>
-              <div class="center" v-if='address_2'>
-                <p>{{address_2.area_info | blank}}{{address_2.address}}</p>
-                <p class='people'><span>{{address_2.true_name}}</span> &nbsp; <span>{{address_2.tel_phone}}</span></p>
-              </div>
-              <div class="center" v-if='address_3'>
-                <p>{{address_3.store_add }}</p>
-                <p class='people'>到店自提</p>
-              </div>
-              <span class='right'>
-                <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
-              </span>
-            </li>
-          </ul>
-
-          <!-- B端 产品组合推荐及配送规则 -->
-          <div class="recommend" v-if='!member_c'>
-            <p class='title' @click='toggleRecommend'>
-              运输方式及费用详细说明
-              <svg class="icon" aria-hidden="true" ref='arrow'>
-                <use xlink:href="#icon-arrow-up"></use>
-              </svg>
-            </p>
-            <p class='rule' v-show='slideDown'>配送规则： <span v-if='product_obj.store'>{{ product_obj.store.delivery_rule }}</span></p>
-            <swiper class="wrapper" :options='swiperOption2'>
-              <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
-                <div class="goods">
-                  <img v-lazy="item.combo_goods.goods_image">
-                  <div class="text">
-                    <div class="name">{{ item.combo_goods.goods_name }}</div>
-                    <div class="jingle">{{ item.combo_goods.goods_unit }}</div>
-                    <div class="price"><strong>￥{{ item.combo_goods.goods_price }}</strong></div>
-                  </div>
-                </div>
+    <div class='wrapperBox'>
+      <div class="outBox">
+        <div class='product_wrapper' ref='productWrapper'>
+          <!-- 轮播图 增加一个外容器设置高度，以免重绘 -->
+          <div class="placeholder">
+            <swiper :options="swiperOption" :not-next-tick="notNextTick" ref="mySwiper">
+              <swiper-slide v-for='(item, index) of goods_image' :key='index'>
+                <img v-lazy="item">
+                <div class="mask" v-show='index !== swiperOption.idx'></div>
               </swiper-slide>
             </swiper>
           </div>
 
-          <placeholder></placeholder>
-
-          <div class="goods_info" v-if='product_obj.goods_video'>
-            <p class='see_text vux-1px-b'>
-              <span>以下资料如果您不方便观看视频</span><br />
-              <span>请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</span>
-            </p>
-
-            <!-- 固定视频 -->
-            <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[1]'>
-              <div class="title">
-                <span class='name'>生长环境</span>
-                {{ product_obj.goods_video.video[1].Video.title }}
+          <main id='hash'>
+            <!-- 名字，价格信息等 -->
+            <div class="desc">
+              <div class="sells_volume">
+                <div class="brand" @click='brand' :class='{active_brand: brandFlag}'>{{brandText}}</div>
+                <div class="sells"><span>库存: {{product_obj.goods_storage}}件</span><span>销量: {{product_obj.goods_salenum}}件</span></div>
               </div>
-              <div class="video">
-                <iframe v-if='product_obj.goods_video.video[1].Video && product_obj.goods_video.video[1].Video.src' frameborder="0" :src="product_obj.goods_video.video[1].Video.src" allowfullscreen></iframe>
-                <img v-else  @click='toDesc(product_obj.goods_video.video[1].Video.id, 4)' v-lazy='product_obj.goods_video.video[1].Video.image' />
-              </div>
-              <div class="text" v-if='product_obj.goods_video.video[1].Live'>
-                <p class='live_tv' @click='toLive(product_obj.goods_video.video[1].Live.src)'>
-                  查看24小时监控直播
-                  <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-yuanjiantou"></use>
-                  </svg>
-                </p>
+              <div class="content">
+                <h6 class="name">{{product_obj.goods_name}}</h6>
+                <div class="sell_point" v-html='product_obj.goods_jingle'></div>
+                <strong v-if='product_obj.goods_price'>¥{{product_obj.goods_price | format}}<span v-if='product_obj.goods_unit'>/<span style='font-size: 12px;'>{{product_obj.goods_unit}}</span></span></strong>
+                <strong v-else>¥ 0</strong>
               </div>
             </div>
-            <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[2]'>
-              <div class="title">
-                <span class='name'>加工过程</span>
-                {{ product_obj.goods_video.video[2].Video.title }}
-              </div>
-              <div class="video">
-                <iframe v-if='product_obj.goods_video.video[2].Video && product_obj.goods_video.video[2].Video.src' frameborder="0" :src="product_obj.goods_video.video[2].Video.src" allowfullscreen></iframe>
-                <img v-else @click='toDesc(product_obj.goods_video.video[2].Video.id, 4)' v-lazy='product_obj.goods_video.video[2].Video.image' />
-              </div>
-              <div class="text" v-if='product_obj.goods_video.video[2].Live'>
-                <p class='live_tv' @click='toLive(product_obj.goods_video.video[2].Live.src)'>
-                  查看24小时监控直播
-                  <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-yuanjiantou"></use>
-                  </svg>
-                </p>
-              </div>
-            </div>
+            <!-- B端 如何加入经销商 -->
+            <!-- <div class="find vux-1px-t" @click='toDesc(product_obj.brand.brand_id, 0)' v-if='!member_c && product_obj.brand'>
+              <div class="left"><img src="../../assets/product/find.png"></div>
+              <div class="center">查看如何成为{{product_obj.brand.brand_name}}经销商</div>
+              <span class='right'>
+                <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+              </span>
+            </div> -->
+            <placeholder></placeholder>
 
-            <!-- 品种  -->
-            <div class="item" v-if='product_obj.goods_video.variety && product_obj.goods_video.variety.length > 0'>
-              <div class="title">
-                <span class='name'>品种</span>
-                {{ product_obj.goods_video.variety[0].title }}
-              </div>
-              <div class="video">
-                <img @click='toDesc(product_obj.goods_video.variety[0].id, 4)' v-lazy="product_obj.goods_video.variety[0].image">
-              </div>
-            </div>
+            <!-- C端 支付方式（名字，价格信息等）-->
+            <ul class="pay_way" v-if='member_c && product_obj.brand'>
+              <li class='title' v-if='offline_switch === "1"'>两种购买方式供您选择</li>
+              <li v-if='offline_switch === "1"' @click='goZiti(product_obj.brand.brand_id)'>
+                <span class='left'>到店购买:</span>
+                <div class='center'>
+                  <p>请查看附近的<a class='mark'>在售门店</a></p>
+                  <p>线下零售店价格可能有所波动</p>
+                  <!-- <p v-else>线下销售门店正在完善中，敬请期待</p> -->
+                </div>
+                <span class='right'>
+                  <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+                </span>
+              </li>
+              <li class='vux-1px-t vux-1px-b line' v-if='offline_switch === "1" || collect_switch === "1"'>
+                <span class='left'>线上购买:</span>
+                <div class='center'>
+                  <p>请选择收货方式</p>
+                </div>
+              </li>
+              <li class="strong" @click='goHome(product_obj.brand.brand_id)'>
+                <span class='left'></span>
+                <div class='center' v-if='!address_1'>
+                  <p v-if='offline_switch === "1" || collect_switch === "1"'>1.直接配送到家</p>
+                  <p v-else>直接配送到家</p>
+                  <p>
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-cc-marker"></use>
+                    </svg>填写地址
+                  </p>
+                </div>
+                <div class="center" v-else>
+                  <p>{{address_1.area_info | blank}}{{address_1.address}}</p>
+                  <p class='people'><span>{{address_1.true_name}}</span> &nbsp; <span>{{address_1.tel_phone}}</span></p>
+                </div>
+                <span class='right'>
+                  <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+                </span>
+              </li>
+              <li class='vux-1px-t strong' v-if='collect_switch === "1"' @click='goStore(product_obj.brand.brand_id)'>
+                <span class='left'></span>
+                <div class='center' v-if='!address_2 && !address_3'>
+                  <p>2.由合作门店提供代收和短时贮藏服务</p>
+                  <p>
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-cc-marker"></use>
+                    </svg>
+                    <span>选择门店</span>
+                    <!-- <span v-else>代收货门店正在完善中，敬请期待</span> -->
+                  </p>
+                </div>
+                <div class="center" v-if='address_2'>
+                  <p>{{address_2.area_info | blank}}{{address_2.address}}</p>
+                  <p class='people'><span>{{address_2.true_name}}</span> &nbsp; <span>{{address_2.tel_phone}}</span></p>
+                </div>
+                <div class="center" v-if='address_3'>
+                  <p>{{address_3.store_add }}</p>
+                  <p class='people'>到店自提</p>
+                </div>
+                <span class='right'>
+                  <x-icon type="ios-arrow-right" size="24" class='icon-right'></x-icon>
+                </span>
+              </li>
+            </ul>
 
-            <!-- 吃法 -->
-            <div class="eat" v-if='product_obj.goods_video && product_obj.goods_video.recommend'>
-              <div class="eat_way"></div>
-              <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
-                <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
-                  <div class='img'>
-                    <img v-lazy='item.image' @click='toDesc(item.id, 6)'></img>
-                    <div class="zhezhao" v-show='idx !== swiperOption1.idx % product_obj.goods_video.recommend.length'></div>
+            <!-- B端 产品组合推荐及配送规则 -->
+            <div class="recommend" v-if='!member_c'>
+              <p class='title' @click='toggleRecommend'>
+                运输方式及费用详细说明
+                <svg class="icon" aria-hidden="true" ref='arrow'>
+                  <use xlink:href="#icon-arrow-up"></use>
+                </svg>
+              </p>
+              <p class='rule' v-show='slideDown'>配送规则： <span v-if='product_obj.store'>{{ product_obj.store.delivery_rule }}</span></p>
+              <swiper class="wrapper" :options='swiperOption2'>
+                <swiper-slide v-for='(item, idx) of product_obj.goods_combo' :key='idx' @click.native='toProduct(item.combo_goods.goods_id)'>
+                  <div class="goods">
+                    <img v-lazy="item.combo_goods.goods_image">
+                    <div class="text">
+                      <div class="name">{{ item.combo_goods.goods_name }}</div>
+                      <div class="jingle">{{ item.combo_goods.goods_unit }}</div>
+                      <div class="price"><strong>￥{{ item.combo_goods.goods_price }}</strong></div>
+                    </div>
                   </div>
-                  <div class='text'>{{ item.title }}</div>
                 </swiper-slide>
               </swiper>
             </div>
 
-            <!-- 不定视频 -->
-            <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[3]'>
-              <div class="title">
-                {{ product_obj.goods_video.video[3].Video.title }}
+            <placeholder></placeholder>
+
+            <div class="goods_info" v-if='product_obj.goods_video'>
+              <p class='see_text vux-1px-b'>
+                <span>以下资料如果您不方便观看视频</span><br />
+                <span>请<a class='mark' @click='toDesc(product_obj.goods_id, 3)'>点击此处</a>查看图文详情</span>
+              </p>
+
+              <!-- 固定视频 -->
+              <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[1]'>
+                <div class="title">
+                  <span class='name'>生长环境</span>
+                  {{ product_obj.goods_video.video[1].Video.title }}
+                </div>
+                <div class="video">
+                  <iframe v-if='product_obj.goods_video.video[1].Video && product_obj.goods_video.video[1].Video.src' frameborder="0" :src="product_obj.goods_video.video[1].Video.src" allowfullscreen></iframe>
+                  <img v-else  @click='toDesc(product_obj.goods_video.video[1].Video.id, 4)' v-lazy='product_obj.goods_video.video[1].Video.image' />
+                </div>
+                <div class="text" v-if='product_obj.goods_video.video[1].Live'>
+                  <p class='live_tv' @click='toLive(product_obj.goods_video.video[1].Live.src)'>
+                    查看24小时监控直播
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-yuanjiantou"></use>
+                    </svg>
+                  </p>
+                </div>
               </div>
-              <div class="video">
-                <iframe v-if='product_obj.goods_video.video[3].Video && product_obj.goods_video.video[3].Video.src' frameborder="0" :src="product_obj.goods_video.video[3].Video.src" allowfullscreen></iframe>
-                <img v-else @click='toDesc(product_obj.goods_video.video[3].Video.id, 4)' v-lazy='product_obj.goods_video.video[3].Video.image' />
+              <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[2]'>
+                <div class="title">
+                  <span class='name'>加工过程</span>
+                  {{ product_obj.goods_video.video[2].Video.title }}
+                </div>
+                <div class="video">
+                  <iframe v-if='product_obj.goods_video.video[2].Video && product_obj.goods_video.video[2].Video.src' frameborder="0" :src="product_obj.goods_video.video[2].Video.src" allowfullscreen></iframe>
+                  <img v-else @click='toDesc(product_obj.goods_video.video[2].Video.id, 4)' v-lazy='product_obj.goods_video.video[2].Video.image' />
+                </div>
+                <div class="text" v-if='product_obj.goods_video.video[2].Live'>
+                  <p class='live_tv' @click='toLive(product_obj.goods_video.video[2].Live.src)'>
+                    查看24小时监控直播
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-yuanjiantou"></use>
+                    </svg>
+                  </p>
+                </div>
               </div>
-              <div class="text" v-if='product_obj.goods_video.video[3].Live'>
-                <p class='live_tv' @click='toLive(product_obj.goods_video.video[3].Live.src)'>
-                  查看24小时监控直播
+
+              <!-- 品种  -->
+              <div class="item" v-if='product_obj.goods_video.variety && product_obj.goods_video.variety.length > 0'>
+                <div class="title">
+                  <span class='name'>品种</span>
+                  {{ product_obj.goods_video.variety[0].title }}
+                </div>
+                <div class="video">
+                  <img @click='toDesc(product_obj.goods_video.variety[0].id, 4)' v-lazy="product_obj.goods_video.variety[0].image">
+                </div>
+              </div>
+
+              <!-- 吃法 -->
+              <div class="eat" v-if='product_obj.goods_video && product_obj.goods_video.recommend'>
+                <div class="eat_way"></div>
+                <swiper :options="swiperOption1" :not-next-tick="notNextTick" ref="mySwiper1">
+                  <swiper-slide v-for='(item, idx) of product_obj.goods_video.recommend' :key='idx'>
+                    <div class='img'>
+                      <img v-lazy='item.image' @click='toDesc(item.id, 6)'></img>
+                      <div class="zhezhao" v-show='idx !== swiperOption1.idx % product_obj.goods_video.recommend.length'></div>
+                    </div>
+                    <div class='text'>{{ item.title }}</div>
+                  </swiper-slide>
+                </swiper>
+              </div>
+
+              <!-- 不定视频 -->
+              <div class="item" v-if='product_obj.goods_video.video && product_obj.goods_video.video[3]'>
+                <div class="title">
+                  {{ product_obj.goods_video.video[3].Video.title }}
+                </div>
+                <div class="video">
+                  <iframe v-if='product_obj.goods_video.video[3].Video && product_obj.goods_video.video[3].Video.src' frameborder="0" :src="product_obj.goods_video.video[3].Video.src" allowfullscreen></iframe>
+                  <img v-else @click='toDesc(product_obj.goods_video.video[3].Video.id, 4)' v-lazy='product_obj.goods_video.video[3].Video.image' />
+                </div>
+                <div class="text" v-if='product_obj.goods_video.video[3].Live'>
+                  <p class='live_tv' @click='toLive(product_obj.goods_video.video[3].Live.src)'>
+                    查看24小时监控直播
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-yuanjiantou"></use>
+                    </svg>
+                  </p>
+                </div>
+              </div>
+
+              <div class="image">
+                <div class="company" @click='toDesc(null, 5)'>
+                  <img src="../../assets/product/company.jpg">
+                </div>
+                <img src="../../assets/product/icon.jpg">
+                <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
+                  <h3>品控保证</h3>
+                  <div class="desc" v-if='product_obj.goods_video.quality'>
+                    <a v-for='(item, index) of product_obj.goods_video.quality' @click='toDesc(item.id, item.title)'>
+                      <span>{{ item.title }}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="company_card" v-if='product_obj.store' @click='toDesc(product_obj.store_id, 1)'>
+              <div class="brand">
+                <img v-lazy="product_obj.store.store_label">
+              </div>
+              <div class="pv">
+                <h3>企业名片</h3>
+                <p>浏览量:
+                  <span>{{product_obj.store.store_collect}}</span>
                   <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-yuanjiantou"></use>
                   </svg>
@@ -214,122 +246,92 @@
               </div>
             </div>
 
-            <div class="image">
-              <div class="company" @click='toDesc(null, 5)'>
-                <img src="../../assets/product/company.jpg">
+            <placeholder></placeholder>
+            <!-- 产品评价 -->
+            <div class="rate">
+              <x-header class='x-header vux-1px-b'>
+                <span slot='left'>评价</span>
+                <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
+              </x-header>
+              <rate-item v-for='(item, index) of rateList' :rateData='item' :key='index'></rate-item>
+            </div>
+          </main>
+
+          <!-- 收藏图标 -->
+          <div class="favorite" @click='favoriteToggle'>
+            <div class='item item1' v-if='goodsFlag'>
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-wujiaoxing1"></use>
+              </svg>
+              <span>已收藏</span>
+            </div>
+            <div class='item' v-else>
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-wujiaoxing"></use>
+              </svg>
+              <span>收藏</span>
+            </div>
+          </div>
+
+          <!-- 遮罩层 -->
+          <div class="mask" v-show='addFlag' @click='addFlag = !addFlag'></div>
+        </div>
+
+        <!-- 返回顶部图标 -->
+        <div class="return" v-show='returnFlag' @click='goTop'>
+          <img src="../../assets/product/return.png">
+        </div>
+
+        <transition name='slide1'>
+          <div class='pulldown' v-show='pullDownFlag' ref='pullDown'>
+            <!-- <img src="../../assets/product/pulldown.png" v-if='pullicon'> -->
+            <spinner v-if='!pullicon'></spinner>
+          </div>
+        </transition>
+
+        <!-- 购物车 -->
+        <transition name='slide' v-if='product_obj.goods_image'>
+          <div class="shopcart" ref='shopcart' v-show='addFlag'>
+            <div class="close_icon" @click='addFlag = !addFlag'>
+              <x-icon type="ios-close-empty" size="30"></x-icon>
+            </div>
+            <div class="main">
+              <div class="left">
+                <img v-lazy="product_obj.goods_image[0]">
               </div>
-              <img src="../../assets/product/icon.jpg">
-              <div class="quality" v-if='product_obj.goods_video && product_obj.goods_video.quality'>
-                <h3>品控保证</h3>
-                <div class="desc" v-if='product_obj.goods_video.quality'>
-                  <a v-for='(item, index) of product_obj.goods_video.quality' @click='toDesc(item.id, item.title)'>
-                    <span>{{ item.title }}</span>
-                  </a>
-                </div>
+              <div class="right">
+                <h3>{{ product_obj.goods_name }}</h3>
+                <p class='middle'>{{ product_obj.goods_unit}}</p>
+                <p class='last'><strong>¥{{ product_obj.goods_price }}</strong><span>库存: {{ product_obj.goods_storage }}件</span></p>
               </div>
             </div>
-          </div>
-
-          <div class="company_card" v-if='product_obj.store' @click='toDesc(product_obj.store_id, 1)'>
-            <div class="brand">
-              <img v-lazy="product_obj.store.store_label">
+            <div class="num">
+              <p>数量</p>
+              <div class='wrapper'>
+                <div class='box minus' @click='minus' ref='minus'>-</div>
+                <span class='count' @click='jianpanEvent'>{{ count }}</span>
+                <div class='box add' @click='add'>+</div>
+                <div class="cue" v-show='goods_storage'>库存不足</div>
+              </div>
             </div>
-            <div class="pv">
-              <h3>企业名片</h3>
-              <p>浏览量:
-                <span>{{product_obj.store.store_collect}}</span>
-                <svg class="icon" aria-hidden="true">
-                  <use xlink:href="#icon-yuanjiantou"></use>
-                </svg>
-              </p>
-            </div>
+            <button @click='submit'>加入购物车</button>
+            <!-- <input type='button' @click='submit' value='加入购物车' /> -->
           </div>
-
-          <placeholder></placeholder>
-          <!-- 产品评价 -->
-          <div class="rate">
-            <x-header class='x-header vux-1px-b'>
-              <span slot='left'>评价</span>
-              <span slot="right" @click='moreRate(product_obj.goods_id)'>更多评价</span>
-            </x-header>
-            <rate-item v-for='(item, index) of rateList' :rateData='item' :key='index'></rate-item>
-          </div>
-        </main>
-
-        <!-- 收藏图标 -->
-        <div class="favorite" @click='favoriteToggle'>
-          <div class='item item1' v-if='goodsFlag'>
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wujiaoxing1"></use>
-            </svg>
-            <span>已收藏</span>
-          </div>
-          <div class='item' v-else>
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wujiaoxing"></use>
-            </svg>
-            <span>收藏</span>
-          </div>
-        </div>
-
-        <!-- 遮罩层 -->
-        <div class="mask" v-show='addFlag' @click='addFlag = !addFlag'></div>
+        </transition>
+        <van-number-keyboard
+          :show="jianpan"
+          theme="custom"
+          extra-key="完成"
+          @blur="jianpan = false"
+          @input="onInput"
+          @delete="onDelete"
+        />
+        <tab @add='addCart' @tel='tel'></tab>
+        <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
+        <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
+        <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
       </div>
-
-      <!-- 返回顶部图标 -->
-      <div class="return" v-show='returnFlag' @click='goTop'>
-        <img src="../../assets/product/return.png">
-      </div>
-
-      <transition name='slide1'>
-        <div class='pulldown' v-show='pullDownFlag' ref='pullDown'>
-          <!-- <img src="../../assets/product/pulldown.png" v-if='pullicon'> -->
-          <spinner v-if='!pullicon'></spinner>
-        </div>
-      </transition>
-
-      <!-- 购物车 -->
-      <transition name='slide' v-if='product_obj.goods_image'>
-        <div class="shopcart" ref='shopcart' v-show='addFlag'>
-          <div class="close_icon" @click='addFlag = !addFlag'>
-            <x-icon type="ios-close-empty" size="30"></x-icon>
-          </div>
-          <div class="main">
-            <div class="left">
-              <img v-lazy="product_obj.goods_image[0]">
-            </div>
-            <div class="right">
-              <h3>{{ product_obj.goods_name }}</h3>
-              <p class='middle'>{{ product_obj.goods_unit}}</p>
-              <p class='last'><strong>¥{{ product_obj.goods_price }}</strong><span>库存: {{ product_obj.goods_storage }}件</span></p>
-            </div>
-          </div>
-          <div class="num">
-            <p>数量</p>
-            <div class='wrapper'>
-              <div class='box minus' @click='minus' ref='minus'>-</div>
-              <span class='count' @click='jianpanEvent'>{{ count }}</span>
-              <div class='box add' @click='add'>+</div>
-              <div class="cue" v-show='goods_storage'>库存不足</div>
-            </div>
-          </div>
-          <button @click='submit'>加入购物车</button>
-          <!-- <input type='button' @click='submit' value='加入购物车' /> -->
-        </div>
-      </transition>
-      <van-number-keyboard
-        :show="jianpan"
-        theme="custom"
-        extra-key="完成"
-        @blur="jianpan = false"
-        @input="onInput"
-        @delete="onDelete"
-      />
-      <tab @add='addCart' @tel='tel'></tab>
-      <confirm v-if='product_obj.brand' v-model='show' title='确定要重新选择购买方式吗？' @on-confirm='reSelect(product_obj.brand.brand_id)'></confirm>
-      <Confirms :text="telephone" ref='confirm' confirmBtnText='拨打' title='联系卖家'></Confirms>
-      <alert v-model="alertFlag" title='提示'>{{msg}}</alert>
-    </div>
+    </div>    
   <!-- </scroll> -->
 </template>
 <script>
@@ -339,7 +341,6 @@
   import xHeader from '@/components/x-header/x-header'
   import RateItem from '@/components/rate_item/rate_item'
   import { Spinner, Confirm, Alert } from 'vux'
-  // import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
   import { mapGetters, mapMutations } from 'vuex'
@@ -648,7 +649,6 @@
         window.location.href = url
       },
       _wechatInit () {
-        console.log('wechat init')
         let url = encodeURIComponent(window.location.href.split('#')[0])
         this.$http.get(`api/wechatshare?url1=${url}`)
         .then( res => {
@@ -878,7 +878,6 @@
       Placeholder,
       xHeader,
       RateItem,
-      // Scroll,
       Spinner,
       Confirms,
       Confirm,
@@ -889,13 +888,21 @@
 <style lang="less" scoped>
   @import '~common/less/variable.less';
   @import '~common/less/mixin.less';
+  .wrapperBox{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .outBox{
     // position: absolute;
     // left: 0;
     // right: 0;
     // top: 0;
     // bottom: 50px;
-    // overflow-y: auto;
     padding-bottom: 50px;
     .pulldown{
       padding: 5px 0;

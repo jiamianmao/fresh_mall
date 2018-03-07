@@ -22,34 +22,37 @@
             <li class='item vux-1px-b'>
               <div class="left">银行开户名</div>
               <div class="right">
-                <input type='text' v-model.trim='bank_account_name' />
+                <input type='text' placeholder='公司/个人 例: 北京创合联动科技有限公司' v-model.trim='bank_account_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户行所在城市</div>
               <div class="right">
-                <input type='text' v-model.trim='bank_address' />
+                <input type='text' placeholder='例: 北京' v-model.trim='bank_address' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">开户银行支行名称</div>
               <div class="right">
-                <input type='text' v-model.trim='bank_subbranch_name' />
+                <input type='text' placeholder='例: 中国工商银行北京市长安支行' v-model.trim='bank_subbranch_name' />
               </div>
             </li>
             <li class='item vux-1px-b'>
               <div class="left">公司对公账号</div>
               <div class="right">
-                <input type='tel' v-model.trim='bank_account' />
+                <input type='tel' placeholder='例: 110928006910301' v-model.trim='bank_account' />
               </div>
             </li>
             <li class='upload'>
               <div class="top">
                 <div class="left">请上传营业执照照片</div>
-                <div class="right"  @click='arrowToggle'>*营业执照上传要求
-                  <svg class="arrow" aria-hidden="true" ref='arrow'>
-                    <use xlink:href="#icon-arrow-b"></use>
-                  </svg>
+                <div class="right"  @click='arrowToggle'>
+                  <div class="tip">
+                    *营业执照上传要求
+                    <svg class="arrow" aria-hidden="true" ref='arrow'>
+                      <use xlink:href="#icon-arrow-b"></use>
+                    </svg>
+                  </div>
                 </div>
               </div>
               <div class="wrapper">
@@ -485,6 +488,7 @@
               this.title = '审核状态'
               this.text = ''
               this.status = data.examine_state | 0
+              // 测试专用
               // this.complete = false
               // this.status = 1
               this.store_id = data.company_info.store_id
@@ -560,12 +564,22 @@
               padding-right: 15px;
               flex: 1;
               text-align: right;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              display: flex;
               input{
+                align-items: center;
                 width: 100%;
                 text-align: right;
-                height: 45px%;
+                height: 34px;
                 border: 0;
-                vertical-align: middle;
+                line-height: 34px; 
+              }
+              .tip{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
               }
               .arrow{
                 width: 18px;

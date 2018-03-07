@@ -1,6 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import 'babel-polyfill' // 吃一堑，长一智了 Object.values 等es7方法兼容性很差，需要垫片操作
+import 'babel-polyfill'
 import Vue from 'vue'
 import FastClick from 'fastclick'
 import routes from './router'
@@ -26,7 +26,7 @@ import Storage from 'good-storage'
 Vue.use(Vant)
 Vue.use(VueAwesomeSwiper)
 
-// 动态baseURL
+// 动态baseURL 还需要在auth/pay地方使用
 const origin = window.location.origin
 Storage.session.set('origin', origin)
 
@@ -97,15 +97,15 @@ router.beforeEach((to, from, next) => {
     next('/signin')
   } else {
     // 路由之间的loadding状态
-    store.commit('SET_IS_LOADING', true)
+    // store.commit('SET_IS_LOADING', true)
     next()
   }
 })
 
 // 路由之间的loadding状态
-router.afterEach((to) => {
-  store.commit('SET_IS_LOADING', false)
-})
+// router.afterEach((to) => {
+//   store.commit('SET_IS_LOADING', false)
+// })
 
 /* eslint-disable no-new */
 new Vue({
