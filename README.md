@@ -123,21 +123,21 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │          shopcart_active.png
 │
 ├─common     // 基础建设
-│  ├─config
-│  │      config.js
+│  ├─config   // 配送方式和发票类型的字典
+│  │      config.js
 │  │
-│  ├─images
-│  │      default.jpg
+│  ├─images  // vue-lazylaod 的默认图，在main.js配置的
+│  │      default.jpg
 │  │
 │  ├─js
-│  │  │  alert.js
+│  │  │  alert.js     // 去掉ios中原生alert中带的url
 │  │  │  compress.js  // 图片压缩 已封装成promise
 │  │  │
-│  │  ├─alipay
-│  │  │      ap.js
+│  │  ├─alipay        // 支付宝支付
+│  │  │      ap.js
 │  │  │
-│  │  └─iconfont
-│  │          iconfont.js
+│  │  └─iconfont     // svg图标
+│  │          iconfont.js
 │  │
 │  └─less
 │          base.less
@@ -148,10 +148,10 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │
 ├─components  // 基础组件
 │  ├─alert
-│  │      alert.vue
+│  │     alert.vue
 │  │
-│  ├─city
-│  │      city.vue
+│  ├─city          // 选择城市
+│  │      city.vue
 │  │
 │  ├─confirm
 │  │      confirm.vue
@@ -159,23 +159,23 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │  ├─placeholder
 │  │      placeholder.vue
 │  │
-│  ├─pro_tab
-│  │      pro_tab.vue
+│  ├─pro_tab    // 产品里面的tab
+│  │      pro_tab.vue
 │  │
-│  ├─rate_item
-│  │      rate_item.vue
+│  ├─rate_item  // 评价
+│  │      rate_item.vue
 │  │
-│  ├─scroll
-│  │      scroll.vue
+│  ├─scroll   // better-scroll的封装
+│  │      scroll.vue
 │  │
-│  ├─search
-│  │      search.vue
+│  ├─search   // 搜索（组件级）
+│  │      search.vue
 │  │
-│  ├─tab
-│  │      tab.vue
+│  ├─tab       // 一级目录中的tab
+│  │      tab.vue
 │  │
-│  ├─typeList
-│  │      typeList.vue
+│  ├─typeList // 首页的分类列表
+│  │      typeList.vue
 │  │
 │  ├─x-goods
 │  │      x-goods.vue
@@ -183,41 +183,41 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │  ├─x-header
 │  │      x-header.vue
 │  │
-│  └─x-title
-│          x-title.vue
+│  └─x-title  // 标题
+│          x-title.vue
 │
 ├─mixins   // 处理ios下微信分享的bug
 │      assign.js
 │
-├─pages
-│  │  union.vue
+├─pages    // 页面级组件
+│  │  union.vue    // 银联支付
 │  │
-│  ├─auth
-│  │      auth.vue
+│  ├─auth       // 微信授权
+│  │      auth.vue
 │  │
-│  ├─bind
-│  │      bind.vue
+│  ├─bind       // 授权后需要绑定手机号
+│  │      bind.vue
 │  │
-│  ├─brandGoodsList
-│  │      brandGoodsList.vue
+│  ├─brandGoodsList   // 品牌中的商品列表
+│  │      brandGoodsList.vue
 │  │
-│  ├─category
-│  │      category.vue
+│  ├─category       // 分类页面（一级目录中第二页）
+│  │      category.vue
 │  │
-│  ├─desc
-│  │      desc.vue
+│  ├─desc         // 一些介绍通知类
+│  │      desc.vue
 │  │
-│  ├─firmorder
+│  ├─firmorder      // 订单确认页及发票页
 │  │  │  firmorder.vue
 │  │  │
 │  │  └─children
 │  │          invoice.vue
 │  │
-│  ├─goods-list
-│  │      goods-list.vue
+│  ├─goods-list     // 产品列表
+│  │      goods-list.vue
 │  │
-│  ├─home
-│  │      home.vue
+│  ├─home          // 首页（一级目录中第一页）
+│  │      home.vue
 │  │
 │  ├─map
 │  │      map.vue
@@ -228,65 +228,65 @@ axios.defaults.baseURL = origin  // 这里也可以置为''
 │  │      tel.png
 │  │
 │  ├─message
-│  │      message.vue
+│  │    message.vue
 │  │
-│  ├─my
+│  ├─my       // 我的（一级目录中第四页）
 │  │  │  my.vue
 │  │  │
 │  │  └─children
-│  │          account.vue
-│  │          address.vue
-│  │          address_add.vue
-│  │          after_sell.vue
-│  │          collect.vue
-│  │          msg.vue
-│  │          order.vue
-│  │          product_rate.vue
-│  │          qualification.vue
-│  │          qualification_fresh.vue
+│  │          account.vue       // 账号类
+│  │          address.vue       // 地址类
+│  │          address_add.vue   // 地址新增
+│  │          after_sell.vue    // 售后
+│  │          collect.vue       // 收藏商品 关注品牌 浏览记录
+│  │          msg.vue           // 系统推送消息
+│  │          order.vue         // 订单
+│  │          product_rate.vue  // 评价
+│  │          qualification.vue // B端用户申请
+│  │          qualification_fresh.vue
 │  │          qualification_sure.vue
-│  │          refund.vue
-│  │          signin_forgetpwd.vue
-│  │          signin_forgetTel.vue
-│  │          userinfo.vue
+│  │          refund.vue        // 退款
+│  │          signin_forgetpwd.vue  // 忘记密码
+│  │          signin_forgetTel.vue  // 修改手机号
+│  │          userinfo.vue          // 个人信息
 │  │
 │  ├─NotFound
 │  │      404.vue
 │  │
-│  ├─pay
-│  │      pay.vue
+│  ├─pay                // 支付模块
+│  │      pay.vue
 │  │
-│  ├─product
-│  │      product.vue
+│  ├─product            // 商品
+│  │      product.vue
 │  │
-│  ├─rate
-│  │      rate.vue
+│  ├─rate               // 评价
+│  │      rate.vue
 │  │
-│  ├─search
-│  │      search.vue
+│  ├─search             // 搜索（页面级）
+│  │      search.vue
 │  │
-│  ├─service
-│  │      service.vue
+│  ├─service            // 联系客服
+│  │      service.vue
 │  │
-│  ├─shopcart
-│  │      shopcart.vue
+│  ├─shopcart           // 购物车（一级目录中第三页）
+│  │      shopcart.vue
 │  │
-│  ├─signin
-│  │      signin.vue
+│  ├─signin           // 登录
+│  │      signin.vue
 │  │
-│  ├─signup
-│  │      signup.vue
+│  ├─signup          // 注册
+│  │      signup.vue
 │  │
-│  ├─signup_company
-│  │      signup_company.vue
+│  ├─signup_company   // 注册（企业）
+│  │      signup_company.vue
 │  │
-│  └─signup_personal
+│  └─signup_personal  // 注册（个人）
 │          signup_personal.vue
 │
-├─router
-│      index.js
+├─router             // 路由
+│      index.js
 │
-└─store
+└─store             // vuex
         actions.js
         getters.js
         index.js
