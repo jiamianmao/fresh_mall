@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+// import Vue from 'vue'
+// import Router from 'vue-router'
 const Home = () => import('@/pages/home/home')
 const Category = () => import('@/pages/category/category')
 const Shopcart = () => import('@/pages/shopcart/shopcart')
@@ -51,13 +51,13 @@ const Bind = () => import('@/pages/bind/bind')
 const Message = () => import('@/pages/message/message')
 const MapZiti = () => import('@/pages/map_ziti/map_ziti')
 
-const NotFound = () => import('@/pages/NotFound/404')
+// const NotFound = () => import('@/pages/NotFound/404')
 
 const Auth = () => import('@/pages/auth/auth')
 
 const Union = () => import('@/pages/union')
 
-Vue.use(Router)
+// Vue.use(Router)
 
 /* eslint-disable */
 export default [
@@ -133,5 +133,5 @@ export default [
     { path: '/mapziti', component: MapZiti },
     { path: '/auth', component: Auth },
     { path: '/union', component: Union },
-    { path: '*', component: NotFound }
+    // { path: '*', component: NotFound }
   ]

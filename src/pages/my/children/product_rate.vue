@@ -36,7 +36,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Rater } from 'vux'
   import storage from 'good-storage'
   import { Uploader } from 'vant'
   export default {
@@ -120,7 +119,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

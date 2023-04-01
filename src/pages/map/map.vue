@@ -76,7 +76,6 @@
   /* eslint-disable */
   import XTitle from '@/components/x-title/x-title'
   import { mapGetters, mapMutations } from 'vuex'
-  import { Alert } from 'vux'
   import storage from 'good-storage'
   import { Delivery } from '../../common/config/config.js'
   export default {
@@ -303,7 +302,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     width: 100vw;
     height: 100vh;

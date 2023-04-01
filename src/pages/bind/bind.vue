@@ -23,7 +23,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Alert, Countdown, cookie } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -37,8 +36,8 @@
       }
     },
     created () {
-      this.api_token = cookie.get('api_token')
-      storage.set('api_token', this.api_token)
+      // this.api_token = cookie.get('api_token')
+      // storage.set('api_token', this.api_token)
     },
     methods: {
       getCode () {
@@ -85,14 +84,11 @@
       }
     },
     components: {
-      XTitle,
-      Alert,
-      Countdown
+      XTitle
     }
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
   .container{
     position: absolute;
     top: 0;

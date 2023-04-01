@@ -95,7 +95,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     width: 100vw;
     min-height: 100vh;

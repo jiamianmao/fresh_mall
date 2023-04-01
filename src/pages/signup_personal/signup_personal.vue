@@ -43,7 +43,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Countdown, Alert } from 'vux'
   import $ from 'jquery'
   export default {
     data () {
@@ -133,7 +132,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

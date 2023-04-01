@@ -49,7 +49,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .container{
     .goods_wrapper{

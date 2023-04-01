@@ -68,8 +68,8 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable';
-  @import '~common/less/mixin';
+  
+  
   .container{
     position: absolute;
     top: 0;

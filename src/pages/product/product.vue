@@ -340,7 +340,6 @@
   import Placeholder from '@/components/placeholder/placeholder'
   import xHeader from '@/components/x-header/x-header'
   import RateItem from '@/components/rate_item/rate_item'
-  import { Spinner, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
   import Confirms from '@/components/confirm/confirm'
   import { mapGetters, mapMutations } from 'vuex'
@@ -888,7 +887,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .wrapperBox{
     height: 100%;

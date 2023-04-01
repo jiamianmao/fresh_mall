@@ -40,7 +40,6 @@
   import XTitle from '@/components/x-title/x-title'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
-  import { Actionsheet } from 'vux'
   import { mapMutations } from 'vuex'
   export default {
     data () {
@@ -143,8 +142,7 @@
     },
     components: {
       XTitle,
-      Scroll,
-      Actionsheet
+      Scroll
     },
     // 这里是把addressAdd组件里数据不做处理，在address组件里处理。因为还需要编辑，处理起来比较麻烦
     filters: {
@@ -169,7 +167,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .box{
     position: absolute;
     top: 0;

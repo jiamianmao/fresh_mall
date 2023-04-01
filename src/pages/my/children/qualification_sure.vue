@@ -115,7 +115,6 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { mapGetters } from 'vuex'
-  import { Alert, Loading } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -231,7 +230,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .sure{
     position: absolute;
     top: 0;

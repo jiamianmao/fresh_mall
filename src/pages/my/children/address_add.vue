@@ -32,14 +32,12 @@
   </transition>
 </template>
 <script>
-  import XTitle from '@/components/x-title/x-title'
-  import { XAddress, ChinaAddressV4Data, XButton, Value2nameFilter as value2name, Alert } from 'vux'
   import Storage from 'good-storage'
   import $ from 'jquery'
   export default {
     data () {
       return {
-        addressData: ChinaAddressV4Data,
+        addressData: '',
         address: [],
         address1: '',
         showAddress: false,
@@ -81,7 +79,7 @@
         this.showAddress = true
       },
       getName (value) {
-        this.address1 = value2name(value, ChinaAddressV4Data)
+        // this.address1 = value2name(value, ChinaAddressV4Data)
       },
       submit () {
         // 表单校验
@@ -192,17 +190,11 @@
           this.area_id = three.area_id
         })
       }
-    },
-    components: {
-      XTitle,
-      XAddress,
-      XButton,
-      Alert
     }
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: fixed;
     top: 0;

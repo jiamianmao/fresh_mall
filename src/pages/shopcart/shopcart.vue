@@ -65,7 +65,6 @@
   import Scroll from '@/components/scroll/scroll'
   import Confirm from '@/components/confirm/confirm'
   import Storage from 'good-storage'
-  import { Alert } from 'vux'
   import { mapMutations, mapGetters } from 'vuex' 
   export default {
     data () {
@@ -457,7 +456,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .title{
     position: relative;

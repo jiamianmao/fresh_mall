@@ -21,7 +21,6 @@
       <!-- swiper启动页的轮播 z-index: 8 -->
       <transition name='slide'>
         <div class="swiper-wrapper" ref='swiperWrapper'>
-          <swiper v-model='curIndx' :interval='6000' @on-index-change='swiper_change' loop auto class='swiper' :list="swiperUrlList" :height="swiperHeight" :show-desc-mask='false' :show-dots='false'></swiper>
           <div class='dots-wrapper'>
             <div class="dots" v-for='n of 4' :class='{active: n === curIndx + 1}' @click='selectDots(n)'></div>
           </div>
@@ -58,7 +57,6 @@
 </template>
 
 <script>
-  import { Swiper } from 'vux'
   import { mapGetters } from 'vuex'
   import TypeList from '@/components/typeList/typeList'
   import storage from 'good-storage'
@@ -200,7 +198,6 @@
       }
     },
     components: {
-      Swiper,
       TypeList
     },
     computed: {

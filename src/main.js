@@ -1,19 +1,20 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import 'babel-polyfill'
-import Vue from 'vue'
-import FastClick from 'fastclick'
+// import 'babel-polyfill'
+import { createApp } from 'vue'
+// import FastClick from 'fastclick'
 import routes from './router'
-import App from './App'
+import App from './App.vue'
 import store from './store'
 import qs from 'qs'
-import Vuelazyload from 'vue-lazyload'
-import VueRouter from 'vue-router'
+// import Vuelazyload from 'vue-lazyload'
+import { createRouter, createWebHistory } from 'vue-router'
 import axios from 'axios'
-import 'common/less/index.less'
-import 'swiper/dist/css/swiper.css'
-import 'common/js/iconfont/iconfont'
-// import VueAwesomeSwiper from 'vue-awesome-swiper'
+import '@/common/less/index.less'
+import '@/common/js/iconfont/iconfont'
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/css'
+
 // import Vant from 'vant'
 // import 'vant/lib/vant-css/index.css'
 import Storage from 'good-storage'
@@ -62,20 +63,20 @@ axios.interceptors.response.use(
   }
 )
 
-Vue.prototype.$http = axios
+// Vue.prototype.$http = axios
 
 // 图片懒加载
-Vue.use(Vuelazyload, {
-  loading: require('common/images/default.jpg')
-})
+// Vue.use(Vuelazyload, {
+//   loading: require('common/images/default.jpg')
+// })
 
-FastClick.attach(document.body)
+// FastClick.attach(document.body)
 
 // 关闭生产模式下的提示
-Vue.config.productionTip = false
+// Vue.config.productionTip = false
 
-const router = new VueRouter({
-  mode: 'history',
+const router = createRouter({
+  history: createWebHistory(),
   routes,
   // 这里先暂时不加滚动行为，因为会导致better-scroll的bug
   scrollBehavior (to, from, savedPosition) {
@@ -108,8 +109,15 @@ router.beforeEach((to, from, next) => {
 // })
 
 /* eslint-disable no-new */
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app-box')
+// new Vue({
+//   router,
+//   store,
+//   render: h => h(App)
+// }).$mount('#app-box')
+
+const app = createApp(App)
+app.config.globalProperties.$http = axios
+
+app.use(router).use(store).use(VueAwesomeSwiper)
+
+app.mount('#app')

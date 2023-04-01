@@ -27,8 +27,8 @@
 </template>
 <script>
   
-  import 'swiper/dist/css/swiper.css'
-  import { swiper, swiperSlide } from 'vue-awesome-swiper'
+  import 'swiper/css'
+  import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
   let index = 1
   export default {
     props: {
@@ -87,14 +87,12 @@
       }
     },
     components: {
-      swiper,
-      swiperSlide
+      Swiper,
+      SwiperSlide
     }
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
-  @import '~common/less/mixin.less';
   .item{
     width: 100vw;
     .swiper-wrapper{
@@ -130,7 +128,6 @@
         font-size: @font-size-medium-x;
         font-weight: bold;
         color: #111;
-        .no-wrap
       }
       p{
         width: 90%;
@@ -138,7 +135,6 @@
         color: #666;
         text-align: center;
         font-size: @font-size-small;
-        .no-wrap
       }
       strong{
         margin: 12px 0;

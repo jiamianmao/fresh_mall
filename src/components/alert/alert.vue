@@ -40,7 +40,7 @@
 </script>
 
 <style lang="less" scoped>
-  @import "~common/less/variable";
+  ;
 
   .confirm{
     position: fixed;

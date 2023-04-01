@@ -6,7 +6,6 @@
 
 <script>
   import BScroll from 'better-scroll'
-  // import { throttle } from 'vux' 这里不能用，因为我需要实时获取来对下拉的icon做处理
 
   export default {
     props: {

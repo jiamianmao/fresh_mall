@@ -83,7 +83,6 @@
   </div>
 </template>
 <script>
-  import { dateFormat } from 'vux'
   import Confirm from '@/components/confirm/confirm'
   import { ImagePreview } from 'vant'
 
@@ -123,7 +122,7 @@
     },
     computed: {
       time () {
-        return dateFormat(~~this.rateData.geval_addtime * 1000, 'YYYY.MM.DD HH:mm')
+        return ''
       }
     },
     beforeDestory () {
@@ -131,7 +130,7 @@
     },
     filters: {
       format (val) {
-        return dateFormat(~~val * 1000, 'YYYY.MM.DD HH:mm')
+        return ''
       }
     },
     components: {
@@ -141,8 +140,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable';
-  @import '~common/less/mixin';
+  
   .wrapper{
     width: 100%;
     .top{

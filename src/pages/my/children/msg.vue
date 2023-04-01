@@ -22,7 +22,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { dateFormat } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -45,7 +44,8 @@
         return dict[val]
       },
       time (val) {
-        return dateFormat(~~val * 1000, 'YYYY.MM.DD HH:mm')
+        // return dateFormat(~~val * 1000, 'YYYY.MM.DD HH:mm')
+        return ''
       },
       reg (val) {
         // 应该用正则更好，先用indexOf吧
@@ -90,7 +90,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .container{
     position: absolute;

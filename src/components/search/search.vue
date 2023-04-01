@@ -68,8 +68,6 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
-  @import '~common/less/mixin.less';
   .search{
     position: relative;
     height: 50px;

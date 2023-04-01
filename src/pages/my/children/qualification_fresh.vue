@@ -37,7 +37,6 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { mapActions, mapGetters } from 'vuex'
-  import { Alert } from 'vux'
   import { Uploader } from 'vant'
   export default {
     data () {
@@ -127,7 +126,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .fresh{
     position: fixed;
     top: 0;

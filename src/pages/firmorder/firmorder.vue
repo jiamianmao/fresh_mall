@@ -126,7 +126,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Divider, Confirm, Alert } from 'vux'
   import storage from 'good-storage'
   import { mapGetters, mapMutations } from 'vuex'
   import { Delivery, Invoice } from '../../common/config/config.js'
@@ -535,10 +534,7 @@
       }
     },
     components: {
-      XTitle,
-      Divider,
-      Confirm,
-      Alert
+      XTitle
     },
     watch: {
       $route () {
@@ -550,7 +546,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .container{
     min-height: 100vh;

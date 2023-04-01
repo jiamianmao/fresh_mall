@@ -1,6 +1,6 @@
 <template>
   <div>
-    <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab' active-color='#5eb29e'>
+    <!-- <tab class='tab vux-1px-t' :animate='true' :line-width='0' ref='tab' active-color='#5eb29e'>
       <tab-item :selected="index === 0" @on-item-click='go(0)'>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-shouye1"></use>
@@ -22,11 +22,10 @@
           <use xlink:href="#icon-wode"></use>
         </svg>
       </tab-item>
-    </tab>
+    </tab> -->
   </div>
 </template>
 <script>
-  import { Tab, TabItem } from 'vux'
   import { mapGetters } from 'vuex'
   export default {
     data () {
@@ -71,15 +70,10 @@
           }, 1000)
         })
       }
-    },
-    components: {
-      Tab,
-      TabItem
     }
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
   .tab {
     position: fixed;
     bottom: 0;
@@ -114,7 +108,7 @@
       overflow: hidden;
     }
     .active{
-      color: @color;
+      // color: @color;
     }
     .change{
       animation: changes 1s;

@@ -261,7 +261,6 @@
   /* eslint-disable no-undef */
   import XTitle from '@/components/x-title/x-title'
   import { Uploader } from 'vant'
-  import { Alert } from 'vux'
   import { mapGetters, mapMutations } from 'vuex'
   import storage from 'good-storage'
   import compress from '@/common/js/compress'
@@ -514,7 +513,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

@@ -57,7 +57,6 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import { Invoice } from '../../../common/config/config.js'
-  import { Alert } from 'vux'
   import { mapMutations, mapGetters } from 'vuex'
   export default {
     data () {
@@ -173,7 +172,7 @@
 </script>
 
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .invoice_wrapper{
     position: absolute;
     top: 0;

@@ -42,7 +42,6 @@
   </div>
 </template>
 <script>
-  import { Divider, Alert, cookie } from 'vux'
   import storage from 'good-storage'
   export default {
     data () {
@@ -138,7 +137,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     width: 100vw;
     height: 100vh;

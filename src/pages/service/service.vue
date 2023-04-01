@@ -75,7 +75,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

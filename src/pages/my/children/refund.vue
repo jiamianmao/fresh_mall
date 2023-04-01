@@ -57,7 +57,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { XTextarea, Group, Loading } from 'vux'
   import storage from 'good-storage'
   import alerts from '@/common/js/alert'
   import Alert from '@/components/alert/alert'
@@ -161,7 +160,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

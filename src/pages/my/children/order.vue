@@ -3,7 +3,7 @@
     <div class="container">
       <x-title>我的订单</x-title>
       <tab :active-color='activeColor' :line-width=1 v-model="index">
-        <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item>
+        <!-- <tab-item v-for="(item, index) in list" :key="index">{{item}}</tab-item> -->
       </tab>
       <div class="order_wrapper">
         <div class="not_order" v-if='!orderList.length'>
@@ -90,7 +90,6 @@
 <script>
   import XTitle from '@/components/x-title/x-title'
   import Confirm from '@/components/confirm/confirm'
-  import { Tab, TabItem, Alert } from 'vux'
   import storage from 'good-storage'
   import $ from 'jquery'
   
@@ -261,11 +260,7 @@
       }
     },
     components: {
-      XTitle,
-      Tab,
-      TabItem,
-      Confirm,
-      Alert
+      XTitle
     },
     watch: {
       index (newVal) {
@@ -322,7 +317,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .container{
     position: absolute;

@@ -22,7 +22,6 @@
   import XTitle from '@/components/x-title/x-title'
   import storage from 'good-storage'
   import Confirm from '@/components/confirm/confirm'
-  import { cookie } from 'vux'
   export default {
     data () {
       return {
@@ -52,7 +51,7 @@
       },
       confirm () {
         storage.clear()
-        cookie.remove('api_token')
+        // cookie.remove('api_token')
         this.$router.replace('/signin')
         window.location.reload()
       }
@@ -64,7 +63,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

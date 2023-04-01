@@ -311,7 +311,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     height: 100vh;
     width: 100vw;

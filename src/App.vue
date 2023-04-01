@@ -4,7 +4,6 @@
       <router-view @position='_getPosition'></router-view>
     </keep-alive>
     <tab></tab>
-    <loading v-model='isLoading'></loading>
   </div>
 </template>
 
@@ -13,7 +12,6 @@
   /* eslint-disable no-undef */
   import Tab from '@/components/tab/tab'
   import storage from 'good-storage'
-  import { Loading } from 'vux'
   import { mapMutations, mapGetters } from 'vuex'
   export default {
     data () {
@@ -71,8 +69,7 @@
       ])
     },
     components: {
-      Tab,
-      Loading
+      Tab
     }
     // watch: {
       // $route (newVal) {
@@ -85,7 +82,6 @@
 </script>
 
 <style lang="less">
-  @import '~vux/src/styles/1px.less';
   #app{
     // padding-bottom: 50px;
     // box-sizing: border-box;

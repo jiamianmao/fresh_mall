@@ -65,7 +65,6 @@
   import XTitle from '@/components/x-title/x-title'
   import storage from 'good-storage'
   import compress from '@/common/js/compress'
-  import { Loading } from 'vux'
   import { Uploader } from 'vant'
   export default {
     data () {
@@ -172,7 +171,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     position: absolute;
     top: 0;

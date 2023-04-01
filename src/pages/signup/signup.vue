@@ -23,7 +23,6 @@
 </template>
 <script>
   import XTitle from '@/components/x-title/x-title'
-  import { Alert } from 'vux'
   export default {
     name: 'signup',
     data () {
@@ -47,7 +46,7 @@
   }
 </script>
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   .container{
     width: 100vw;
     height: 100vh;

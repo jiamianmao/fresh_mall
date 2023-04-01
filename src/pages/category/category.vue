@@ -6,8 +6,6 @@
 
     <search class='search' ref='serach' @click.native='search'></search>
 
-    <loading v-show='loading' position='absolute'></loading>
-
     <div class="main">
       <scroll class="left vux-1px-r" :data='cate_list'>
         <div>
@@ -29,7 +27,6 @@
   import Search from '@/components/search/search'
   import Scroll from '@/components/scroll/scroll'
   import storage from 'good-storage'
-  import { Loading } from 'vux'
   export default {
     name: 'category',
     data () {
@@ -90,14 +87,13 @@
     },
     components: {
       Search,
-      Scroll,
-      Loading
+      Scroll
     }
   }
 </script>
 
 <style lang="less" scoped>
-  @import '~common/less/variable.less';
+  @import '';
   @import '~common/less/mixin.less';
   .container{
     width: 100vw;
